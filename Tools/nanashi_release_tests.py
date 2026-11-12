@@ -183,6 +183,7 @@ class ReleaseTests(unittest.TestCase):
 
     def test_signing_key_rotation_cannot_break_updates(self):
         catalog = release.generate(self.args)
+        catalog["latest"]["version"] = "12.0.0"
         catalog["latest"]["android"]["build"] = "445"
         catalog["latest"]["ios"]["build"] = "445"
         catalog["latest"]["android"]["signingCertificateSHA256"] = "c" * 64
@@ -207,10 +208,52 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(versions[1]["minOSVersion"], "16.0")
 
     def test_new_build_counter_required_for_updates(self):
-        release.generate(self.args)
+        catalog = release.generate(self.args)
+        catalog["latest"]["version"] = "12.0.0"
+        release.write_json(self.args.output_dir / "releases.json", catalog)
         self.args.previous_catalog = self.args.output_dir / "releases.json"
         with self.assertRaisesRegex(ValueError, "increment"):
             release.generate(self.args)
+
+    def test_higher_build_does_not_allow_same_or_older_marketing_version(self):
+        catalog = release.generate(self.args)
+        for platform in ("ios", "android"):
+            catalog["latest"][platform]["build"] = "445"
+        previous = self.root / "previous.json"
+        self.args.previous_catalog = previous
+        for previous_version in ("12.1.0", "12.1.1", "13.0.0"):
+            with self.subTest(previous_version=previous_version):
+                catalog["latest"]["version"] = previous_version
+                release.write_json(previous, catalog)
+                with self.assertRaisesRegex(ValueError, "increment the marketing version"):
+                    release.generate(self.args)
+
+    def test_marketing_versions_compare_numeric_components(self):
+        catalog = release.generate(self.args)
+        catalog["latest"]["version"] = "2.99.999"
+        for platform in ("ios", "android"):
+            catalog["latest"][platform]["build"] = "445"
+        previous = self.root / "previous.json"
+        release.write_json(previous, catalog)
+        self.args.previous_catalog = previous
+        updated = release.generate(self.args)
+        self.assertEqual(updated["latest"]["version"], "12.1.0")
+
+    def test_malformed_previous_version_is_not_silently_replaced(self):
+        catalog = release.generate(self.args)
+        catalog["latest"]["version"] = "unknown"
+        previous = self.root / "previous.json"
+        release.write_json(previous, catalog)
+        self.args.previous_catalog = previous
+        with self.assertRaisesRegex(ValueError, "stable SemVer"):
+            release.generate(self.args)
+
+    def test_initial_empty_catalog_allows_first_public_release(self):
+        previous = self.root / "previous.json"
+        release.write_json(previous, {"repository": self.args.repository, "latest": None})
+        self.args.previous_catalog = previous
+        catalog = release.generate(self.args)
+        self.assertEqual(catalog["latest"]["version"], "12.1.0")
 
 
 if __name__ == "__main__":

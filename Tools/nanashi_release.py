@@ -201,6 +201,16 @@ def generate(args):
     if args.previous_catalog:
         previous = json.loads(Path(args.previous_catalog).read_text())
         require(previous.get("repository") == repository, "Previous catalog belongs to another repository")
+        previous_release = previous.get("latest")
+        if previous_release is not None:
+            require(isinstance(previous_release, dict), "Invalid previous release catalog")
+            previous_version = previous_release.get("version")
+            require(isinstance(previous_version, str)
+                    and re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", previous_version),
+                    "Previous release must have a stable SemVer version")
+            require(tuple(map(int, first["version"].split(".")))
+                    > tuple(map(int, previous_version.split("."))),
+                    "A new public release must increment the marketing version")
         for platform, data in platforms.items():
             old = (previous.get("latest") or {}).get(platform)
             if old:
