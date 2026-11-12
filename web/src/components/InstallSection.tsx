@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowDownToLine, ArrowRight, ArrowUpRight, Check, ChevronDown, Copy, ExternalLink, RefreshCw, ShieldCheck, Smartphone, Wifi } from 'lucide-react'
+import { ArrowDownToLine, ArrowRight, ArrowUpRight, Check, ChevronDown, Copy, RefreshCw, ShieldCheck, Smartphone, Wifi } from 'lucide-react'
 import { Eyebrow, GlassLink, GlassPanel } from './Glass'
 import { PlatformTabs } from './PlatformTabs'
 import type { Platform } from './PlatformTabs'
@@ -97,24 +97,13 @@ export function InstallSection() {
               <button type="button" aria-pressed={iosPath === 'first'} onClick={() => onPathChange('first')}>Première installation</button>
             </div>
             {iosPath === 'ready' ? <div className="quick-install">
-              <p className="installation-instruction"><Wifi size={18} aria-hidden="true" /><span>Activez le Wi-Fi et LocalDevVPN sur l’iPhone, puis lancez l’installation.</span></p>
+              <p className="installation-instruction"><Wifi size={18} aria-hidden="true" /><span>Connectez l’iPhone à un réseau Wi-Fi et activez LocalDevVPN, puis lancez l’installation.</span></p>
               {installAction}
               <p className="next-step">Dans SideStore, touchez « Install ». Gardez le widget si demandé. Ne désinstallez pas Nanashi.</p>
             </div> : <div className="first-install" aria-label="Première installation sur iPhone">
-              <p className="setup-intro">Une préparation à faire une seule fois. Ensuite, ce bouton suffira pour ouvrir les prochaines mises à jour.</p>
-              <details className="setup-step" open>
-                <summary><span className="step-number">1</span><span>Configurer SideStore</span><ChevronDown size={16} aria-hidden="true" /></summary>
-                <div><p>Sur un ordinateur, installez SideStore sur l’iPhone avec votre compte Apple. Suivez son guide, puis revenez ici.</p>
-                  <GlassLink href="https://docs.sidestore.io/docs/installation/install" target="_blank" rel="noreferrer">Ouvrir le guide SideStore <ExternalLink size={16} aria-hidden="true" /></GlassLink></div>
-              </details>
-              <details className="setup-step">
-                <summary><span className="step-number">2</span><span>Préparer l’iPhone</span><ChevronDown size={16} aria-hidden="true" /></summary>
-                <div><p>Connectez l’iPhone au Wi-Fi. Ouvrez LocalDevVPN jusqu’à « Connected », puis vérifiez que SideStore est connectée à votre compte Apple.</p><p>Cette page ne peut pas vérifier ces réglages à votre place.</p></div>
-              </details>
-              <details className="setup-step">
-                <summary><span className="step-number">3</span><span>Installer Nanashi</span><ChevronDown size={16} aria-hidden="true" /></summary>
-                <div><p>Une fois SideStore prête, ouvrez l’installation puis confirmez avec « Install ». Conservez le widget si proposé.</p>{installAction}</div>
-              </details>
+              <p className="setup-intro">On vous accompagne ici, en français, une étape à la fois. Préparez un Mac ou un PC Windows, le câble de l’iPhone et votre compte Apple.</p>
+              <GlassLink className="primary install-primary" href="/installation-sidestore">Configurer SideStore pas à pas <ArrowRight size={18} aria-hidden="true" /></GlassLink>
+              <p className="next-step">Tous les boutons de téléchargement et les réglages à suivre sont réunis sur notre site. Aucune documentation à parcourir.</p>
             </div>}
           </>}
 
@@ -138,6 +127,7 @@ export function InstallSection() {
             <summary>Autres options et aide <ChevronDown size={16} aria-hidden="true" /></summary>
             {platform === 'ios' && <>
               <h4>SideStore ne s’ouvre pas</h4><p>Si SideStore n’est pas encore configurée, choisissez « Première installation ». Si elle est déjà prête, ouvrez cette page dans Safari et réessayez. Le lien doit être ouvert sur l’iPhone.</p>
+              <GlassLink href="/installation-sidestore">Installation SideStore : le guide Nanashi <ArrowRight size={16} aria-hidden="true" /></GlassLink>
               {source && <><h4>Retrouver les prochaines versions</h4><p>Vous pouvez aussi ajouter la source Nanashi à SideStore. Dans SideStore → Sources → +, collez cette adresse :</p><CopyValue value={source.sourceURL} label="Copier l’adresse de la source SideStore" />
                 {phone === 'ios' && <GlassLink href={source.addSourceURL}>Ajouter la source à SideStore <ArrowUpRight size={16} aria-hidden="true" /></GlassLink>}</>}
               <h4>Renouvellement automatique</h4><p>Avec un compte Apple gratuit, la signature dure 7 jours. Le renouvellement SideStore dépend du Wi-Fi, du VPN local et des services Apple. Votre raccourci habituel reste inchangé ; renouveler la signature n’installe pas automatiquement une nouvelle version de Nanashi.</p>

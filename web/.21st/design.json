@@ -88,6 +88,10 @@
       "decision": "Prioritize a direct SideStore install link for returning iPhone users; separate one-time setup from updates. Detect the phone platform with a manual override, keep technical options collapsed, and hand desktop visitors to a QR plus a copyable link.",
       "reason": "The user found installation too complicated. Reuse the existing 21st-derived glass surfaces and controls without an onboarding library or claims that the browser can detect installation success.",
       "grounding": "Reviewed search results Minimal Welcome Onboarding 29517, Onboarding Checklist 5587 and Onboarding Steps with Progress 29458. No code was retrieved or incorporated from these results; the installed GlassPanel, GlassLink and PlatformTabs primitives remain the component sources."
+    },
+    {
+      "decision": "Keep first-time SideStore setup on a dedicated French Nanashi page with six revisitable steps, direct official downloads and browser-local progress.",
+      "reason": "The user rejects external documentation handoffs; preserve existing 21st-derived glass primitives and make each action explicit without claiming native installation detection."
     }
   ],
   "evidence": [],

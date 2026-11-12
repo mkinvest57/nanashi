@@ -32,6 +32,11 @@ jobs:
           npm ci --prefix web
           npm test --prefix web
           npm run build --prefix web
+      - name: Verify installation flows in a browser
+        working-directory: web
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
       - name: Verify catalogue security rules without production access
         run: |
           npm ci --prefix firebase

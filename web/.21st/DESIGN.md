@@ -11,3 +11,5 @@ Accessibility: native links/buttons/details, roving keyboard tab focus, visible 
 No private data, 21st preview media, invented testimonials, fabricated release files or promise of permanent Apple signatures is included.
 
 The installation action only opens SideStore; its confirmation and optional widget choice remain explicit. After-click guidance never claims success. Unknown instance/platform state does not trigger an app launch, and Android visitors switching to the iPhone guide receive device guidance instead of an unsupported protocol URI. The existing daily renewal automation and native data are outside this website change.
+
+First-time setup now has a dedicated /installation-sidestore route: one active step, six freely revisitable stages, direct Mac/Windows installers, phone handoff QR, and explicit browser-local confirmations. Download links leave for official files or the App Store only; instructions remain in the Nanashi guide. No account data is collected.

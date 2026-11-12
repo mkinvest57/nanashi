@@ -3,6 +3,10 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/installation-sidestore", "destination": "/index.html" },
+    { "source": "/installation-sidestore/", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

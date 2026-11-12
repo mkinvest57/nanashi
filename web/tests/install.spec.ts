@@ -102,18 +102,17 @@ test.describe('on an iPhone', () => {
     await expect(page).toHaveURL(/#installer$/)
   })
 
-  test('first setup is separate and lets the user return to the short path', async ({ page }) => {
+  test('first setup stays on Nanashi and lets the user return to the short path', async ({ page }) => {
     await page.route('**/releases.json', route => route.fulfill({ json: catalogue }))
     await page.goto('/#installer')
     await page.getByRole('button', { name: 'Première installation', exact: true }).click()
-    await expect(page.getByRole('link', { name: 'Ouvrir le guide SideStore' })).toHaveAttribute('href', 'https://docs.sidestore.io/docs/installation/install')
+    await expect(page.getByRole('link', { name: 'Configurer SideStore pas à pas' })).toHaveAttribute('href', '/installation-sidestore')
     const action = page.getByRole('link', { name: 'Installer / mettre à jour Nanashi', exact: true })
     await expect(action).not.toBeVisible()
-    await page.locator('summary').filter({ hasText: 'Installer Nanashi' }).click()
-    await expect(action).toBeVisible()
     await page.getByRole('button', { name: 'J’ai déjà SideStore' }).click()
     await expect(action).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Ouvrir le guide SideStore' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Configurer SideStore pas à pas' })).toHaveCount(0)
+    await expect(page.locator('a[href*="docs.sidestore.io"]')).toHaveCount(0)
   })
 })
 
