@@ -161,6 +161,24 @@ final class QuietMotionCoverageTests: XCTestCase {
     /// frame. So the resting frame is drawn with no timeline behind it (`LiquidSky`, `ChargeSyncMorph`), and
     /// the gate picks the view rather than pausing the clock.
     func testNoAnimationTimelineIsMerelyPaused() throws {
+        // Pin the scanner independently of the product roster: a deliberate removal of frame
+        // clocks must not fail a historical minimum, while wrapped and nested schedules stay visible.
+        let fixture = animationScheduleArguments(in: codeLines("""
+            TimelineView(
+                .animation(
+                    minimumInterval: min(1.0 / 20.0, cadence()),
+                    paused: shouldPause(isLowPower: flags.isLowPower)
+                )
+            ) { context in render(context) }
+            TimelineView(.animation(minimumInterval: 1.0 / 60.0)) { context in render(context) }
+            """))
+        XCTAssertEqual(fixture.count, 2, "scanner must find both wrapped and inline schedules")
+        XCTAssertEqual(fixture.first?.line, 1, "wrapped schedule must retain its starting line")
+        XCTAssertEqual(fixture.first?.arguments,
+                       "minimumInterval:min(1.0/20.0,cadence()),paused:shouldPause(isLowPower:flags.isLowPower)",
+                       "nested calls must not truncate the paused argument")
+        XCTAssertEqual(fixture.last?.arguments, "minimumInterval:1.0/60.0")
+
         let root = try repoRoot()
         var offenders: [String] = []
         var timelines = 0
@@ -170,7 +188,7 @@ final class QuietMotionCoverageTests: XCTestCase {
                 if arguments.contains("paused:") { offenders.append("\(rel):\(line): .animation(\(arguments))") }
             }
         }
-        XCTAssertGreaterThanOrEqual(timelines, 6, "expected to find the known animation timelines, found \(timelines)")
+        XCTAssertGreaterThan(timelines, 0, "animation census found no product clocks; check roots and scanner")
         XCTAssertTrue(offenders.isEmpty, """
             \(offenders.count) animation timeline(s) are paused rather than removed. Draw the resting frame \
             without a TimelineView instead:

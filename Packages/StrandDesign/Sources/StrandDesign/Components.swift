@@ -94,6 +94,137 @@ public enum NoopMetrics {
     /// Minimum desktop size for a navigation-based customization sheet.
     public static let editorSheetMinWidth: CGFloat = 440
     public static let editorSheetMinHeight: CGFloat = 600
+
+    // Amber Editorial geometry shared by the dashboard, controls and secondary screens.
+    public static let editorPageTop: CGFloat = 24
+    public static let heroHeadline: CGFloat = 34
+    public static let iconTile: CGFloat = 36
+    public static let iconRadius: CGFloat = 12
+    public static let formRowMinHeight: CGFloat = 44
+    public static let pageMaxWidth: CGFloat = 700
+    public static let lineWidth: CGFloat = 1
+    public static let emptyStateBorder: CGFloat = 2
+    public static let heroPrimaryScoreSize: CGFloat = 72
+    public static let heroPrimaryGaugeDiameter: CGFloat = 96
+    public static let heroSecondaryGaugeDiameter: CGFloat = 80
+    public static let diagonalPatternSpacing: CGFloat = 12
+    public static let switchTrackWidth: CGFloat = 42
+    public static let switchTrackHeight: CGFloat = 24
+    public static let switchThumbDiameter: CGFloat = 18
+    public static let switchThumbTravel: CGFloat = 18
+    public static let switchPressedStretch: CGFloat = 5
+
+    // Compact phone adaptation of the floating and expanding 21st dock sources.
+    public static let dockCellHeight: CGFloat = 48
+    public static let dockIconSize: CGFloat = 21
+    public static let dockInset: CGFloat = 6
+    public static let dockGap: CGFloat = 4
+    public static let dockSelectedPadding: CGFloat = 10
+    public static let dockMaxWidth: CGFloat = 343
+    public static let dockScrimHeight: CGFloat = 108
+    // Nanashi controls adapted from 21st 17933 / 35040 / 35717 / 31360.
+    public static let radioDiameter: CGFloat = 20
+    public static let sliderThumbDiameter: CGFloat = 22
+    public static let sliderTrackHeight: CGFloat = 6
+    public static let sliderBubbleMinHeight: CGFloat = 28
+    public static let expandableHeaderMinHeight: CGFloat = 64
+    public static let sheetHandleWidth: CGFloat = 40
+    public static let sheetHandleHeight: CGFloat = 6
+    // HeatCalendar (21st 30542): dense data marks and pinned-week plate.
+    public static let heatCellSize: CGFloat = 14
+    public static let heatCellSpacing: CGFloat = 4
+    public static let heatCellRadius: CGFloat = 3.5
+    public static let heatWeekRadius: CGFloat = 5
+    public static let heatGutterWidth: CGFloat = 24
+    public static let heatMonthLabelHeight: CGFloat = 10
+    public static let heatAxisLabelSize: CGFloat = 8
+    public static let heatHoveredScale: CGFloat = 1.3
+    public static let heatNeighborScale: CGFloat = 1.08
+    public static let heatOuterScale: CGFloat = 1.03
+}
+
+// MARK: - Editorial controls
+
+/// Native settings switch adapted from 21st Switch (35007) and Preferences Card (30553).
+/// Its thumb stretches on press, then lands without overshoot; VoiceOver keeps a native Toggle.
+public struct NoopToggleStyle: ToggleStyle {
+    public init() {}
+
+    public func makeBody(configuration: Configuration) -> some View {
+        Button {
+            configuration.isOn.toggle()
+        } label: {
+            configuration.label
+        }
+        .buttonStyle(NoopSwitchButtonStyle(isOn: configuration.isOn))
+        .accessibilityRepresentation {
+            Toggle(isOn: configuration.$isOn) { configuration.label }
+                .toggleStyle(DefaultToggleStyle())
+        }
+    }
+}
+
+private struct NoopSwitchButtonStyle: ButtonStyle {
+    let isOn: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        let extra = configuration.isPressed && !reduceMotion && isEnabled
+            ? NoopMetrics.switchPressedStretch : 0
+        return HStack(spacing: NoopMetrics.space3) {
+            configuration.label
+                .font(StrandFont.body)
+                .foregroundStyle(StrandPalette.textPrimary)
+                .multilineTextAlignment(.leading)
+            Capsule()
+                .fill(isOn ? StrandPalette.accent : StrandPalette.hairlineStrong)
+                .overlay(alignment: .leading) {
+                    Capsule()
+                        .fill(isOn ? StrandPalette.onAccent : NoopVisualStyle.toggleThumb)
+                        .frame(width: NoopMetrics.switchThumbDiameter + extra,
+                               height: NoopMetrics.switchThumbDiameter)
+                        .shadow(color: NoopVisualStyle.shadow.opacity(0.12), radius: 1, y: 1)
+                        .offset(x: (NoopMetrics.switchTrackHeight - NoopMetrics.switchThumbDiameter) / 2
+                                + (isOn ? NoopMetrics.switchThumbTravel - extra : 0))
+                }
+                .frame(width: NoopMetrics.switchTrackWidth, height: NoopMetrics.switchTrackHeight)
+                .animation(reduceMotion ? nil : .spring(response: 0.30, dampingFraction: 1), value: isOn)
+                .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: extra)
+        }
+        .frame(minHeight: NoopMetrics.formRowMinHeight)
+        .contentShape(Rectangle())
+        .opacity(isEnabled ? 1 : NoopButtonMetrics.disabledOpacity)
+    }
+}
+
+/// Quiet bordered field adapted from the Preferences Card's setting rows.
+public struct NoopTextFieldStyle: TextFieldStyle {
+    public init() {}
+
+    public func _body(configuration: TextField<Self._Label>) -> some View {
+        NoopFieldSurface(content: configuration)
+    }
+}
+
+private struct NoopFieldSurface<Content: View>: View {
+    let content: Content
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.isFocused) private var isFocused
+
+    var body: some View {
+        content
+            .font(StrandFont.body)
+            .foregroundStyle(StrandPalette.textPrimary)
+            .padding(.horizontal, NoopMetrics.space3)
+            .padding(.vertical, NoopMetrics.space2)
+            .frame(minHeight: NoopMetrics.formRowMinHeight)
+            .background(NoopGlassControlSurface())
+            .overlay(RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius, style: .continuous)
+                .strokeBorder(isFocused ? StrandPalette.focusRing : .clear,
+                              lineWidth: NoopMetrics.lineWidth))
+            .opacity(isEnabled ? 1 : NoopButtonMetrics.disabledOpacity)
+    }
 }
 
 // MARK: - Screen padding
@@ -117,9 +248,7 @@ public extension View {
     /// `largeFirst == false` opens at .medium with .large reachable by dragging up (short
     /// forms); `true` opens full-height (long scrolls).
     func noopSheetPresentation(largeFirst: Bool) -> some View {
-        self
-            .presentationDragIndicator(.visible)
-            .presentationDetents(largeFirst ? [.large] : [.medium, .large])
+        self.modifier(NoopSheetModifier(largeFirst: largeFirst))
     }
 }
 #endif
@@ -459,83 +588,66 @@ public struct SegmentedPillControl<T: Hashable>: View {
     }
 
     private func track(equalWidth: Bool) -> some View {
-        HStack(spacing: 4) {
+        NoopSegmentTrack(items: items, selection: $selection, equalWidth: equalWidth,
+                         isEnabled: isEnabled, label: label)
+    }
+}
+
+/// The selected substrate slides between the real option frames, as in 21st Segmented Tabs (26923).
+private struct NoopSegmentTrack<T: Hashable>: View {
+    let items: [T]
+    @Binding var selection: T
+    let equalWidth: Bool
+    let isEnabled: (T) -> Bool
+    let label: (T) -> String
+    @Namespace private var indicator
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        HStack(spacing: NoopMetrics.spaceHalf) {
             ForEach(Array(items.enumerated()), id: \.offset) { _, item in
-                let sel = item == selection
+                let selected = item == selection
                 let enabled = isEnabled(item)
                 Button {
-                    guard selection != item else { return }   // re-tapping the active segment stays silent
+                    guard selection != item else { return }
                     StrandHaptic.selection.play()
-                    withAnimation(StrandMotion.interactive) { selection = item }
+                    withAnimation(reduceMotion ? nil : .spring(response: 0.28, dampingFraction: 1)) {
+                        selection = item
+                    }
                 } label: {
-                    Text(label(item))
-                        .font(StrandFont.captionNumber)
-                        .lineLimit(equalWidth ? 1 : nil)
-                        // Range selection stays deliberately neutral so the control works above charts
-                        // from every metric colour world without borrowing their green/blue/amber tint.
-                        // Disabled segments drop to a fainter tertiary so the lock reads at a glance.
-                        .foregroundStyle(sel ? StrandPalette.textPrimary
-                                             : StrandPalette.textTertiary.opacity(enabled ? 1 : 0.35))
-                        // Fill the segment height so the selected pill has EQUAL margins to the track
-                        // on every side. (The old compact pill inside a taller 44pt touch frame left
-                        // more vertical margin than horizontal — it read as off-centre.)
-                        .frame(minWidth: equalWidth ? nil : 26,
-                               maxWidth: equalWidth ? .infinity : nil,
-                               maxHeight: .infinity)
-                        .padding(.horizontal, equalWidth ? NoopMetrics.space1 : 9)
-                        .background {
-                            if sel {
-                                let selectedShape = RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                selectedShape
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [NoopVisualStyle.surfaceTop, NoopVisualStyle.surface],
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        )
-                                    )
-                                    .overlay(
-                                        selectedShape.strokeBorder(
-                                            NoopVisualStyle.borderHighlight.opacity(0.62),
-                                            lineWidth: 0.75
-                                        )
-                                    )
-                                    .shadow(color: .black.opacity(0.20), radius: 4, x: 0, y: 2)
-                            }
+                    ZStack {
+                        Text(label(item)).font(StrandFont.caption.weight(.semibold)).hidden()
+                            .accessibilityHidden(true)
+                        Text(label(item))
+                            .font(StrandFont.caption.weight(selected ? .semibold : .regular))
+                    }
+                    .lineLimit(equalWidth ? 1 : nil)
+                    .foregroundStyle(selected ? StrandPalette.textPrimary : StrandPalette.textSecondary)
+                    .opacity(enabled ? 1 : NoopButtonMetrics.disabledOpacity)
+                    .frame(minWidth: equalWidth ? nil : NoopMetrics.space6,
+                           maxWidth: equalWidth ? .infinity : nil,
+                           minHeight: NoopMetrics.formRowMinHeight)
+                    .padding(.horizontal, equalWidth ? NoopMetrics.space1 : NoopMetrics.space2)
+                    .background {
+                        if selected {
+                            NoopGlassControlSurface(
+                                cornerRadius: NoopVisualStyle.compactRadius - NoopMetrics.space1,
+                                isSelected: true
+                            )
+                                .matchedGeometryEffect(id: "selection", in: indicator)
                         }
-                        .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .frame(maxWidth: equalWidth ? .infinity : nil)
-                .frame(height: 32)   // segment height; the pill fills it for an even inset
                 .disabled(!enabled)
-                // Announce the active range to VoiceOver and give a non-colour cue.
-                .accessibilityAddTraits(sel ? .isSelected : [])
+                .accessibilityAddTraits(selected ? .isSelected : [])
             }
         }
-        .padding(3)
+        .padding(NoopMetrics.space1)
         .frame(maxWidth: equalWidth ? .infinity : nil)
-        .background {
-            let trackShape = RoundedRectangle(cornerRadius: 13, style: .continuous)
-            trackShape
-                .fill(
-                    LinearGradient(
-                        colors: [NoopVisualStyle.inset, NoopVisualStyle.canvas.opacity(0.78)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .overlay(
-                    trackShape.strokeBorder(
-                        LinearGradient(
-                            colors: [NoopVisualStyle.borderHighlight.opacity(0.48), NoopVisualStyle.border],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ),
-                        lineWidth: 0.8
-                    )
-                )
-        }
+        .background(NoopGlassControlSurface())
     }
 }
 
@@ -545,14 +657,15 @@ public struct SourceBadge: View {
     let text: LocalizedStringKey; var tint: Color = StrandPalette.accent
     public init(_ text: LocalizedStringKey, tint: Color = StrandPalette.accent) { self.text = text; self.tint = tint }
     public var body: some View {
-        // `.frame(height:)` centres its content by default, so the label sits mid-capsule for free. Noted
-        // because the Android twin pinned the same 18 with `heightIn` applied to the label itself, which
-        // top-aligns — same number, different render. That one is matched to this, not the reverse.
-        Text(text).textCase(.uppercase).font(.system(size: 10, weight: .semibold, design: .rounded)).tracking(0.5)
-            .padding(.horizontal, 9).frame(height: NoopMetrics.sourceBadgeHeight)
+        // Keep the compact resting pill, but let scaled or multiline source names grow vertically.
+        Text(text).textCase(.uppercase).font(StrandFont.overline).tracking(StrandFont.overlineTracking)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, NoopMetrics.space2)
+            .padding(.vertical, NoopMetrics.spaceHalf)
+            .frame(minHeight: NoopMetrics.sourceBadgeHeight)
             .background(tint.opacity(0.16), in: Capsule(style: .continuous))
             .foregroundStyle(tint)
-            .overlay(Capsule(style: .continuous).strokeBorder(tint.opacity(0.34), lineWidth: 1))
+            .overlay(Capsule(style: .continuous).strokeBorder(tint.opacity(0.34), lineWidth: NoopMetrics.hairlineWidth))
     }
 }
 
@@ -582,7 +695,7 @@ public extension View {
                 Spacer()
                 Button("Done") { focus.wrappedValue = nil }
                     .font(StrandFont.body)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
             }
         }
         #else
@@ -601,23 +714,7 @@ public extension View {
 public struct NoopPrimaryButtonStyle: ButtonStyle {
     public init() {}
     public func makeBody(configuration: Configuration) -> some View {
-        let pressed = configuration.isPressed
-        return configuration.label
-            .font(StrandFont.body.weight(.bold))
-            .foregroundStyle(StrandPalette.goldDeepText)
-            .padding(.vertical, 11).padding(.horizontal, 18)
-            .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
-                    .fill(LinearGradient(gradient: StrandPalette.goldGradient, startPoint: .topLeading, endPoint: .bottomTrailing))
-            )
-            // A crisp, subtle NEUTRAL elevation — the gold cast-glow read as too much against the
-            // clean design, so it's a soft dark lift now, no bloom.
-            .shadow(color: .black.opacity(pressed ? 0.08 : 0.16), radius: 6, x: 0, y: 3)
-            .opacity(pressed ? 0.9 : 1)
-            .scaleEffect(pressed ? 0.98 : 1)
-            .animation(StrandMotion.interactive, value: pressed)
-            .contentShape(Rectangle())
+        NoopButtonStyle(.primary, fullWidth: true).makeBody(configuration: configuration)
     }
 }
 
@@ -625,19 +722,7 @@ public struct NoopPrimaryButtonStyle: ButtonStyle {
 public struct NoopSecondaryButtonStyle: ButtonStyle {
     public init() {}
     public func makeBody(configuration: Configuration) -> some View {
-        let pressed = configuration.isPressed
-        let shape = RoundedRectangle(cornerRadius: 13, style: .continuous)
-        return configuration.label
-            .font(StrandFont.body.weight(.semibold))
-            .foregroundStyle(StrandPalette.textPrimary)
-            .padding(.vertical, 11).padding(.horizontal, 18)
-            .frame(maxWidth: .infinity)
-            .background(shape.fill(StrandPalette.surfaceInset))
-            .overlay(shape.strokeBorder(StrandPalette.hairline, lineWidth: 1))
-            .opacity(pressed ? 0.82 : 1)
-            .scaleEffect(pressed ? 0.98 : 1)
-            .animation(StrandMotion.interactive, value: pressed)
-            .contentShape(Rectangle())
+        NoopButtonStyle(.secondary, fullWidth: true).makeBody(configuration: configuration)
     }
 }
 
@@ -645,18 +730,7 @@ public struct NoopSecondaryButtonStyle: ButtonStyle {
 public struct NoopGhostButtonStyle: ButtonStyle {
     public init() {}
     public func makeBody(configuration: Configuration) -> some View {
-        let pressed = configuration.isPressed
-        let shape = RoundedRectangle(cornerRadius: 13, style: .continuous)
-        return configuration.label
-            .font(StrandFont.body.weight(.semibold))
-            .foregroundStyle(StrandPalette.gold)
-            .padding(.vertical, 11).padding(.horizontal, 18)
-            .frame(maxWidth: .infinity)
-            .background(shape.fill(StrandPalette.gold.opacity(pressed ? 0.10 : 0)))
-            .overlay(shape.strokeBorder(StrandPalette.gold.opacity(0.3), lineWidth: 1))
-            .scaleEffect(pressed ? 0.98 : 1)
-            .animation(StrandMotion.interactive, value: pressed)
-            .contentShape(Rectangle())
+        NoopButtonStyle(.tertiary, fullWidth: true).makeBody(configuration: configuration)
     }
 }
 

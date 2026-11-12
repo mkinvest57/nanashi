@@ -5,7 +5,7 @@ import ActivityKit
 /// Live Activity attributes for an active live-HR / workout session. Shared between the app (which
 /// starts/updates the activity) and the widget extension (which renders it on the Lock Screen and in
 /// the Dynamic Island).
-public struct NOOPActivityAttributes: ActivityAttributes {
+public struct NOOPActivityAttributes {
     public struct ContentState: Codable, Hashable {
         public var bpm: Int?
         public var recovery: Int?
@@ -29,4 +29,7 @@ public struct NOOPActivityAttributes: ActivityAttributes {
         self.title = title
     }
 }
+
+@available(iOS 16.1, *)
+extension NOOPActivityAttributes: ActivityAttributes {}
 #endif

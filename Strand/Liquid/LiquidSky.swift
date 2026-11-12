@@ -241,7 +241,7 @@ struct LiquidScaffoldSky: View {
         if backgroundStore.isActive {
             BackgroundImageBackdrop()
         } else if showDayCycleBackground {
-            LiquidSkyStatic(hour: nil, settleStrength: skyBehindCards ? 0.78 : 1)
+            NoopEditorialBackdrop(dark: false, patterned: true)
                 .frame(maxWidth: .infinity, maxHeight: skyBehindCards ? .infinity : nil)
                 .frame(height: skyBehindCards ? nil : height, alignment: .top)
                 .allowsHitTesting(false)

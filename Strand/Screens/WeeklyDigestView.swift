@@ -325,7 +325,7 @@ struct WeeklyDigestContent: View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "sparkles")
                 .font(StrandFont.footnote)
-                .foregroundStyle(StrandPalette.accent)
+                .foregroundStyle(StrandPalette.accentInk)
                 .accessibilityHidden(true)
             Text(line)
                 .font(StrandFont.subhead)

@@ -257,20 +257,20 @@ struct TestCentreView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 Toggle("Protocol probes", isOn: $puffinExperiments)
-                    .toggleStyle(.switch).tint(StrandPalette.accent)
+                    .toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                 Text("Sends experimental protocol queries and records replies in the strap log. Also enables the experimental 5/MG strap alarm.")
                     .font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
 
                 Divider().overlay(StrandPalette.hairline)
                 Toggle("Broadcast heart rate from the strap", isOn: $broadcastHrEnabled)
-                    .toggleStyle(.switch).tint(StrandPalette.accent)
+                    .toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                     .onChangeCompat(of: broadcastHrEnabled) { model.ble.setBroadcastHr($0) }
                 Text("Writes the reversible 5/MG advertising flag for Garmin, Zwift, and compatible gym equipment.")
                     .font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
 
                 Divider().overlay(StrandPalette.hairline)
                 Toggle("Legacy R22 feature-flag experiment", isOn: $deepDataEnabled)
-                    .toggleStyle(.switch).tint(StrandPalette.accent)
+                    .toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                 Text("The strap accepts these writes, but NOOP has not observed them enabling a separate live stream. This is not the Raw Data Collector.")
                     .font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
                 if deepDataEnabled {
@@ -290,7 +290,7 @@ struct TestCentreView: View {
 
                 Divider().overlay(StrandPalette.hairline)
                 Toggle("WHOOP MG ECG raw-data gate", isOn: $ecgRawDataEnabled)
-                    .toggleStyle(.switch).tint(StrandPalette.accent)
+                    .toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                 Text("MG-only protocol instrumentation, not a medical ECG feature.")
                     .font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
                 if ecgRawDataEnabled {
@@ -310,7 +310,7 @@ struct TestCentreView: View {
 
                 Divider().overlay(StrandPalette.hairline)
                 Toggle("Passive history/protocol trace", isOn: $puffinCapture)
-                    .toggleStyle(.switch).tint(StrandPalette.accent)
+                    .toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                 Text("Records frames that already arrive. It does not start sensors and can create large files. Use the export section below to save the trace with its strap log.")
                     .font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -331,7 +331,7 @@ struct TestCentreView: View {
                         .foregroundStyle(StrandPalette.textSecondary)
                     Spacer()
                     Button("Copy") { PlatformPasteboard.copy(live.exportableLogText()) }
-                        .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accent)
+                        .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accentInk)
                     Button("Save…") {
                         Task {
                             let extra = await DebugDataDiagnostics.dynamicLines(repo: model.repo)
@@ -339,7 +339,7 @@ struct TestCentreView: View {
                                                   suggestedName: FileExport.timestampedName("noop-strap-log", ext: "txt"))
                         }
                     }
-                    .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accent)
+                    .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accentInk)
                 }
                 Text("Grab this when you report a bug. It tells me what the app saw.")
                     .font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
@@ -468,10 +468,10 @@ struct TestCentreView: View {
 
             if userInfoField == .dateOfBirth {
                 TextField("18 hex chars (9 bytes)", text: $userInfoRawHex)
-                    .font(StrandFont.body).textFieldStyle(.roundedBorder)
+                    .font(StrandFont.body).textFieldStyle(NoopTextFieldStyle())
             } else {
                 TextField("value", text: $userInfoValueText)
-                    .font(StrandFont.body).textFieldStyle(.roundedBorder)
+                    .font(StrandFont.body).textFieldStyle(NoopTextFieldStyle())
             }
 
             Text("Frame: \(userInfoFramePreview)")
@@ -659,7 +659,7 @@ struct TestCentreView: View {
                     Text("Daily auto-export of the strap log")
                         .font(StrandFont.subhead).foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch).tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                 .onChangeCompat(of: debugExportOn) { on in ScheduledDebugExport.setEnabled(on) }
 
                 if debugExportOn {
@@ -720,7 +720,7 @@ struct TestCentreView: View {
                     Text("HR-from-PPG sub-lag interpolation (v26 gap-fill)")
                         .font(StrandFont.subhead).foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch).tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                 Text("When NOOP reconstructs heart rate from the WHOOP 5/MG v26 optical waveform (the seconds the strap stored no HR), refine the autocorrelation peak with a parabolic sub-lag fit so the estimate is not quantized to roughly 16 bpm steps near a high HR. It only fills seconds the strap never reported; it never overrides a stored HR. 5/MG only, off by default.")
                     .font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -731,7 +731,7 @@ struct TestCentreView: View {
                     Text("HRV readiness (Plews/Altini)")
                         .font(StrandFont.subhead).foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch).tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                 Text("A read-only Plews/Altini smallest-worthwhile-change reading of your nightly HRV: it shows whether your 7-night HRV baseline sits above, inside, or below your personal normal band. It changes nothing else - the Charge ring is identical whether this is on or off. This is rough / early testing, not yet validated against varying real data (n=1).")
                     .font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -916,7 +916,7 @@ private struct TestModeRow: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 12) {
                 Image(systemName: mode.icon)
-                    .foregroundStyle(StrandPalette.accent).frame(width: 24)
+                    .foregroundStyle(StrandPalette.accentInk).frame(width: 24)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(mode.title).font(StrandFont.body).foregroundStyle(StrandPalette.textPrimary)
                     Text(TestCentreLayout.statusText(for: mode, active: on, elapsedSeconds: elapsed,
@@ -977,7 +977,7 @@ private struct TestModeRow: View {
                 // describes what the tap does: it builds a redacted bundle and hands it to the share
                 // sheet. Nothing is sent anywhere.
                 Button("Share") { report.start(mode: mode, live: live, repo: model.repo) }
-                    .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accent)
+                    .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accentInk)
             }
         }
         .onAppear {
@@ -1259,7 +1259,7 @@ private struct ReportReviewSheet: View {
                             .textSelection(.enabled)
                     }
                     #if os(iOS)
-                    .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+                    .scrollBounceBasedOnSizeCompat(axes: .horizontal)
                     #endif
                     .frame(maxHeight: 360)
                 }

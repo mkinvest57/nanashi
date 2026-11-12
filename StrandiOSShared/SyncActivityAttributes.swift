@@ -14,7 +14,7 @@ import ActivityKit
 /// shows a chunk COUNT and, when the strap reported one at connect, a "pages behind" figure. This carries
 /// the same and nothing more. Elapsed time is carried as a date and rendered with `Text(timerInterval:)`,
 /// which ticks on its own; every word is localized APP-SIDE because the widget extension ships no catalog.
-public struct SyncActivityAttributes: ActivityAttributes {
+public struct SyncActivityAttributes {
     public enum Phase: String, Codable, Hashable {
         /// Asked for by the Sync Strap shortcut while the strap link was still coming up.
         case connecting
@@ -52,4 +52,7 @@ public struct SyncActivityAttributes: ActivityAttributes {
         self.title = title
     }
 }
+
+@available(iOS 16.1, *)
+extension SyncActivityAttributes: ActivityAttributes {}
 #endif

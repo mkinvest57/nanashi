@@ -25,6 +25,7 @@ private struct WorkoutRecoveryTrendPoint: Identifiable, Equatable {
 // No custom card heights, paddings, colours or surfaces — uniformity is the bar.
 
 struct WorkoutsView: View {
+    private let usesFloatingHeader: Bool
     @EnvironmentObject var repo: Repository
     /// PERF (chart-invalidation): `AppModel` publishes `bpm` at ~1 Hz (AppModel.swift:202) via
     /// `@Published`, and `@EnvironmentObject` subscribes to the WHOLE object's `objectWillChange` —
@@ -37,6 +38,8 @@ struct WorkoutsView: View {
     /// pattern (HealthView.swift:17-22, 44-46), so a tick re-renders only that small leaf.
     @EnvironmentObject var profile: ProfileStore
     @EnvironmentObject var intelligence: IntelligenceEngine
+    @Environment(\.presentationIsActive) private var presentationIsActive
+    @State private var presentationActivity = PresentationActivityState()
 
     // Exercise-distance preference (#1913). Unset follows the original combined preference.
     @AppStorage(UnitPrefs.systemKey) private var unitSystemRaw = UnitSystem.metric.rawValue
@@ -59,6 +62,28 @@ struct WorkoutsView: View {
     @State private var allRows: [WorkoutRow]
     @State private var loaded: Bool
     @State private var seededInitialRange = false
+    @State private var presentationLoad = PresentationLoadState<PresentationLoadKey>()
+    @State private var recoveryLoad = PresentationLoadState<String>()
+    @State private var workoutReadRevision = 0
+
+    private struct PresentationLoadKey: Equatable {
+        let deviceID: String
+        let revision: Int
+        let windowDays: Int?
+        let day: String
+        let timezone: String
+    }
+
+    private var presentationLoadKey: PresentationLoadKey {
+        PresentationLoadKey(deviceID: repo.deviceId, revision: repo.refreshSeq,
+                            windowDays: loadedWindowDays, day: todayDayString(),
+                            timezone: TimeZone.current.identifier)
+    }
+
+    private func canPublish(_ ticket: PresentationLoadState<PresentationLoadKey>.Ticket) -> Bool {
+        presentationActivity.isActive
+            && presentationLoad.isCurrent(ticket, key: presentationLoadKey, cancelled: Task.isCancelled)
+    }
     /// Current (the most recent sessions) or Archived (everything older). A view split only: archived rows
     /// stay in the database and are one tap away.
     @State private var scope: Scope = .current
@@ -160,7 +185,8 @@ struct WorkoutsView: View {
         let id = UUID()
     }
 
-    init(previewRows: [WorkoutRow]? = nil) {
+    init(previewRows: [WorkoutRow]? = nil, usesFloatingHeader: Bool = false) {
+        self.usesFloatingHeader = usesFloatingHeader
         _allRows = State(initialValue: previewRows ?? [])
         _loaded = State(initialValue: previewRows != nil)
         // Preview-seeded rows are treated as the full history (nil window) so the preview path never pages.
@@ -178,7 +204,7 @@ struct WorkoutsView: View {
         let unscopedRows = sessions(for: resolved)
         let trendRows = recoveryTrendRows(from: unscopedRows)
         return ScreenScaffold(title: "Workouts", subtitle: "Every session, threaded together.",
-                       onRefresh: { await repo.refresh() },
+                       onRefresh: { await repo.refresh(); await loadRows(force: true) },
                        // PERF: the column ends in the full "All Sessions" log (the breakdown grid, the
                        // zones card, and a row-per-session table). On a large imported history the eager
                        // VStack built every section + the whole table up-front; the LazyVStack path (which
@@ -186,12 +212,17 @@ struct WorkoutsView: View {
                        lazy: true,
                        // The day-of-sky liquid backdrop, matching Today / Health / Sleep / Trends: a fixed,
                        // full-bleed time-of-day sky behind the scroll content (it does not scroll).
-                       topBackground: liquidScaffoldSky()) {
+                       topBackground: liquidScaffoldSky(), usesFloatingHeader: usesFloatingHeader) {
             if allRows.isEmpty {
                 VStack(alignment: .leading, spacing: NoopMetrics.space4) {
-                    ComingSoon(what: loaded
-                        ? "No workouts yet. They come from your WHOOP and Apple Health history. Import in Data Sources to bring them in, or add one you tracked elsewhere."
-                        : "Loading your sessions…")
+                    if !loaded || !repo.loaded {
+                        NoopNotice(String(localized: "Loading your sessions…"),
+                                   systemImage: "hourglass")
+                    } else {
+                        NoopNotice(String(localized: "No workouts yet"),
+                                   message: String(localized: "They come from your WHOOP and Apple Health history. Import in Data Sources to bring them in, or add one you tracked elsewhere."),
+                                   systemImage: "figure.run")
+                    }
                     if loaded {
                         workoutActionRow
                     }
@@ -222,25 +253,12 @@ struct WorkoutsView: View {
                 sessionsSection(rows: windowRows)
             }
         }
-        .task(id: repo.refreshSeq) {
-            guard !usesPreviewRows else { return }
-            // #797: read only the currently-loaded window (bounded on first paint), not the whole history.
-            let r = await repo.workoutRows(days: loadedWindowDays ?? 4000)
-            allRows = r
-            let wasLoaded = loaded
-            loaded = true
-            if !wasLoaded {
-                range = defaultRange(for: r)
-                seededInitialRange = true
-            }
-            // 13-week active-calorie heatmap: pull ~100 days of daily metrics and map day → active kcal.
-            // Loaded AFTER `loaded`/range are set so the secondary heatmap never delays the list's first
-            // paint — the card is hidden until this populates, then appears in place.
-            let toDay = todayDayString()
-            let fromDate = Calendar.current.date(byAdding: .day, value: -100, to: Date()) ?? Date()
-            let metrics = await repo.dailyMetrics(fromDay: Self.dayFormatter.string(from: fromDate), toDay: toDay)
-            dailyKcal = Dictionary(metrics.compactMap { m in m.activeKcalEst.map { (m.day, $0) } },
-                                   uniquingKeysWith: max)
+        .onChangeCompat(of: presentationIsActive) { presentationActivity.isActive = $0 }
+        .task(id: presentationIsActive ? presentationLoadKey : nil) {
+            guard !Task.isCancelled else { return }
+            presentationActivity.isActive = presentationIsActive
+            guard presentationIsActive else { return }
+            await loadRows()
         }
         .onAppear {
             // Preview-seeded rows skip `.task`; still choose a range that has data.
@@ -256,7 +274,10 @@ struct WorkoutsView: View {
         .onChange(of: range) { newRange in
             Task { await expandWindowIfNeeded(for: newRange == .all ? .all : effectiveRange) }
         }
-        .task(id: recoveryTrendInputKey(rows: trendRows)) {
+        .task(id: presentationIsActive ? recoveryTrendInputKey(rows: trendRows) : nil) {
+            guard !Task.isCancelled else { return }
+            presentationActivity.isActive = presentationIsActive
+            guard presentationIsActive else { return }
             await loadRecoveryTrend(rows: trendRows)
         }
         .sheet(item: $sheet) { target in
@@ -312,7 +333,33 @@ struct WorkoutsView: View {
     /// Keeps the user's current range — only the initial load picks a default — and the auto-widen
     /// (`effectiveRange`) still covers a now-empty window.
     private func reload() async {
-        allRows = await repo.workoutRows(days: loadedWindowDays ?? 4000)
+        await loadRows(force: true)
+    }
+
+    /// Reuse a completed presentation on quick tab revisits, while a short expiry still rechecks
+    /// recent raw sessions. Explicit edits and refreshes never depend on that cache allowance.
+    private func loadRows(force: Bool = false) async {
+        guard presentationActivity.isActive, !usesPreviewRows, !Task.isCancelled,
+              let ticket = presentationLoad.begin(key: presentationLoadKey, force: force) else { return }
+        defer { presentationLoad.finish(ticket) }
+        let rows = await repo.workoutRows(days: ticket.key.windowDays ?? 4000)
+        guard canPublish(ticket) else { return }
+        allRows = rows
+        workoutReadRevision &+= 1
+        let wasLoaded = loaded
+        loaded = true
+        if !wasLoaded {
+            range = defaultRange(for: rows)
+            seededInitialRange = true
+        }
+        // Keep the main list available before its secondary heatmap completes.
+        let toDay = ticket.key.day
+        let fromDate = Calendar.current.date(byAdding: .day, value: -100, to: Date()) ?? Date()
+        let metrics = await repo.dailyMetrics(fromDay: Self.dayFormatter.string(from: fromDate), toDay: toDay)
+        guard canPublish(ticket) else { return }
+        dailyKcal = Dictionary(metrics.compactMap { m in m.activeKcalEst.map { (m.day, $0) } },
+                               uniquingKeysWith: max)
+        presentationLoad.complete(ticket, key: presentationLoadKey, cancelled: Task.isCancelled)
     }
 
     // MARK: - Heart-rate recovery trend (#516)
@@ -331,7 +378,8 @@ struct WorkoutsView: View {
 
     /// Stable task identity: changing the range/filter/rows or HRmax cancels and rebuilds the trend.
     private func recoveryTrendInputKey(rows: [WorkoutRow]) -> String {
-        "\(repo.refreshSeq)|\(profile.hrMax)|" + rows.map { "\($0.startTs):\($0.endTs)" }.joined(separator: ",")
+        "\(repo.deviceId)|\(repo.refreshSeq)|\(workoutReadRevision)|\(profile.hrMax)|"
+            + rows.map { "\($0.startTs):\($0.endTs):\($0.source)" }.joined(separator: ",")
     }
 
     private var recoveryTrendCaption: String {
@@ -341,16 +389,23 @@ struct WorkoutsView: View {
 
     private func loadRecoveryTrend(rows: [WorkoutRow]) async {
         guard !usesPreviewRows else { recoveryTrend = []; return }
+        guard presentationActivity.isActive, !Task.isCancelled,
+              let ticket = recoveryLoad.begin(key: recoveryTrendInputKey(rows: rows)) else { return }
+        defer { recoveryLoad.finish(ticket) }
+        let maxHR = Double(profile.hrMax)
         var built: [WorkoutRecoveryTrendPoint] = []
         for row in rows {
-            if Task.isCancelled { return }
+            if !presentationActivity.isActive || Task.isCancelled { return }
             if let result = await repo.workoutHeartRateRecovery(
-                from: row.startTs, to: row.endTs, maxHR: Double(profile.hrMax),
+                from: row.startTs, to: row.endTs, maxHR: maxHR,
                 source: row.source) {
                 built.append(WorkoutRecoveryTrendPoint(startTs: row.startTs, result: result))
             }
         }
-        guard !Task.isCancelled else { return }
+        let currentRows = recoveryTrendRows(from: sessions(for: effectiveRange))
+        guard presentationActivity.isActive,
+              recoveryLoad.complete(ticket, key: recoveryTrendInputKey(rows: currentRows),
+                                    cancelled: Task.isCancelled) else { return }
         recoveryTrend = built
     }
 
@@ -396,8 +451,8 @@ struct WorkoutsView: View {
         guard !usesPreviewRows, loadedWindowDays != nil else { return }
         // A bounded range that fits inside what's already loaded needs no wider read.
         if let pickedDays = picked.days, pickedDays <= (loadedWindowDays ?? 0) { return }
+        // The keyed loader owns the wider read so an older bounded request cannot overwrite it.
         loadedWindowDays = nil
-        allRows = await repo.workoutRows(days: 4000)
     }
 
     // MARK: - Post-log activity-cost note (#439)
@@ -571,13 +626,15 @@ struct WorkoutsView: View {
             content()
         } label: {
             HStack(spacing: 4) {
-                Text(title).font(StrandFont.footnote).lineLimit(1)
+                Text(title).font(StrandFont.footnote)
+                    .fixedSize(horizontal: false, vertical: true)
                 Image(systemName: "chevron.down").font(.system(size: 9, weight: .semibold))
             }
             .frame(maxWidth: .infinity)
             .foregroundStyle(active ? StrandPalette.effortColor : StrandPalette.textSecondary)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
+            .frame(minHeight: NoopButtonMetrics.minHitTarget)
             .background(
                 (active ? StrandPalette.effortColor.opacity(0.14) : StrandPalette.surfaceInset.opacity(0.6)),
                 in: RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -615,11 +672,19 @@ struct WorkoutsView: View {
         .accessibilityLabel("Add a workout")
     }
 
-    /// Equal-width primary actions share the same content width as every card below them.
+    private var workoutActionLayout: AnyLayout {
+        #if os(iOS)
+        if hSizeClass == .compact { return AnyLayout(VStackLayout(spacing: NoopMetrics.rowSpacing)) }
+        #endif
+        return AnyLayout(HStackLayout(spacing: NoopMetrics.rowSpacing))
+    }
+
+    /// Compact phones stack the actions so localized titles fit without word-breaking.
+    /// AnyLayout retains the live-workout leaf's identity when the size class changes.
     /// #459 / PERF: the live-workout button is `WorkoutStartControl`, a leaf that owns `AppModel` itself
     /// so this screen doesn't have to — see the comment on `profile`/`intelligence` above.
     private var workoutActionRow: some View {
-        HStack(spacing: NoopMetrics.rowSpacing) {
+        workoutActionLayout {
             WorkoutStartControl()
                 .frame(maxWidth: .infinity)
             addWorkoutButton
@@ -801,7 +866,6 @@ struct WorkoutsView: View {
                             font: StrandFont.rounded(46),
                             color: StrandPalette.textPrimary
                         )
-                        .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
                         Text(effortScale == .whoop ? "of 21" : "of 100")
                             .font(StrandFont.caption)
                             .foregroundStyle(StrandPalette.textSecondary)

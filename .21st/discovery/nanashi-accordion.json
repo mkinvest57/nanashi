@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Expandable Card  [id: 35717]\nby kuratlielia\nA collapsible content card with a header trigger that smoothly morphs its width and height open to reveal more detail, built for dense dashboards or FAQ-style summaries.\npreview: https://cdn.21st.dev/kuratlielia/expandable-card/default/preview.1791202723584-aafa9856-c3dc-498f-b2f6-31122141d4ff.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/kuratlielia/expandable-card?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 35717 })\n\n### [component] Collapsible Animated Card  [id: 24920]\nby cnippet-dev\nA card containing a collapsible FAQ item that smoothly expands and collapses its answer when the header is clicked.\npreview: https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-collapsible-3/default/preview.1787743210985.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/v-collapsible-3?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 24920 })\n\n### [component] Expanding Cards  [id: 5526]\nby vaib215\nAn interactive, responsive card grid where one card expands on hover, focus, or click to reveal its content, while the others collapse. It is fully responsive, transitioning from a vertical layout on mobile to a horizontal grid on desktops.\npreview: https://cdn.21st.dev/vaib215/expanding-cards/default/preview.1755290296595.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/vaib215/expanding-cards?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 5526 })\n\n### [component] Expandable Content Card  [id: 25336]\nby cnippet-dev\nA billing usage card that expands and collapses its content with a smooth max-height transition, a fade-out gradient overlay when collapsed, and a floating chevron toggle button.\npreview: https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-card-11/default/preview.1787263652872.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/v-card-11?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 25336 })\n\n### [component] Accordion  [id: 19546]\nby cnippet-dev\nA vertically stacked set of collapsible sections built on Base UI's Accordion primitive. Supports single or multiple open items, controlled or uncontrolled state, a custom trigger icon, smooth height-animated panels, and nesting. Ships Accordion, AccordionItem, AccordionTrigger and AccordionPanel (also exported as AccordionContent).\npreview: https://cdn.21st.dev/larsen66/cnippet-accordion/cards/preview.1783974792885.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/cnippet-accordion?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 19546 })\n\n### [component] Proximity Accordion  [id: 31839]\nby ppramanik62\nA collapsible accordion whose rows spring-animate open/closed height and chevron rotation, with a hover pill that previews the nearest row before you click.\npreview: https://cdn.21st.dev/ppramanik62/accordion/multi-expand-accordion/preview.1790355129070-f05112c4-23fe-420e-8d2d-123517d8813f.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ppramanik62/accordion?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 31839 })\n\n### [component] Privacy Policy Collapsible Card  [id: 24952]\nby cnippet-dev\nA privacy policy card with expandable accordion sections where only one panel opens at a time.\npreview: https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-collapsible-15/default/preview.1787692758913.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/v-collapsible-15?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 24952 })\n\n### [component] Accordion Multiple  [id: 29251]\nby uiable\nA vertically stacked accordion where several sections can be expanded open at the same time, useful for FAQ lists or collapsible content groups.\npreview: https://cdn.21st.dev/user_registry_uiable_1783486969177/accordion-multiple/default/preview.1790097813127.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/uiable/accordion-multiple?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 29251 })\n\n### [component] Accordion  [id: 23530]\nby ddoemonn\nAn accessible, spring-animated accordion with single or multiple open panels, keyboard navigation, and auto-measured content height.\npreview: https://cdn.21st.dev/ddoemonn/accordion/default/preview.1785472426900-c597a8dc-43a8-4b6c-a3c0-b3b6170cd61d.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ddoemonn/accordion?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 23530 })\n\n### [component] Accordion  [id: 696]\nby shadcn\nA vertically stacked set of interactive headings that each reveal a section of content.\npreview: https://cdn.21st.dev/user_shadcn/accordion/card-based/preview.png?v=1\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcn/accordion?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 696 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 35717,
+        "name": "Expandable Card",
+        "description": "A collapsible content card with a header trigger that smoothly morphs its width and height open to reveal more detail, built for dense dashboards or FAQ-style summaries.",
+        "previewUrl": "https://cdn.21st.dev/kuratlielia/expandable-card/default/preview.1791202723584-aafa9856-c3dc-498f-b2f6-31122141d4ff.png",
+        "videoUrl": "https://cdn.21st.dev/kuratlielia/expandable-card/default/video.1791202723584-aafa9856-c3dc-498f-b2f6-31122141d4ff.mp4",
+        "author": "kuratlielia",
+        "authorImage": "https://avatars.githubusercontent.com/u/82137127?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/kuratlielia/expandable-card?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@kuratlielia/components/expandable-card"
+      },
+      {
+        "type": "component",
+        "id": 24920,
+        "name": "Collapsible Animated Card",
+        "description": "A card containing a collapsible FAQ item that smoothly expands and collapses its answer when the header is clicked.",
+        "previewUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-collapsible-3/default/preview.1787743210985.png",
+        "videoUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-collapsible-3/default/video.1787743225444.mp4",
+        "author": "cnippet-dev",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_36Tbt0v8JdD4jEycmBFhR8tojnR/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/v-collapsible-3?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@cnippet-dev/components/v-collapsible-3"
+      },
+      {
+        "type": "component",
+        "id": 5526,
+        "name": "Expanding Cards",
+        "description": "An interactive, responsive card grid where one card expands on hover, focus, or click to reveal its content, while the others collapse. It is fully responsive, transitioning from a vertical layout on mobile to a horizontal grid on desktops.",
+        "previewUrl": "https://cdn.21st.dev/vaib215/expanding-cards/default/preview.1755290296595.png",
+        "videoUrl": "https://cdn.21st.dev/vaib215/expanding-cards/default/video.1755290296595.mp4",
+        "author": "vaib215",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18yclYwYjE2YWp1clJmelJBbUl4cHE0WGRVTXgifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/vaib215/expanding-cards?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@vaib215/components/expanding-cards"
+      },
+      {
+        "type": "component",
+        "id": 25336,
+        "name": "Expandable Content Card",
+        "description": "A billing usage card that expands and collapses its content with a smooth max-height transition, a fade-out gradient overlay when collapsed, and a floating chevron toggle button.",
+        "previewUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-card-11/default/preview.1787263652872.webp",
+        "videoUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-card-11/default/video.1787263647779.mp4",
+        "author": "cnippet-dev",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_36Tbt0v8JdD4jEycmBFhR8tojnR/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/v-card-11?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@cnippet-dev/components/v-card-11"
+      },
+      {
+        "type": "component",
+        "id": 19546,
+        "name": "Accordion",
+        "description": "A vertically stacked set of collapsible sections built on Base UI's Accordion primitive. Supports single or multiple open items, controlled or uncontrolled state, a custom trigger icon, smooth height-animated panels, and nesting. Ships Accordion, AccordionItem, AccordionTrigger and AccordionPanel (also exported as AccordionContent).",
+        "previewUrl": "https://cdn.21st.dev/larsen66/cnippet-accordion/cards/preview.1783974792885.png",
+        "videoUrl": "https://cdn.21st.dev/larsen66/cnippet-accordion/cards/video.1783974792885.mp4",
+        "author": "cnippet-dev",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_36Tbt0v8JdD4jEycmBFhR8tojnR/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/cnippet-accordion?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@cnippet-dev/components/cnippet-accordion"
+      },
+      {
+        "type": "component",
+        "id": 31839,
+        "name": "Proximity Accordion",
+        "description": "A collapsible accordion whose rows spring-animate open/closed height and chevron rotation, with a hover pill that previews the nearest row before you click.",
+        "previewUrl": "https://cdn.21st.dev/ppramanik62/accordion/multi-expand-accordion/preview.1790355129070-f05112c4-23fe-420e-8d2d-123517d8813f.png",
+        "videoUrl": "https://cdn.21st.dev/ppramanik62/accordion/multi-expand-accordion/video.1790355129070-f05112c4-23fe-420e-8d2d-123517d8813f.mp4",
+        "author": "ppramanik62",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ydU1KUHljUWtudFdCclhWZ1JWZmJyT3BmY0cifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ppramanik62/accordion?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ppramanik62/components/accordion"
+      },
+      {
+        "type": "component",
+        "id": 24952,
+        "name": "Privacy Policy Collapsible Card",
+        "description": "A privacy policy card with expandable accordion sections where only one panel opens at a time.",
+        "previewUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-collapsible-15/default/preview.1787692758913.png",
+        "videoUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-collapsible-15/default/video.1787692784687.mp4",
+        "author": "cnippet-dev",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_36Tbt0v8JdD4jEycmBFhR8tojnR/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/v-collapsible-15?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@cnippet-dev/components/v-collapsible-15"
+      },
+      {
+        "type": "component",
+        "id": 29251,
+        "name": "Accordion Multiple",
+        "description": "A vertically stacked accordion where several sections can be expanded open at the same time, useful for FAQ lists or collapsible content groups.",
+        "previewUrl": "https://cdn.21st.dev/user_registry_uiable_1783486969177/accordion-multiple/default/preview.1790097813127.webp",
+        "videoUrl": "https://cdn.21st.dev/user_registry_uiable_1783486969177/accordion-multiple/default/video.1790097807707.mp4",
+        "author": "uiable",
+        "authorImage": "https://cdn.21st.dev/user-avatars/uiable.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/uiable/accordion-multiple?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@uiable/components/accordion-multiple"
+      },
+      {
+        "type": "component",
+        "id": 23530,
+        "name": "Accordion",
+        "description": "An accessible, spring-animated accordion with single or multiple open panels, keyboard navigation, and auto-measured content height.",
+        "previewUrl": "https://cdn.21st.dev/ddoemonn/accordion/default/preview.1785472426900-c597a8dc-43a8-4b6c-a3c0-b3b6170cd61d.png",
+        "videoUrl": "https://cdn.21st.dev/ddoemonn/accordion/default/video.1785472426900-c597a8dc-43a8-4b6c-a3c0-b3b6170cd61d.mp4",
+        "author": "ddoemonn",
+        "authorImage": "https://github.com/ddoemonn.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ddoemonn/accordion?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ddoemonn/components/accordion"
+      },
+      {
+        "type": "component",
+        "id": 696,
+        "name": "Accordion",
+        "description": "A vertically stacked set of interactive headings that each reveal a section of content.",
+        "previewUrl": "https://cdn.21st.dev/user_shadcn/accordion/card-based/preview.png?v=1",
+        "videoUrl": "https://cdn.21st.dev/user_shadcn/accordion/card-based/video.mp4?v=1",
+        "author": "shadcn",
+        "authorImage": "https://github.com/shadcn-ui.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcn/accordion?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcn/components/accordion"
+      }
+    ]
+  }
+}

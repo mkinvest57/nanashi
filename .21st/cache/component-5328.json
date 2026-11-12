@@ -1,0 +1,29 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"component\": {\"id\": 5328, \"componentId\": 3881, \"authorUserId\": \"user_2zMtrqo9RMaaIn4f8F2z3oeY497\", \"name\": \"Glowing Card\", \"demoName\": \"default.tsx\", \"description\": \"A sleek, glassmorphic stat display card with a subtle glowing effect that highlights the featured metric. The card uses soft light streaks, rounded corners, and a dark translucent background to create a modern, futuristic look. Perfect for dashboards, analytics tools, and live data displays to showcase key stats like views, likes, or revenue in an eye-catching way.\", \"previewUrl\": \"https://cdn.21st.dev/ravikatiyar162/glowing-card/default/preview.1755200622157.png\", \"installCommand\": \"npx shadcn@latest add \\\"https://21st.dev/r/ravikatiyar162/glowing-card?api_key=$API_KEY_21ST\\\"\", \"componentCode\": \"import { cn } from \\\"@/lib/utils\\\";\\nimport { useState } from \\\"react\\\";\\n\\nexport const Component = () => {\\n  const [count, setCount] = useState(0);\\n\\n  return (\\n<div class=\\\"outer\\\">\\n  <div class=\\\"dot\\\"></div>\\n  <div class=\\\"card\\\">\\n    <div class=\\\"ray\\\"></div>\\n    <div class=\\\"text\\\">750k</div>\\n    <div>Views</div>\\n    <div class=\\\"line topl\\\"></div>\\n    <div class=\\\"line leftl\\\"></div>\\n    <div class=\\\"line bottoml\\\"></div>\\n    <div class=\\\"line rightl\\\"></div>\\n  </div>\\n</div>\\n\\n  );\\n};\\n\", \"demoCode\": \"import { Component } from \\\"@/components/ui/glowing-card\\\";\\n\\nexport default function DemoOne() {\\n  return <Component />;\\n}\\n\", \"registryDependencies\": {\"filesWithRegistry\": {}, \"npmDependencies\": {}}, \"isPublic\": true, \"registryTeamId\": null, \"registryUserId\": null}}"
+    }
+  ],
+  "structuredContent": {
+    "component": {
+      "id": 5328,
+      "componentId": 3881,
+      "authorUserId": "user_2zMtrqo9RMaaIn4f8F2z3oeY497",
+      "name": "Glowing Card",
+      "demoName": "default.tsx",
+      "description": "A sleek, glassmorphic stat display card with a subtle glowing effect that highlights the featured metric. The card uses soft light streaks, rounded corners, and a dark translucent background to create a modern, futuristic look. Perfect for dashboards, analytics tools, and live data displays to showcase key stats like views, likes, or revenue in an eye-catching way.",
+      "previewUrl": "https://cdn.21st.dev/ravikatiyar162/glowing-card/default/preview.1755200622157.png",
+      "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ravikatiyar162/glowing-card?api_key=$API_KEY_21ST\"",
+      "componentCode": "import { cn } from \"@/lib/utils\";\nimport { useState } from \"react\";\n\nexport const Component = () => {\n  const [count, setCount] = useState(0);\n\n  return (\n<div class=\"outer\">\n  <div class=\"dot\"></div>\n  <div class=\"card\">\n    <div class=\"ray\"></div>\n    <div class=\"text\">750k</div>\n    <div>Views</div>\n    <div class=\"line topl\"></div>\n    <div class=\"line leftl\"></div>\n    <div class=\"line bottoml\"></div>\n    <div class=\"line rightl\"></div>\n  </div>\n</div>\n\n  );\n};\n",
+      "demoCode": "import { Component } from \"@/components/ui/glowing-card\";\n\nexport default function DemoOne() {\n  return <Component />;\n}\n",
+      "registryDependencies": {
+        "filesWithRegistry": {},
+        "npmDependencies": {}
+      },
+      "isPublic": true,
+      "registryTeamId": null,
+      "registryUserId": null
+    }
+  }
+}

@@ -107,7 +107,6 @@ struct HydrationView: View {
                                     format: { String(format: "%.1f", $0) },
                                     font: StrandFont.rounded(40, weight: .bold),
                                     color: StrandPalette.textPrimary)
-                            .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
                         Text(String(localized: "of \(String(format: "%.1f", HydrationGoal.litres(fromML: Double(goalML)))) L"))
                             .font(StrandFont.subhead)
                             .foregroundStyle(StrandPalette.textSecondary)
@@ -154,7 +153,7 @@ struct HydrationView: View {
                 Button { showCustomSizeSheet = true } label: {
                     Image(systemName: "pencil")
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .frame(width: 44, height: 44)
                         .background(RoundedRectangle(cornerRadius: NoopMetrics.cardRadius, style: .continuous)
                             .fill(StrandPalette.surfaceInset))
@@ -243,7 +242,7 @@ struct HydrationView: View {
                 HStack(spacing: 10) {
                     Image(systemName: "drop.fill")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     Text(Self.entryTimeFmt.string(from: entry.loggedAt))
                         .font(StrandFont.subhead)
@@ -340,7 +339,7 @@ struct HydrationView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "drop.fill")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                             .accessibilityHidden(true)
                         Text("Logged today")
                             .font(StrandFont.subhead)

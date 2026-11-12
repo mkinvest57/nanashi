@@ -1,0 +1,59 @@
+{
+  "query": "cyan",
+  "results": [
+    {
+      "id": "61282495-dc44-41d5-95da-9a9d89f392a8",
+      "name": "Cyan Dawn",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/cyan-dawn",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "7afcaa4b-f0cd-4b8e-882a-8e14d8bb89e1",
+      "name": "Cyber Cyan",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/cyber-cyan",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "5a097c94-e856-4027-951e-d280d83f8dd2",
+      "name": "Cyber Cyan remix",
+      "author": "trendgo.az",
+      "description": null,
+      "url": "https://21st.dev/community/themes/cyber-cyan-remix-1782588483453",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "5b90948a-72fc-422e-a090-ee90d91aef12",
+      "name": "lamattina-dev-cyan-slate",
+      "author": "calogero.lamattina.k",
+      "description": null,
+      "url": "https://21st.dev/community/themes/lamattina-dev-cyan-slate-1786400641856",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "3ce470bd-7164-4113-a46c-fd8cfc0dd9d5",
+      "name": "AI Dimensie Cyan",
+      "author": "jsnmhbl",
+      "description": null,
+      "url": "https://21st.dev/community/themes/ai-dimensie-cyan-1789891307301",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "ef47b2cc-9b4c-48e6-bd72-dc5bb3c5f797",
+      "name": "AI Dimensie Cyan",
+      "author": "jasonmohab-ali",
+      "description": null,
+      "url": "https://21st.dev/community/themes/ai-dimensie-cyan-1789866806015",
+      "previewUrl": null,
+      "type": "theme"
+    }
+  ]
+}

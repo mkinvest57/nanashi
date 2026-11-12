@@ -1,0 +1,29 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"component\": {\"id\": 26854, \"componentId\": 13494, \"authorUserId\": \"user_3J4ZfSJRR32m2cwCMTDT2NBALPx\", \"name\": \"Orbit Sweep gradient\", \"demoName\": \"Default\", \"description\": \"Pure CSS gradient background in the Orbit Sweep style, made with the 21st.dev Gradient Builder. 5-color palette (#E9EEF5, #8FA3C0, #3B4A66, #8FA3C0, #E9EEF5). Features: vignette. A drop-in, zero-dependency React component for hero sections, cards, and page backgrounds.\", \"previewUrl\": \"https://cdn.21st.dev/shixuanaa11/orbit-sweep-gradient/default/preview.1788927934637-d784b695-6153-4e1b-9dee-2fe8649a0192.webp\", \"installCommand\": \"npx shadcn@latest add \\\"https://21st.dev/r/shixuanaa11/orbit-sweep-gradient?api_key=$API_KEY_21ST\\\"\", \"componentCode\": \"// GradientBackground — \\\"Orbit Sweep gradient\\\", made with the 21st.dev Gradient\\n// Builder and exported as live CSS (the builder's own Copy-CSS background,\\n// plus its soften-blur and grain passes). Zero dependencies: one <div> that\\n// fills its parent. Drop it behind your content:\\n// <div className=\\\"relative h-96\\\"><GradientBackground className=\\\"absolute inset-0\\\" /></div>\\n// Remix the source recipe (colors, mode, finish) in the editor:\\n// https://21st.dev/community/gradients/editor?from=25851195-bafd-497a-9a26-f121041ffaf1\\nexport function GradientBackground({ className }: { className?: string }) {\\n  return (\\n    <div\\n      aria-hidden=\\\"true\\\"\\n      className={className}\\n      style={{\\n        position: \\\"relative\\\",\\n        overflow: \\\"hidden\\\",\\n        width: \\\"100%\\\",\\n        height: \\\"100%\\\",\\n        containerType: \\\"size\\\",\\n      }}\\n    >\\n      <div\\n        style={{\\n          position: \\\"absolute\\\",\\n        inset: 0,\\n        backgroundColor: \\\"#E9EEF5\\\",\\n        backgroundImage:\\n          \\\"radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, 0.08000000000000002) 100%), conic-gradient(from 159deg at 46% 55%, #E9EEF5 0%, #8FA3C0 23%, #3B4A66 49%, #8FA3C0 73%, #E9EEF5 100%)\\\",\\n        }}\\n      />\\n    </div>\\n  )\\n}\\n\", \"demoCode\": \"import { GradientBackground } from \\\"@/components/ui/orbit-sweep-gradient\\\"\\n\\nexport default function GradientBackgroundDemo() {\\n  return (\\n    <div className=\\\"relative h-[440px] w-full overflow-hidden rounded-xl\\\">\\n      <GradientBackground className=\\\"h-full w-full\\\" />\\n    </div>\\n  )\\n}\\n\", \"registryDependencies\": {\"filesWithRegistry\": {}, \"npmDependencies\": {}}, \"isPublic\": true, \"registryTeamId\": null, \"registryUserId\": null}}"
+    }
+  ],
+  "structuredContent": {
+    "component": {
+      "id": 26854,
+      "componentId": 13494,
+      "authorUserId": "user_3J4ZfSJRR32m2cwCMTDT2NBALPx",
+      "name": "Orbit Sweep gradient",
+      "demoName": "Default",
+      "description": "Pure CSS gradient background in the Orbit Sweep style, made with the 21st.dev Gradient Builder. 5-color palette (#E9EEF5, #8FA3C0, #3B4A66, #8FA3C0, #E9EEF5). Features: vignette. A drop-in, zero-dependency React component for hero sections, cards, and page backgrounds.",
+      "previewUrl": "https://cdn.21st.dev/shixuanaa11/orbit-sweep-gradient/default/preview.1788927934637-d784b695-6153-4e1b-9dee-2fe8649a0192.webp",
+      "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shixuanaa11/orbit-sweep-gradient?api_key=$API_KEY_21ST\"",
+      "componentCode": "// GradientBackground — \"Orbit Sweep gradient\", made with the 21st.dev Gradient\n// Builder and exported as live CSS (the builder's own Copy-CSS background,\n// plus its soften-blur and grain passes). Zero dependencies: one <div> that\n// fills its parent. Drop it behind your content:\n// <div className=\"relative h-96\"><GradientBackground className=\"absolute inset-0\" /></div>\n// Remix the source recipe (colors, mode, finish) in the editor:\n// https://21st.dev/community/gradients/editor?from=25851195-bafd-497a-9a26-f121041ffaf1\nexport function GradientBackground({ className }: { className?: string }) {\n  return (\n    <div\n      aria-hidden=\"true\"\n      className={className}\n      style={{\n        position: \"relative\",\n        overflow: \"hidden\",\n        width: \"100%\",\n        height: \"100%\",\n        containerType: \"size\",\n      }}\n    >\n      <div\n        style={{\n          position: \"absolute\",\n        inset: 0,\n        backgroundColor: \"#E9EEF5\",\n        backgroundImage:\n          \"radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, 0.08000000000000002) 100%), conic-gradient(from 159deg at 46% 55%, #E9EEF5 0%, #8FA3C0 23%, #3B4A66 49%, #8FA3C0 73%, #E9EEF5 100%)\",\n        }}\n      />\n    </div>\n  )\n}\n",
+      "demoCode": "import { GradientBackground } from \"@/components/ui/orbit-sweep-gradient\"\n\nexport default function GradientBackgroundDemo() {\n  return (\n    <div className=\"relative h-[440px] w-full overflow-hidden rounded-xl\">\n      <GradientBackground className=\"h-full w-full\" />\n    </div>\n  )\n}\n",
+      "registryDependencies": {
+        "filesWithRegistry": {},
+        "npmDependencies": {}
+      },
+      "isPublic": true,
+      "registryTeamId": null,
+      "registryUserId": null
+    }
+  }
+}

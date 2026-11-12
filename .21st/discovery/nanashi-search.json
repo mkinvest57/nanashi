@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Command Menu with Global Search  [id: 27378]\nby ephraimduncan\nA searchable command palette dialog that lets users find chats, images, documents, and projects across an app, with type filters and recent/last-opened sections.\npreview: https://cdn.21st.dev/ephraimduncan/command-menu-04/default/preview.1789690921880-a59459e6-04fc-4f8d-a5be-baa2be9d8a70.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ephraimduncan/command-menu-04?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 27378 })\n\n### [component] Commands Menu  [id: 35692]\nby sltowl\nA command-palette style dropdown that expands below its trigger button with a search field for filtering a list of quick actions, ported from the original Matte UI command-menu HTML/JS widget by SLtowl.\npreview: https://cdn.21st.dev/user_registry_sltowl_1790936520448/matte-commands-menu/default/preview.1791204118710.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/sltowl/matte-commands-menu?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 35692 })\n\n### [component] Command Menu  [id: 33492]\nby properui\nA searchable ⌘K-style command palette for filtering and selecting actions, settings or people from a keyboard-first popover or inline list.\npreview: https://cdn.21st.dev/properui/command-menu/default/preview.1790642178546-5152e689-3e67-4273-80c8-61490dd23fc9.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/properui/command-menu?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 33492 })\n\n### [component] Command Search  [id: 28888]\nby arihantcodes_1f7b8c4d\nA command palette input that types out sample queries and live-filters grouped results, with arrow-key navigation and an animated selection highlight.\npreview: https://cdn.21st.dev/arihantcodes_1f7b8c4d/command-search/default/preview.1790017591136-eec4dafb-3e8f-4e54-9a64-6eefeb199138.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/arihantcodes_1f7b8c4d/command-search?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 28888 })\n\n### [component] Command Menu  [id: 33510]\nby uvain\n⌘K command palette on cmdk: fuzzy search over labels and keywords, grouped results, shortcuts and hints per item, and a hook that registers ⌘K / Ctrl K for you. Keyboard-complete, light and dark. Part of the Layro System: layro.vercel.app.\npreview: https://cdn.21st.dev/uvain/command-menu-palette/default/preview.1790705766975-56ec5867-b029-4f08-893c-5f5c888f7c68.jpg\ninstall: npx shadcn@latest add \"https://21st.dev/r/uvain/command-menu-palette?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 33510 })\n\n### [component] Command  [id: 382]\nby originui\nEnhanced shadcn/ui command\npreview: https://cdn.21st.dev/user_originui/command/default/preview.1737992708652.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/originui/command?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 382 })\n\n### [component] Command Menu  [id: 4430]\nby preetsuthar17\nA command palette component with keyboard navigation, search, and shortcuts for quick actions and navigation.\npreview: https://cdn.21st.dev/preetsuthar17/command-menu/default/preview.1753354227023.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/preetsuthar17/command-menu?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 4430 })\n\n### [component] Command Palette  [id: 23522]\nby ddoemonn\nA keyboard-driven command palette with fuzzy search, arrow-key navigation, and an animated overlay for triggering app actions.\npreview: https://cdn.21st.dev/user_2y2pjLtk7oS33zts6BqhEIOHrAj/command-palette/default/preview.1787346187676.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ddoemonn/command-palette?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 23522 })\n\n### [component] Menubar  [id: 950]\nby shadcn\nA visually persistent menu common in desktop applications that provides quick access to a consistent set of commands.\npreview: https://cdn.21st.dev/user_shadcn/menubar/default/preview.1786653834938.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcn/menubar?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 950 })\n\n### [component] Command Menu  [id: 23173]\nby serafimcloud\nA pill that grows into a command panel on hover, tap or Cmd+K: a highlight that slides between items and even diagonally into the theme row, a rotating status line, arrow/j-k navigation, Escape and click-outside. Inspired by Colin Lienard's personal site (colinlienard.com), rebuilt for React from scratch.\npreview: https://cdn.21st.dev/user_2nElBLvklOKlAURm6W1PTu6yYFh/command-menu/default/preview.1785388095084.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/serafimcloud/command-menu?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 23173 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 27378,
+        "name": "Command Menu with Global Search",
+        "description": "A searchable command palette dialog that lets users find chats, images, documents, and projects across an app, with type filters and recent/last-opened sections.",
+        "previewUrl": "https://cdn.21st.dev/ephraimduncan/command-menu-04/default/preview.1789690921880-a59459e6-04fc-4f8d-a5be-baa2be9d8a70.png",
+        "videoUrl": "https://cdn.21st.dev/ephraimduncan/command-menu-04/default/video.1789690921880-a59459e6-04fc-4f8d-a5be-baa2be9d8a70.mp4",
+        "author": "ephraimduncan",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ydlpleGRQN3BiSlVlSnp3R3FmbzdZbTJMT04ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ephraimduncan/command-menu-04?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ephraimduncan/components/command-menu-04"
+      },
+      {
+        "type": "component",
+        "id": 35692,
+        "name": "Commands Menu",
+        "description": "A command-palette style dropdown that expands below its trigger button with a search field for filtering a list of quick actions, ported from the original Matte UI command-menu HTML/JS widget by SLtowl.",
+        "previewUrl": "https://cdn.21st.dev/user_registry_sltowl_1790936520448/matte-commands-menu/default/preview.1791204118710.webp",
+        "videoUrl": "https://cdn.21st.dev/sltowl/matte-commands-menu/default/video.1791204122269.mp4",
+        "author": "sltowl",
+        "authorImage": "https://avatars.githubusercontent.com/u/269273098?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/sltowl/matte-commands-menu?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@sltowl/components/matte-commands-menu"
+      },
+      {
+        "type": "component",
+        "id": 33492,
+        "name": "Command Menu",
+        "description": "A searchable ⌘K-style command palette for filtering and selecting actions, settings or people from a keyboard-first popover or inline list.",
+        "previewUrl": "https://cdn.21st.dev/properui/command-menu/default/preview.1790642178546-5152e689-3e67-4273-80c8-61490dd23fc9.png",
+        "videoUrl": "https://cdn.21st.dev/properui/command-menu/default/video.1790642178546-5152e689-3e67-4273-80c8-61490dd23fc9.mp4",
+        "author": "properui",
+        "authorImage": "https://github.com/properui.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/properui/command-menu?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@properui/components/command-menu"
+      },
+      {
+        "type": "component",
+        "id": 28888,
+        "name": "Command Search",
+        "description": "A command palette input that types out sample queries and live-filters grouped results, with arrow-key navigation and an animated selection highlight.",
+        "previewUrl": "https://cdn.21st.dev/arihantcodes_1f7b8c4d/command-search/default/preview.1790017591136-eec4dafb-3e8f-4e54-9a64-6eefeb199138.png",
+        "videoUrl": "https://cdn.21st.dev/arihantcodes_1f7b8c4d/command-search/default/video.1790017591136-eec4dafb-3e8f-4e54-9a64-6eefeb199138.mp4",
+        "author": "arihantcodes_1f7b8c4d",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18yeG1JVU5OMFdtUE1yYWxOWW12VzdUVHY5ZmUifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/arihantcodes_1f7b8c4d/command-search?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@arihantcodes_1f7b8c4d/components/command-search"
+      },
+      {
+        "type": "component",
+        "id": 33510,
+        "name": "Command Menu",
+        "description": "⌘K command palette on cmdk: fuzzy search over labels and keywords, grouped results, shortcuts and hints per item, and a hook that registers ⌘K / Ctrl K for you. Keyboard-complete, light and dark. Part of the Layro System: layro.vercel.app.",
+        "previewUrl": "https://cdn.21st.dev/uvain/command-menu-palette/default/preview.1790705766975-56ec5867-b029-4f08-893c-5f5c888f7c68.jpg",
+        "videoUrl": "https://cdn.21st.dev/uvain/command-menu-palette/default/video.1790705766975-56ec5867-b029-4f08-893c-5f5c888f7c68.mp4",
+        "author": "uvain",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_3AAcYdXInfTxs5akkUBbQIUQdhX/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/uvain/command-menu-palette?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@uvain/components/command-menu-palette"
+      },
+      {
+        "type": "component",
+        "id": 382,
+        "name": "Command",
+        "description": "Enhanced shadcn/ui command",
+        "previewUrl": "https://cdn.21st.dev/user_originui/command/default/preview.1737992708652.png",
+        "videoUrl": "https://cdn.21st.dev/user_originui/command/default/video.1737992713138.mp4",
+        "author": "originui",
+        "authorImage": "https://avatars.githubusercontent.com/u/185059885?s=200&v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/originui/command?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@originui/components/command"
+      },
+      {
+        "type": "component",
+        "id": 4430,
+        "name": "Command Menu",
+        "description": "A command palette component with keyboard navigation, search, and shortcuts for quick actions and navigation.",
+        "previewUrl": "https://cdn.21st.dev/preetsuthar17/command-menu/default/preview.1753354227023.png",
+        "videoUrl": "https://cdn.21st.dev/preetsuthar17/command-menu/default/video.1753354227023.mp4",
+        "author": "preetsuthar17",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2rWolCuRnJW3DRiuQ5JHrl5kj8a/avatar.jpeg",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/preetsuthar17/command-menu?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@preetsuthar17/components/command-menu"
+      },
+      {
+        "type": "component",
+        "id": 23522,
+        "name": "Command Palette",
+        "description": "A keyboard-driven command palette with fuzzy search, arrow-key navigation, and an animated overlay for triggering app actions.",
+        "previewUrl": "https://cdn.21st.dev/user_2y2pjLtk7oS33zts6BqhEIOHrAj/command-palette/default/preview.1787346187676.png",
+        "videoUrl": "https://cdn.21st.dev/user_2y2pjLtk7oS33zts6BqhEIOHrAj/command-palette/default/video.1787346202766.mp4",
+        "author": "ddoemonn",
+        "authorImage": "https://github.com/ddoemonn.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ddoemonn/command-palette?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ddoemonn/components/command-palette"
+      },
+      {
+        "type": "component",
+        "id": 950,
+        "name": "Menubar",
+        "description": "A visually persistent menu common in desktop applications that provides quick access to a consistent set of commands.",
+        "previewUrl": "https://cdn.21st.dev/user_shadcn/menubar/default/preview.1786653834938.png",
+        "videoUrl": "https://cdn.21st.dev/user_shadcn/menubar/default/video.1786653866953.mp4",
+        "author": "shadcn",
+        "authorImage": "https://github.com/shadcn-ui.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcn/menubar?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcn/components/menubar"
+      },
+      {
+        "type": "component",
+        "id": 23173,
+        "name": "Command Menu",
+        "description": "A pill that grows into a command panel on hover, tap or Cmd+K: a highlight that slides between items and even diagonally into the theme row, a rotating status line, arrow/j-k navigation, Escape and click-outside. Inspired by Colin Lienard's personal site (colinlienard.com), rebuilt for React from scratch.",
+        "previewUrl": "https://cdn.21st.dev/user_2nElBLvklOKlAURm6W1PTu6yYFh/command-menu/default/preview.1785388095084.png",
+        "videoUrl": "https://cdn.21st.dev/user_2nElBLvklOKlAURm6W1PTu6yYFh/command-menu/default/video.1785388121293.mp4",
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/serafimcloud/command-menu?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@serafimcloud/components/command-menu"
+      }
+    ]
+  }
+}

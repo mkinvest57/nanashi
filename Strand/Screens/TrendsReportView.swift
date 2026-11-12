@@ -228,8 +228,8 @@ struct TrendsReportPage: View {
             VStack(alignment: .leading, spacing: NoopMetrics.space1) {
                 HStack(alignment: .firstTextBaseline) {
                     BrandMark(size: 22)
-                    Text("NOOP").font(StrandFont.overline).tracking(StrandFont.overlineTracking)
-                        .foregroundStyle(StrandPalette.accent)
+                    Text(ProductBrand.name).font(StrandFont.overline).tracking(StrandFont.overlineTracking)
+                        .foregroundStyle(StrandPalette.accentInk)
                     Spacer()
                     Text(range.longName).strandOverline()
                 }
@@ -261,7 +261,7 @@ struct TrendsReportPage: View {
                     HStack(alignment: .top, spacing: NoopMetrics.space2) {
                         Image(systemName: "sparkles")
                             .font(StrandFont.footnote)
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                         Text(line)
                             .font(StrandFont.subhead)
                             .foregroundStyle(StrandPalette.textPrimary)
@@ -355,7 +355,7 @@ struct TrendsReportPage: View {
             HStack(alignment: .top, spacing: NoopMetrics.space3) {
                 Image(systemName: "calendar.badge.exclamationmark")
                     .font(StrandFont.headline)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                 VStack(alignment: .leading, spacing: NoopMetrics.space2) {
                     Text("Not enough data in this range yet")
                         .font(StrandFont.headline)
@@ -552,7 +552,7 @@ struct TrendsReportSheet: View {
         }
         #if os(iOS)
         // #697/#horizontal-swipe parity, see ScreenScaffold.
-        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .scrollBounceBasedOnSizeCompat(axes: .horizontal)
         #endif
         .background(StrandPalette.surfaceBase)
         .frame(width: 460, height: 640)
@@ -571,7 +571,7 @@ struct TrendsReportSheet: View {
     private func export(_ report: RangeReport) {
         guard !exporting else { return }
         exporting = true
-        let name = "NOOP-trends-\(report.start)_to_\(report.end).pdf"
+        let name = "\(ProductBrand.name)-trends-\(report.start)_to_\(report.end).pdf"
         TrendsReportRenderer.exportPDF(page: page(for: report), suggestedName: name)
         exporting = false
         #if os(macOS)

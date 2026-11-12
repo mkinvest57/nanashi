@@ -67,6 +67,8 @@ final class AppModel: ObservableObject {
 
     /// Opt-in AI coach (bring-your-own-key) , the one networked feature, off until the user enables it.
     let coach: AICoachEngine
+    /// Optional foreground remarks share the Coach connection without sharing its transcript.
+    let presence: NanashiPresenceEngine
 
     /// Observable cache over the paired-device registry; `activeDeviceId` drives the source coordinator.
     /// Built lazily once the store opens (see `wireSourceCoordinator`). nil until then , with no generic
@@ -256,6 +258,7 @@ final class AppModel: ObservableObject {
         self.ble = BLEManager(state: live, deviceId: deviceId)
         self.repo = Repository(deviceId: deviceId)
         self.coach = AICoachEngine(repo: repo)
+        self.presence = NanashiPresenceEngine(coach: coach, repo: repo)
         self.intelligence = IntelligenceEngine(repo: repo, profile: profile, deviceId: deviceId)
         // Route the engine's per-day scoring diagnostic into the SAME shareable strap log every other
         // subsystem writes to (PII-scrubbed by `live.append(log:)`), so a bug report ships proof of what

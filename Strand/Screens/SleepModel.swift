@@ -313,6 +313,9 @@ extension SleepModel {
             }
             if let m = motionByStart[frag.startTs] { motion.append(contentsOf: m) }
         }
+        // Only decoded timestamped records can establish a timeline. The display-only awake seams
+        // below must not turn several totals-only import fragments into a supposedly recorded chart.
+        let recordedSegmentCount = segs.count
         let orderedFrags = Array(group)
         for (prev, next) in zip(orderedFrags, orderedFrags.dropFirst()) {
             let gapStart = prev.endTs, gapEnd = next.effectiveStartTs
@@ -325,7 +328,7 @@ extension SleepModel {
         let eff = stages.total > 0 ? stages.asleep / stages.total : nil
         let synth = CachedSleepSession(startTs: onset, endTs: wake, efficiency: eff,
                                        restingHr: nil, avgHrv: nil, stagesJSON: nil)
-        let realSegs = segs.count >= 2 ? segs.sorted { $0.start < $1.start } : nil
+        let realSegs = recordedSegmentCount >= 2 ? segs.sorted { $0.start < $1.start } : nil
         return Night(session: synth, stages: stages, realSegments: realSegs, sourceBlocks: sessions,
                      motionEpochs: motion, habitualMidsleepSec: habitualMidsleepSec)
     }
@@ -419,16 +422,17 @@ extension SleepModel {
 
     /// Sleep performance %: the imported WHOOP figure when the export carried one for that day;
     /// else the REAL resolved Rest composite for that day. (#614 follow-up)
-    static func performanceSeries(days: [DailyMetric], importedSleep: [String: ImportedSleepFigures]) -> Metric {
+    static func performanceSeries(days: [DailyMetric], importedSleep: [String: ImportedSleepFigures],
+                                  now: Date = Date()) -> Metric {
         let imported = importedSleep
-        return metric(days: days) { d in
+        return metric(days: days, now: now) { d in
             if let p = imported[d.day]?.performancePct { return p }   // export-verbatim
             return AnalyticsEngine.Rest.composite(daily: d)            // real resolved Rest composite
         }
     }
 
-    static func efficiencySeries(days: [DailyMetric]) -> Metric {
-        metric(days: days) { d in
+    static func efficiencySeries(days: [DailyMetric], now: Date = Date()) -> Metric {
+        metric(days: days, now: now) { d in
             guard let e = d.efficiency else { return nil }
             return e <= 1.0 ? e * 100 : e
         }
@@ -468,10 +472,11 @@ extension SleepModel {
 
     /// Hours vs needed % = asleep / need. The imported sleep_need_min wins per day; else the
     /// APPROXIMATE personal-mean need.
-    static func hoursVsNeededSeries(days: [DailyMetric], importedSleep: [String: ImportedSleepFigures]) -> Metric {
+    static func hoursVsNeededSeries(days: [DailyMetric], importedSleep: [String: ImportedSleepFigures],
+                                    now: Date = Date()) -> Metric {
         let imported = importedSleep
         let fallbackNeed = sleepNeedMin(days: days)
-        return metric(days: days) { d in
+        return metric(days: days, now: now) { d in
             guard let asleep = d.totalSleepMin, asleep > 0 else { return nil }
             let need = imported[d.day]?.needMin ?? fallbackNeed
             guard need > 0 else { return nil }
@@ -480,16 +485,16 @@ extension SleepModel {
     }
 
     /// Restorative % = (deep + REM) / asleep — the share of the night that does the work.
-    static func restorativeSeries(days: [DailyMetric]) -> Metric {
-        metric(days: days) { d in
+    static func restorativeSeries(days: [DailyMetric], now: Date = Date()) -> Metric {
+        metric(days: days, now: now) { d in
             guard let deep = d.deepMin, let rem = d.remMin,
                   let asleep = d.totalSleepMin, asleep > 0 else { return nil }
             return (deep + rem) / asleep * 100
         }
     }
 
-    static func respiratorySeries(days: [DailyMetric]) -> Metric {
-        metric(days: days) { $0.respRateBpm }
+    static func respiratorySeries(days: [DailyMetric], now: Date = Date()) -> Metric {
+        metric(days: days, now: now) { $0.respRateBpm }
     }
 
     /// Sleep debt (minutes): imported `sleep_debt_min` remains export-verbatim. Otherwise use
@@ -539,7 +544,8 @@ extension SleepModel {
     /// Build every expensive derivation exactly once, as a pure function of `inputs`. Returns nil when
     /// there is no usable latest night (the caller renders the empty state). This is the former
     /// `SleepView.buildModel()` body, re-expressed over explicit inputs. (#940)
-    static func build(_ inputs: SleepModelInputs) -> SleepModel? {
+    /// Historical hosts pass their displayed wake day; live hosts keep today's carry boundary.
+    static func build(_ inputs: SleepModelInputs, referenceDate: Date = Date()) -> SleepModel? {
         // Replicate `navSessions`: fall back to the one-per-night list until the fuller list loads.
         let navSessions = inputs.allSessions.isEmpty ? inputs.sleeps : inputs.allSessions
         let dayGroups = navDays(navSessions: navSessions)
@@ -571,12 +577,12 @@ extension SleepModel {
             intervals: night.intervals,
             isPersistedHypnogram: (night.realSegments?.count ?? 0) >= 2,
             isStubNight: isStub,
-            performance: performanceSeries(days: inputs.days, importedSleep: inputs.importedSleep),
-            efficiency: efficiencySeries(days: inputs.days),
+            performance: performanceSeries(days: inputs.days, importedSleep: inputs.importedSleep, now: referenceDate),
+            efficiency: efficiencySeries(days: inputs.days, now: referenceDate),
             consistency: consistencySeries(days: inputs.days, sleeps: inputs.sleeps, importedSleep: inputs.importedSleep),
-            hoursVsNeeded: hoursVsNeededSeries(days: inputs.days, importedSleep: inputs.importedSleep),
-            restorative: restorativeSeries(days: inputs.days),
-            respiratory: respiratorySeries(days: inputs.days),
+            hoursVsNeeded: hoursVsNeededSeries(days: inputs.days, importedSleep: inputs.importedSleep, now: referenceDate),
+            restorative: restorativeSeries(days: inputs.days, now: referenceDate),
+            respiratory: respiratorySeries(days: inputs.days, now: referenceDate),
             sleepDebt: sleepDebtSeries(days: inputs.days, importedSleep: inputs.importedSleep, napSleepMinByDay: napSleepMinByDay),
             typicalTotalMin: typicalTotalMin(days: inputs.days),
             typicalDeepMin: typicalStageMin(days: inputs.days, \.deepMin),

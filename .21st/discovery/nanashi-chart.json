@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Heat Calendar  [id: 29361]\nby starc007\nA GitHub-style activity calendar that visualizes weekly intensity values as a single-hue grid, with a legend, hover/click tooltips, and range selection with totals.\npreview: https://cdn.21st.dev/user_3GMbzDOOqkmdobxoz8ep4iCuufg/heat-calendar/default/preview.1790093196255.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/starc007/heat-calendar?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 29361 })\n\n### [component] Activity Heatmap  [id: 35054]\nby kuratlielia\nA GitHub-style contribution calendar that shows a year of daily activity as one tinted square per day, with hover/keyboard tooltips and a level legend.\npreview: https://cdn.21st.dev/user_registry_kuratlielia_1790903117010/activity-heatmap/default/preview.1790977701025.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/kuratlielia/activity-heatmap?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 35054 })\n\n### [component] Radial Chart  [id: 28963]\nby arihantcodes_1f7b8c4d\nA radial bar chart for visualizing shares or progress across categories, with full-circle and semi-circle layouts.\npreview: https://cdn.21st.dev/arihantcodes_1f7b8c4d/radial-chart/default/preview.1790026226341-f4a1ff63-456c-429d-90d1-82f56761ea03.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/arihantcodes_1f7b8c4d/radial-chart?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 28963 })\n\n### [component] Calendar Heatmap  [id: 28204]\nby arihantcodes_1f7b8c4d\nA GitHub-style contributions grid that visualizes a year of daily values as week columns with quantized color intensity, streak stats, and month labels.\npreview: https://cdn.21st.dev/arihantcodes_1f7b8c4d/calendar-heatmap/default/preview.1789956984692-a92c4c18-9935-477b-b894-30f91d264e23.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/arihantcodes_1f7b8c4d/calendar-heatmap?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 28204 })\n\n### [component] Activity Heatmap Calendar  [id: 36571]\nby dhxwhy\nActivity heatmap calendar for React and Tailwind CSS (shadcn/ui) where every day is a square that flies into weekday and month bar charts. It is built to turn a year of check-ins into answers people can see: the same squares rearrange from the calendar into weekday rows and monthly columns, so the busiest day, the strongest month and the quiet season stand out without reading numbers. Shows total, active days, longest and current streaks, highlights the leading weekday or month, and fits the whole year to any width without horizontal scrolling. Tooltips, keyboard navigation for views and days, controlled or uncontrolled view, optional auto-cycling for showcases, theme tokens for light and dark, reduced-motion support and SSR-safe dates. Use it for habit and fitness trackers, learning streaks, contribution graphs, and support or sales dashboards.\npreview: https://cdn.21st.dev/user_35e5ygDqQuDYzujLgyG9331zPPO/activity-heatmap/default/preview.1791560194042.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/dhxwhy/activity-heatmap?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 36571 })\n\n### [component] Animated Radial Chart  [id: 2504]\nby isaiahbjork\nThis is a dynamic radial progress chart component that animates a semi-circular arc to visually represent a percentage value, using smooth framer-motion transitions, SVG gradients, and drop shadows for a polished 3D feel. Perfect for dashboards, analytics UIs, or progress visualizations where you want to display performance, goal completion, or system usage in a clean and engaging format.\npreview: https://cdn.21st.dev/isaiahbjork/animated-radial-chart/default/preview.1785450617109-fe785ee4-862d-4c6d-a546-fc79affa8aa6.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/isaiahbjork/animated-radial-chart?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 2504 })\n\n### [component] Heatmap Calendar  [id: 8023]\nby ruixen.ui\nThe Heatmap Calendar component is a visually intuitive way to track daily activity using Shadcn UI components. Each day of the current month is displayed as a block whose color intensity reflects the number of events scheduled, allowing users to quickly gauge activity at a glance. Clicking or hovering on a day opens a Popover showing all events for that day, with each event displayed inside a Card. Users can add new events via an input field and button, and each event can be removed using the Lucide Trash2 icon. The design is clean, responsive, and works seamlessly in both light and dark themes, providing a simplified, month-focused view without extra or overlapping dates.\npreview: https://cdn.21st.dev/user_2y5Wd5l713ZIFYjX19aZXSyXd6b/heatmap-calendar/default/preview.1787246752363.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/heatmap-calendar?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 8023 })\n\n### [component] Heat Calendar  [id: 30542]\nby ssychui\nA calendar heatmap of daily activity such as transactions, trades or API calls, with a readout on hover and a selected span that totals the days. Part of ssych ui: https://ssych.com/library/heat-calendar\npreview: https://cdn.21st.dev/user_3CdJgTW8geRShR3gegqAjY0JB3B/heat-calendar/default/preview.1790280444742.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/ssychui/heat-calendar?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 30542 })\n\n### [component] Radial Chart  [id: 3095]\nby intentui\nHere is Radial Chart component\npreview: https://cdn.21st.dev/user_intentui/radial-chart/default/preview.1786646525824.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/intentui/radial-chart?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 3095 })\n\n### [component] Monthly Heatmap Calendar  [id: 7318]\nby ruixen.ui\nThis Monthly Heatmap Calendar component is a fully interactive scheduling tool built entirely with shadcn/ui. It allows users to navigate across different months and years using clean dropdown selectors while still displaying a structured grid view of the month. Each day cell supports adding events through a popover form, where users can enter a title and select a specific time. Scheduled events are visually marked with a badge indicator, and event details can be viewed, edited, or deleted directly within the popover. The calendar layout is spaced for clarity, making it easy to scan through days while still keeping event management compact and intuitive. This component is particularly useful for task planning, booking systems, or productivity dashboards, offering a more feature-rich and customizable experience compared to traditional date pickers.\npreview: https://cdn.21st.dev/ruixen.ui/monthly-heatmap-calendar/default/preview.1757759493231.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/monthly-heatmap-calendar?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 7318 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 29361,
+        "name": "Heat Calendar",
+        "description": "A GitHub-style activity calendar that visualizes weekly intensity values as a single-hue grid, with a legend, hover/click tooltips, and range selection with totals.",
+        "previewUrl": "https://cdn.21st.dev/user_3GMbzDOOqkmdobxoz8ep4iCuufg/heat-calendar/default/preview.1790093196255.png",
+        "videoUrl": "https://cdn.21st.dev/user_3GMbzDOOqkmdobxoz8ep4iCuufg/heat-calendar/default/video.1790093183936.mp4",
+        "author": "starc007",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zR01iekluZ3JmNGtUYUM1ZVpQNm5mMUYyazEifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/starc007/heat-calendar?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@starc007/components/heat-calendar"
+      },
+      {
+        "type": "component",
+        "id": 35054,
+        "name": "Activity Heatmap",
+        "description": "A GitHub-style contribution calendar that shows a year of daily activity as one tinted square per day, with hover/keyboard tooltips and a level legend.",
+        "previewUrl": "https://cdn.21st.dev/user_registry_kuratlielia_1790903117010/activity-heatmap/default/preview.1790977701025.webp",
+        "videoUrl": "https://cdn.21st.dev/user_registry_kuratlielia_1790903117010/activity-heatmap/default/video.1790977704904.mp4",
+        "author": "kuratlielia",
+        "authorImage": "https://avatars.githubusercontent.com/u/82137127?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/kuratlielia/activity-heatmap?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@kuratlielia/components/activity-heatmap"
+      },
+      {
+        "type": "component",
+        "id": 28963,
+        "name": "Radial Chart",
+        "description": "A radial bar chart for visualizing shares or progress across categories, with full-circle and semi-circle layouts.",
+        "previewUrl": "https://cdn.21st.dev/arihantcodes_1f7b8c4d/radial-chart/default/preview.1790026226341-f4a1ff63-456c-429d-90d1-82f56761ea03.png",
+        "videoUrl": "https://cdn.21st.dev/arihantcodes_1f7b8c4d/radial-chart/default/video.1790026226341-f4a1ff63-456c-429d-90d1-82f56761ea03.mp4",
+        "author": "arihantcodes_1f7b8c4d",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18yeG1JVU5OMFdtUE1yYWxOWW12VzdUVHY5ZmUifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/arihantcodes_1f7b8c4d/radial-chart?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@arihantcodes_1f7b8c4d/components/radial-chart"
+      },
+      {
+        "type": "component",
+        "id": 28204,
+        "name": "Calendar Heatmap",
+        "description": "A GitHub-style contributions grid that visualizes a year of daily values as week columns with quantized color intensity, streak stats, and month labels.",
+        "previewUrl": "https://cdn.21st.dev/arihantcodes_1f7b8c4d/calendar-heatmap/default/preview.1789956984692-a92c4c18-9935-477b-b894-30f91d264e23.png",
+        "videoUrl": "https://cdn.21st.dev/arihantcodes_1f7b8c4d/calendar-heatmap/default/video.1789956984692-a92c4c18-9935-477b-b894-30f91d264e23.mp4",
+        "author": "arihantcodes_1f7b8c4d",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18yeG1JVU5OMFdtUE1yYWxOWW12VzdUVHY5ZmUifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/arihantcodes_1f7b8c4d/calendar-heatmap?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@arihantcodes_1f7b8c4d/components/calendar-heatmap"
+      },
+      {
+        "type": "component",
+        "id": 36571,
+        "name": "Activity Heatmap Calendar",
+        "description": "Activity heatmap calendar for React and Tailwind CSS (shadcn/ui) where every day is a square that flies into weekday and month bar charts. It is built to turn a year of check-ins into answers people can see: the same squares rearrange from the calendar into weekday rows and monthly columns, so the busiest day, the strongest month and the quiet season stand out without reading numbers. Shows total, active days, longest and current streaks, highlights the leading weekday or month, and fits the whole year to any width without horizontal scrolling. Tooltips, keyboard navigation for views and days, controlled or uncontrolled view, optional auto-cycling for showcases, theme tokens for light and dark, reduced-motion support and SSR-safe dates. Use it for habit and fitness trackers, learning streaks, contribution graphs, and support or sales dashboards.",
+        "previewUrl": "https://cdn.21st.dev/user_35e5ygDqQuDYzujLgyG9331zPPO/activity-heatmap/default/preview.1791560194042.png",
+        "videoUrl": "https://cdn.21st.dev/user_35e5ygDqQuDYzujLgyG9331zPPO/activity-heatmap/default/video.1791560122625.mp4",
+        "author": "dhxwhy",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_35e5ygDqQuDYzujLgyG9331zPPO/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/dhxwhy/activity-heatmap?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@dhxwhy/components/activity-heatmap"
+      },
+      {
+        "type": "component",
+        "id": 2504,
+        "name": "Animated Radial Chart",
+        "description": "This is a dynamic radial progress chart component that animates a semi-circular arc to visually represent a percentage value, using smooth framer-motion transitions, SVG gradients, and drop shadows for a polished 3D feel. Perfect for dashboards, analytics UIs, or progress visualizations where you want to display performance, goal completion, or system usage in a clean and engaging format.",
+        "previewUrl": "https://cdn.21st.dev/isaiahbjork/animated-radial-chart/default/preview.1785450617109-fe785ee4-862d-4c6d-a546-fc79affa8aa6.png",
+        "videoUrl": "https://cdn.21st.dev/isaiahbjork/animated-radial-chart/default/video.1785450617109-fe785ee4-862d-4c6d-a546-fc79affa8aa6.mp4",
+        "author": "isaiahbjork",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ydGtiQlBjalhzMzl1eGNmR2h3c3VTWE1VU1YifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/isaiahbjork/animated-radial-chart?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@isaiahbjork/components/animated-radial-chart"
+      },
+      {
+        "type": "component",
+        "id": 8023,
+        "name": "Heatmap Calendar",
+        "description": "The Heatmap Calendar component is a visually intuitive way to track daily activity using Shadcn UI components. Each day of the current month is displayed as a block whose color intensity reflects the number of events scheduled, allowing users to quickly gauge activity at a glance. Clicking or hovering on a day opens a Popover showing all events for that day, with each event displayed inside a Card. Users can add new events via an input field and button, and each event can be removed using the Lucide Trash2 icon. The design is clean, responsive, and works seamlessly in both light and dark themes, providing a simplified, month-focused view without extra or overlapping dates.",
+        "previewUrl": "https://cdn.21st.dev/user_2y5Wd5l713ZIFYjX19aZXSyXd6b/heatmap-calendar/default/preview.1787246752363.png",
+        "videoUrl": "https://cdn.21st.dev/user_2y5Wd5l713ZIFYjX19aZXSyXd6b/heatmap-calendar/default/video.1787246773185.mp4",
+        "author": "ruixen.ui",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2y5Wd5l713ZIFYjX19aZXSyXd6b/avatar.svg+xml",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/heatmap-calendar?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ruixen.ui/components/heatmap-calendar"
+      },
+      {
+        "type": "component",
+        "id": 30542,
+        "name": "Heat Calendar",
+        "description": "A calendar heatmap of daily activity such as transactions, trades or API calls, with a readout on hover and a selected span that totals the days. Part of ssych ui: https://ssych.com/library/heat-calendar",
+        "previewUrl": "https://cdn.21st.dev/user_3CdJgTW8geRShR3gegqAjY0JB3B/heat-calendar/default/preview.1790280444742.webp",
+        "videoUrl": "https://cdn.21st.dev/user_3CdJgTW8geRShR3gegqAjY0JB3B/heat-calendar/default/video.1790280438980.mp4",
+        "author": "ssychui",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_3CdJgTW8geRShR3gegqAjY0JB3B/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ssychui/heat-calendar?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ssychui/components/heat-calendar"
+      },
+      {
+        "type": "component",
+        "id": 3095,
+        "name": "Radial Chart",
+        "description": "Here is Radial Chart component",
+        "previewUrl": "https://cdn.21st.dev/user_intentui/radial-chart/default/preview.1786646525824.png",
+        "videoUrl": "https://cdn.21st.dev/user_intentui/radial-chart/default/video.1786646491366.mp4",
+        "author": "intentui",
+        "authorImage": "https://github.com/irsyadadl.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/intentui/radial-chart?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@intentui/components/radial-chart"
+      },
+      {
+        "type": "component",
+        "id": 7318,
+        "name": "Monthly Heatmap Calendar",
+        "description": "This Monthly Heatmap Calendar component is a fully interactive scheduling tool built entirely with shadcn/ui. It allows users to navigate across different months and years using clean dropdown selectors while still displaying a structured grid view of the month. Each day cell supports adding events through a popover form, where users can enter a title and select a specific time. Scheduled events are visually marked with a badge indicator, and event details can be viewed, edited, or deleted directly within the popover. The calendar layout is spaced for clarity, making it easy to scan through days while still keeping event management compact and intuitive. This component is particularly useful for task planning, booking systems, or productivity dashboards, offering a more feature-rich and customizable experience compared to traditional date pickers.",
+        "previewUrl": "https://cdn.21st.dev/ruixen.ui/monthly-heatmap-calendar/default/preview.1757759493231.png",
+        "videoUrl": null,
+        "author": "ruixen.ui",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2y5Wd5l713ZIFYjX19aZXSyXd6b/avatar.svg+xml",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/monthly-heatmap-calendar?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ruixen.ui/components/monthly-heatmap-calendar"
+      }
+    ]
+  }
+}

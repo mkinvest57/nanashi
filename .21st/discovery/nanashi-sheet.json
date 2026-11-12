@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Sheet (Different Directions)  [id: 25002]\nby shadcnspace\nA slide-out sheet (drawer) panel that can open from any edge — top, right, bottom, or left — with a header, form fields, and footer actions.\npreview: https://cdn.21st.dev/user_38qAOtph5HovpSn2yjNYXjbTOm2/sheet-01/default/preview.1787762812125.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcnspace/sheet-01?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 25002 })\n\n### [component] Sheet  [id: 35214]\nby kevingirelli\nA dialog panel that slides in from an edge of the screen, used for navigation menus, filters, and detail views.\npreview: https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/sheet/default/preview.1791206561806.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/kevingirelli/sheet?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 35214 })\n\n### [component] Drawer  [id: 31360]\nby wensity\nA mobile bottom sheet drawer with drag to dismiss, snap points and a drag handle, plus side drawers for larger screens. Ideal for mobile menus, filters and checkout steps.\npreview: https://cdn.21st.dev/user_3JFJF7Mbb5ImA8DO9hE1FECx2fT/drawer/default/preview.1790329202394.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/wensity/drawer?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 31360 })\n\n### [component] Sheet with Scrollable Content  [id: 25010]\nby shadcnspace\nA side sheet (drawer) that opens from the right with a long, vertically scrollable body — ideal for terms & conditions, policies, or any lengthy content with header and footer actions.\npreview: https://cdn.21st.dev/user_38qAOtph5HovpSn2yjNYXjbTOm2/sheet-02/default/preview.1787762237746.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcnspace/sheet-02?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 25010 })\n\n### [component] Drawer  [id: 23558]\nby ddoemonn\nA drag-to-dismiss side panel that slides in from the left or right with a scrim, scroll lock, and focus trap, driven by a headless useDrawer hook.\npreview: https://cdn.21st.dev/user_2y2pjLtk7oS33zts6BqhEIOHrAj/drawer/default/preview.1787587389547.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ddoemonn/drawer?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 23558 })\n\n### [component] Drawer  [id: 11442]\nby coss.com\nA panel that slides in from the edge of the screen with swipe gestures, snap points, and nested drawer support. Supports bottom, top, left, and right positions with default, inset, and straight variants.\npreview: https://cdn.21st.dev/coss.com/drawer/nested-drawers/preview.1774285079281.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/coss.com/drawer?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 11442 })\n\n### [component] Bottom Drawers  [id: 6034]\nby ruixen.ui\nThis component is a set of bottom-sliding drawers, each triggered by a separate button and containing different content such as a newsletter signup, feedback form, or contact form. The layout keeps the content compact and centered, making it easy for users to focus on the inputs and actions without distractions. By stacking the buttons and organizing the drawers consistently, it provides a clean, user-friendly interface for quick interactions and data collection.\npreview: https://cdn.21st.dev/ruixen.ui/bottom-drawers/default/preview.1756143367948.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/bottom-drawers?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 6034 })\n\n### [component] Drawer Sides  [id: 30710]\nby uiable\nA set of drawer panels that slide in from any edge of the screen (top, right, bottom, or left), triggered by a button for each side.\npreview: https://cdn.21st.dev/user_registry_uiable_1783486969177/drawer-sides/default/preview.1790339430088.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/uiable/drawer-sides?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 30710 })\n\n### [component] Keyboard Shortcuts Sheet  [id: 26146]\nby cnippet-dev\nA slide-out sheet panel that lists categorized keyboard shortcuts, each rendered with monospace key badges and section separators.\npreview: https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-sheet-14/default/preview.1789745474511.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/v-sheet-14?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 26146 })\n\n### [component] Quick Actions Grid Drawer  [id: 24848]\nby cnippet-dev\nA bottom drawer that reveals a 4-column grid of quick action buttons (edit, share, download, delete and more) with a destructive variant and a cancel footer.\npreview: https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-drawer-15/default/preview.1787745207824.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/v-drawer-15?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 24848 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 25002,
+        "name": "Sheet (Different Directions)",
+        "description": "A slide-out sheet (drawer) panel that can open from any edge — top, right, bottom, or left — with a header, form fields, and footer actions.",
+        "previewUrl": "https://cdn.21st.dev/user_38qAOtph5HovpSn2yjNYXjbTOm2/sheet-01/default/preview.1787762812125.webp",
+        "videoUrl": "https://cdn.21st.dev/user_38qAOtph5HovpSn2yjNYXjbTOm2/sheet-01/default/video.1787762805187.mp4",
+        "author": "shadcnspace",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zOHFBT3VLQWpSb3c5SjlUdGttSGhYZnBiZ28ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcnspace/sheet-01?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcnspace/components/sheet-01"
+      },
+      {
+        "type": "component",
+        "id": 35214,
+        "name": "Sheet",
+        "description": "A dialog panel that slides in from an edge of the screen, used for navigation menus, filters, and detail views.",
+        "previewUrl": "https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/sheet/default/preview.1791206561806.webp",
+        "videoUrl": "https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/sheet/default/video.1791206515557.mp4",
+        "author": "kevingirelli",
+        "authorImage": "https://avatars.githubusercontent.com/u/131497909?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/kevingirelli/sheet?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@kevingirelli/components/sheet"
+      },
+      {
+        "type": "component",
+        "id": 31360,
+        "name": "Drawer",
+        "description": "A mobile bottom sheet drawer with drag to dismiss, snap points and a drag handle, plus side drawers for larger screens. Ideal for mobile menus, filters and checkout steps.",
+        "previewUrl": "https://cdn.21st.dev/user_3JFJF7Mbb5ImA8DO9hE1FECx2fT/drawer/default/preview.1790329202394.webp",
+        "videoUrl": "https://cdn.21st.dev/user_3JFJF7Mbb5ImA8DO9hE1FECx2fT/drawer/default/video.1790329158303.mp4",
+        "author": "wensity",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_3JFJF7Mbb5ImA8DO9hE1FECx2fT/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/wensity/drawer?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@wensity/components/drawer"
+      },
+      {
+        "type": "component",
+        "id": 25010,
+        "name": "Sheet with Scrollable Content",
+        "description": "A side sheet (drawer) that opens from the right with a long, vertically scrollable body — ideal for terms & conditions, policies, or any lengthy content with header and footer actions.",
+        "previewUrl": "https://cdn.21st.dev/user_38qAOtph5HovpSn2yjNYXjbTOm2/sheet-02/default/preview.1787762237746.webp",
+        "videoUrl": "https://cdn.21st.dev/user_38qAOtph5HovpSn2yjNYXjbTOm2/sheet-02/default/video.1787762226075.mp4",
+        "author": "shadcnspace",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zOHFBT3VLQWpSb3c5SjlUdGttSGhYZnBiZ28ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcnspace/sheet-02?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcnspace/components/sheet-02"
+      },
+      {
+        "type": "component",
+        "id": 23558,
+        "name": "Drawer",
+        "description": "A drag-to-dismiss side panel that slides in from the left or right with a scrim, scroll lock, and focus trap, driven by a headless useDrawer hook.",
+        "previewUrl": "https://cdn.21st.dev/user_2y2pjLtk7oS33zts6BqhEIOHrAj/drawer/default/preview.1787587389547.png",
+        "videoUrl": "https://cdn.21st.dev/user_2y2pjLtk7oS33zts6BqhEIOHrAj/drawer/default/video.1787587371732.mp4",
+        "author": "ddoemonn",
+        "authorImage": "https://github.com/ddoemonn.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ddoemonn/drawer?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ddoemonn/components/drawer"
+      },
+      {
+        "type": "component",
+        "id": 11442,
+        "name": "Drawer",
+        "description": "A panel that slides in from the edge of the screen with swipe gestures, snap points, and nested drawer support. Supports bottom, top, left, and right positions with default, inset, and straight variants.",
+        "previewUrl": "https://cdn.21st.dev/coss.com/drawer/nested-drawers/preview.1774285079281.png",
+        "videoUrl": "https://cdn.21st.dev/coss.com/drawer/nested-drawers/video.1774285079281.mp4",
+        "author": "coss.com",
+        "authorImage": "https://www.google.com/s2/favicons?domain=coss.com&sz=128",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/coss.com/drawer?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@coss.com/components/drawer"
+      },
+      {
+        "type": "component",
+        "id": 6034,
+        "name": "Bottom Drawers",
+        "description": "This component is a set of bottom-sliding drawers, each triggered by a separate button and containing different content such as a newsletter signup, feedback form, or contact form. The layout keeps the content compact and centered, making it easy for users to focus on the inputs and actions without distractions. By stacking the buttons and organizing the drawers consistently, it provides a clean, user-friendly interface for quick interactions and data collection.",
+        "previewUrl": "https://cdn.21st.dev/ruixen.ui/bottom-drawers/default/preview.1756143367948.png",
+        "videoUrl": null,
+        "author": "ruixen.ui",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2y5Wd5l713ZIFYjX19aZXSyXd6b/avatar.svg+xml",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/bottom-drawers?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ruixen.ui/components/bottom-drawers"
+      },
+      {
+        "type": "component",
+        "id": 30710,
+        "name": "Drawer Sides",
+        "description": "A set of drawer panels that slide in from any edge of the screen (top, right, bottom, or left), triggered by a button for each side.",
+        "previewUrl": "https://cdn.21st.dev/user_registry_uiable_1783486969177/drawer-sides/default/preview.1790339430088.webp",
+        "videoUrl": "https://cdn.21st.dev/user_registry_uiable_1783486969177/drawer-sides/default/video.1790339424596.mp4",
+        "author": "uiable",
+        "authorImage": "https://cdn.21st.dev/user-avatars/uiable.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/uiable/drawer-sides?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@uiable/components/drawer-sides"
+      },
+      {
+        "type": "component",
+        "id": 26146,
+        "name": "Keyboard Shortcuts Sheet",
+        "description": "A slide-out sheet panel that lists categorized keyboard shortcuts, each rendered with monospace key badges and section separators.",
+        "previewUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-sheet-14/default/preview.1789745474511.webp",
+        "videoUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-sheet-14/default/video.1789745467977.mp4",
+        "author": "cnippet-dev",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_36Tbt0v8JdD4jEycmBFhR8tojnR/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/v-sheet-14?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@cnippet-dev/components/v-sheet-14"
+      },
+      {
+        "type": "component",
+        "id": 24848,
+        "name": "Quick Actions Grid Drawer",
+        "description": "A bottom drawer that reveals a 4-column grid of quick action buttons (edit, share, download, delete and more) with a destructive variant and a cancel footer.",
+        "previewUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-drawer-15/default/preview.1787745207824.png",
+        "videoUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/v-drawer-15/default/video.1787745222175.mp4",
+        "author": "cnippet-dev",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_36Tbt0v8JdD4jEycmBFhR8tojnR/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/v-drawer-15?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@cnippet-dev/components/v-drawer-15"
+      }
+    ]
+  }
+}

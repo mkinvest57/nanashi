@@ -84,7 +84,7 @@ struct NOOPWidgetView: View {
         var parts: [String] = []
         if let r = snap.recovery { parts.append("Charge \(r)%") }
         if let b = snap.bpm { parts.append("\(b) bpm") }
-        return parts.isEmpty ? "NOOP" : parts.joined(separator: " · ")
+        return parts.isEmpty ? ProductBrand.name : parts.joined(separator: " · ")
     }
 
     // MARK: - Lock Screen accessories
@@ -145,7 +145,7 @@ struct NOOPWidgetView: View {
                                  ? AnyShapeStyle(StrandPalette.textTertiary)
                                  : AnyShapeStyle(HierarchicalShapeStyle.secondary))
             Text(text ?? "–")
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .font(StrandFont.number(15, weight: .semibold))
                 .foregroundStyle(scoreStyle(hasValue: text != nil, tint: tint))
                 .minimumScaleFactor(0.7)
         }
@@ -231,7 +231,7 @@ struct NOOPWidgetView: View {
 
     private var headerRow: some View {
         HStack {
-            Text("NOOP")
+            Text(ProductBrand.name)
                 .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(StrandPalette.textSecondary)
             Spacer()
@@ -344,7 +344,7 @@ struct NOOPWidgetView: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(value ?? "–")
-                    .font(.system(size: 20, weight: .semibold, design: .rounded))
+                    .font(StrandFont.number(20, weight: .semibold))
                     .foregroundStyle(value == nil ? StrandPalette.textTertiary : tint)
                 if let unit, value != nil {
                     Text(unit).font(.caption2).foregroundStyle(StrandPalette.textTertiary)
@@ -430,7 +430,7 @@ struct NOOPWidget: Widget {
                     .background(StrandPalette.surfaceBase)
             }
         }
-        .configurationDisplayName("NOOP")
+        .configurationDisplayName(Text(ProductBrand.name))
         .description("Charge, Effort and Rest as score rings, plus live HR and strap battery at a glance.")
         .supportedFamilies([
             .systemSmall, .systemMedium, .systemLarge,

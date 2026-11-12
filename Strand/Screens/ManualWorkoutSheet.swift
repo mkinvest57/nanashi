@@ -28,6 +28,7 @@ struct ManualWorkoutSheet: View {
     let onSave: (_ row: WorkoutRow, _ replacing: WorkoutRow?) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var sport: String
     @State private var start: Date
@@ -133,17 +134,30 @@ struct ManualWorkoutSheet: View {
                 .padding(NoopMetrics.space6)
         }
         // #697/#horizontal-swipe parity, see ScreenScaffold.
-        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .scrollBounceBasedOnSizeCompat(axes: .horizontal)
         .scrollDismissesKeyboard(.interactively)
         // A fixed 420pt is right for the free-floating macOS sheet, but on iPhone it's wider than
         // the screen, so the Avg HR/Calories row, the Start DatePicker and the footer ran off the
         // right edge (#185, same fix as WhatsNewView/ScoringGuideView). iOS fills the presented
         // sheet's width and sizes to content height instead.
         .frame(maxWidth: .infinity)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            actionBar
+        }
         .noopSheetPresentation(largeFirst: true)
         .background(NoopChromeSurface())
         // Lets the user dismiss the decimal pad (which has no return key) and reach Cancel/Add.
-        .keyboardDoneToolbar($focusedField)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    focusedField = nil
+                    sportFocused = false
+                }
+                .font(StrandFont.body)
+                .foregroundStyle(StrandPalette.accentInk)
+            }
+        }
         #endif
     }
 
@@ -151,9 +165,7 @@ struct ManualWorkoutSheet: View {
         VStack(alignment: .leading, spacing: NoopMetrics.space5) {
             header
             VStack(alignment: .leading, spacing: NoopMetrics.space4) {
-                field(String(localized: "Sport")) {
-                    sportPicker
-                }
+                sportPicker
                 // Raise the Sport field above the following rows so its floating suggestion dropdown
                 // (an overlay, see `sportPicker`) draws ON TOP of Start / End / Duration, not behind them.
                 .zIndex(1)
@@ -179,24 +191,20 @@ struct ManualWorkoutSheet: View {
                         .accessibilityLabel("Duration in minutes")
                     }
                 }
-                field(String(localized: "Distance")) {
-                    numberInput(String(localized: "optional"), text: $distanceText, unit: distanceUnit, field: .distance)
-                        .accessibilityLabel("Distance, optional")
-                }
-                HStack(spacing: 14) {
-                    field(String(localized: "Avg HR")) {
-                        numberInput(String(localized: "optional"), text: $avgHrText, unit: "bpm", field: .avgHr)
-                            .accessibilityLabel("Average heart rate in beats per minute, optional")
-                    }
-                    field(String(localized: "Calories")) {
-                        numberInput(String(localized: "optional"), text: $kcalText, unit: "kcal", field: .calories)
-                            .accessibilityLabel("Calories in kilocalories, optional")
-                    }
+                numberInput(String(localized: "Distance"), text: $distanceText, unit: distanceUnit,
+                            field: .distance, accessibility: String(localized: "Distance, optional"))
+                HStack(spacing: NoopMetrics.space3) {
+                    numberInput(String(localized: "Avg HR"), text: $avgHrText, unit: "bpm",
+                                field: .avgHr, accessibility: String(localized: "Average heart rate in beats per minute, optional"))
+                    numberInput(String(localized: "Calories"), text: $kcalText, unit: "kcal",
+                                field: .calories, accessibility: String(localized: "Calories in kilocalories, optional"))
                 }
             }
             if let validationNote { noteRow(validationNote) }
             if avgHrEditedNote { noteRow(String(localized: "Avg HR is shown as typed. The HR graph, zones and Effort stay from the recorded session.")) }
+            #if os(macOS)
             footer
+            #endif
         }
     }
 
@@ -228,15 +236,17 @@ struct ManualWorkoutSheet: View {
     }
 
     private var sportPicker: some View {
-        TextField("e.g. Running", text: $sport)
-            .textFieldStyle(.plain)
-            .font(StrandFont.body)
-            .foregroundStyle(StrandPalette.textPrimary)
-            .focused($sportFocused)
-            .padding(.horizontal, 12).padding(.vertical, 9)
-            .background(StrandPalette.surfaceInset, in: inputShape)
-            .overlay(inputShape.strokeBorder(StrandPalette.hairline, lineWidth: 1))
-            .accessibilityLabel("Sport")
+        NoopFloatingField(String(localized: "Sport"),
+                          isFocused: sportFocused, isFilled: !sport.isEmpty,
+                          hint: String(localized: "e.g. Running"),
+                          accessibilityLabel: String(localized: "Sport")) {
+            TextField("", text: $sport)
+                .textFieldStyle(.plain)
+                .font(StrandFont.body)
+                .foregroundStyle(StrandPalette.textPrimary)
+                .focused($sportFocused)
+                .accessibilityLabel("Sport")
+        }
             // The suggestion list FLOATS below the field as an overlay instead of sitting inline in the
             // form. Inline it was the only height-flexible element, so on iPhone with the keyboard up
             // the fixed-height fields below won the vertical space and squeezed it to nothing — the
@@ -284,7 +294,7 @@ struct ManualWorkoutSheet: View {
         // guard. `.basedOnSize` permits horizontal bounce only when content genuinely overflows
         // the width, so nothing that is meant to scroll sideways is affected. (#1532 follow-up)
         #if os(iOS)
-        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .scrollBounceBasedOnSizeCompat(axes: .horizontal)
         #endif
         .frame(height: min(max(suggestionsHeight, 1), 168))
         .onPreferenceChange(SuggestionsHeightKey.self) { suggestionsHeight = $0 }
@@ -341,17 +351,46 @@ struct ManualWorkoutSheet: View {
         }
     }
 
+    private var stackedFooter: Bool {
+        #if os(iOS)
+        dynamicTypeSize.isAccessibilitySize
+        #else
+        false
+        #endif
+    }
+
+    private var footerLayout: AnyLayout {
+        stackedFooter
+            ? AnyLayout(VStackLayout(spacing: NoopMetrics.space3))
+            : AnyLayout(HStackLayout(spacing: NoopMetrics.space3))
+    }
+
     private var footer: some View {
-        HStack(spacing: NoopMetrics.space3) {
-            NoopButton("Cancel", kind: .tertiary) { dismiss() }
-            Spacer()
-            NoopButton(editing == nil ? "Add" : "Save", systemImage: "checkmark", kind: .primary) {
+        footerLayout {
+            NoopButton("Cancel", kind: .tertiary, fullWidth: stackedFooter) { dismiss() }
+            if !stackedFooter { Spacer() }
+            NoopButton(editing == nil ? "Add" : "Save", systemImage: "checkmark",
+                       kind: .primary, fullWidth: stackedFooter) {
                 save()
             }
             .disabled(builtRow == nil)
             .accessibilityLabel(editing == nil ? "Add workout" : "Save workout")
         }
     }
+
+    #if os(iOS)
+    private var actionBar: some View {
+        VStack(spacing: 0) {
+            Rectangle()
+                .fill(StrandPalette.hairline)
+                .frame(height: NoopMetrics.hairlineWidth)
+            footer
+                .padding(.horizontal, NoopMetrics.space6)
+                .padding(.vertical, NoopMetrics.space3)
+        }
+        .background(StrandPalette.surfaceBase)
+    }
+    #endif
 
     private func field<Content: View>(_ label: String, @ViewBuilder _ content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -361,24 +400,21 @@ struct ManualWorkoutSheet: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func numberInput(_ placeholder: String, text: Binding<String>, unit: String, field: NumberField) -> some View {
-        HStack(spacing: 6) {
-            TextField(placeholder, text: text)
+    private func numberInput(_ label: String, text: Binding<String>, unit: String,
+                             field: NumberField, accessibility: String) -> some View {
+        NoopFloatingField(label, isFocused: focusedField == field,
+                          isFilled: !text.wrappedValue.isEmpty,
+                          hint: String(localized: "optional"), unit: unit,
+                          accessibilityLabel: accessibility) {
+            TextField("", text: text)
                 .textFieldStyle(.plain)
                 .font(StrandFont.bodyNumber)
                 .foregroundStyle(StrandPalette.textPrimary)
-                // Numeric entry → decimal pad on iOS (digits + "."), not the QWERTY default; no-op on macOS.
                 .numericKeyboard()
                 .focused($focusedField, equals: field)
-            Text(unit).font(StrandFont.footnote).foregroundStyle(StrandPalette.textTertiary)
+                .accessibilityLabel(Text(accessibility))
         }
-        .padding(.horizontal, 12).padding(.vertical, 9)
-        // Fill the field column so the Avg HR / Calories boxes share an identical width — left to
-        // their intrinsic size the two boxes rendered unequal (the "bpm"/"kcal" units differ in
-        // length), so the side-by-side row read as lopsided (#234).
         .frame(maxWidth: .infinity)
-        .background(StrandPalette.surfaceInset, in: inputShape)
-        .overlay(inputShape.strokeBorder(StrandPalette.hairline, lineWidth: 1))
     }
 
     private func noteRow(_ text: String) -> some View {
@@ -427,13 +463,13 @@ struct ManualWorkoutSheet: View {
 
     /// Parsed avg-HR — nil for blank, an out-of-band sentinel handled by buildManualRow otherwise.
     private var avgHr: Int? { Int(avgHrText.trimmingCharacters(in: .whitespaces)) }
-    private var kcal: Double? { Double(kcalText.trimmingCharacters(in: .whitespaces)) }
+    private var kcal: Double? { DecimalEntryParser.parse(kcalText) }
 
     /// Parsed distance in stored METRES — nil for blank (no distance), or when the typed value can't be a
     /// non-negative number. The user enters km/mi; convert to metres for the row. (#1195)
     private var distanceMeters: Double? {
         let t = distanceText.trimmingCharacters(in: .whitespaces)
-        guard !t.isEmpty, let v = Double(t), v >= 0 else { return nil }
+        guard !t.isEmpty, let v = DecimalEntryParser.parse(t), v >= 0 else { return nil }
         let km = distanceUnitSystem == .imperial ? v / UnitFormatter.milesPerKilometer : v
         return km * 1000.0
     }

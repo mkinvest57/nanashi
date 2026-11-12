@@ -15,7 +15,7 @@ import ActivityKit
 /// `Text(timerInterval:)`, which ticks on its own without the app pushing anything. Pushing a new
 /// content state every second to animate a clock would burn the Live Activity update budget and
 /// still look worse.
-public struct LiftActivityAttributes: ActivityAttributes {
+public struct LiftActivityAttributes {
     public struct ContentState: Codable, Hashable {
         /// Amber rest vs green working — the same colour language as the sheet and the bar.
         public var isResting: Bool
@@ -54,4 +54,7 @@ public struct LiftActivityAttributes: ActivityAttributes {
     /// travels in `ContentState`.
     public init() {}
 }
+
+@available(iOS 16.1, *)
+extension LiftActivityAttributes: ActivityAttributes {}
 #endif

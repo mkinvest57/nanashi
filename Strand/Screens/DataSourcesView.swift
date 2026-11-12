@@ -826,7 +826,7 @@ struct DataSourcesView: View {
                     .font(StrandFont.subhead)
                     .foregroundStyle(StrandPalette.textPrimary)
             }
-            .toggleStyle(.switch)
+            .toggleStyle(NoopToggleStyle())
             .tint(DomainTheme.effort.color)
             .accessibilityLabel("Broadcast heart rate as a Bluetooth sensor")
             .onChangeCompat(of: broadcastHrEnabled) { on in
@@ -943,7 +943,7 @@ struct DataSourcesView: View {
                         .foregroundStyle(StrandPalette.textTertiary)
                 }
             }
-            .toggleStyle(.switch)
+            .toggleStyle(NoopToggleStyle())
             .tint(StrandPalette.accent)
             .accessibilityLabel("Broadcast heart rate from the strap")
             .onChangeCompat(of: strapBroadcastHrEnabled) { model.ble.setBroadcastHr($0) }

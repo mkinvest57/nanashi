@@ -220,15 +220,13 @@ struct CoupledView: View {
                 CountUpText(value: r,
                             format: { "\(Int($0.rounded()))%" },
                             font: StrandFont.number(48),
-                            color: .white)
-                    .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
+                            color: StrandPalette.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
             } else {
                 Text("—")
                     .font(StrandFont.number(48))
-                    .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
+                    .foregroundStyle(StrandPalette.textPrimary)
             }
             Text("RECOVERY")
                 .font(StrandFont.overline)
@@ -309,13 +307,12 @@ struct CoupledView: View {
                                 CountUpText(value: s,
                                             format: { String(format: "%.1f", $0) },
                                             font: StrandFont.number(34),
-                                            color: .white)
+                                            color: StrandPalette.textPrimary)
                             } else {
-                                Text("—").font(StrandFont.number(34)).foregroundStyle(.white)
+                                Text("—").font(StrandFont.number(34)).foregroundStyle(StrandPalette.textPrimary)
                             }
                         }
-                        .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
-                        .lineLimit(1).minimumScaleFactor(0.5)
+                            .lineLimit(1).minimumScaleFactor(0.5)
                         .allowsHitTesting(false)
                     }
                     .frame(width: 148, height: 148)
@@ -418,9 +415,8 @@ struct CoupledView: View {
                                 CountUpText(value: p,
                                             format: { "\(Int($0.rounded()))" },
                                             font: StrandFont.number(24),
-                                            color: .white)
-                                    .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
-                                    .allowsHitTesting(false)
+                                            color: StrandPalette.textPrimary)
+                                                    .allowsHitTesting(false)
                             }
                         }
                         .frame(width: 88, height: 88)
@@ -604,7 +600,7 @@ struct CoupledView: View {
             }
             #if os(iOS)
             // #697/#horizontal-swipe parity, see ScreenScaffold.
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
             .background(StrandPalette.surfaceBase.ignoresSafeArea())
             .navigationTitle("What shaped your Charge")
@@ -615,12 +611,12 @@ struct CoupledView: View {
                 #if os(iOS)
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { showChargeBreakdown = false }
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                 }
                 #else
                 ToolbarItem {
                     Button("Done") { showChargeBreakdown = false }
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                 }
                 #endif
             }

@@ -403,8 +403,10 @@ class AiCoach(
      * model doesn't invent numbers.
      */
     fun buildContext(days: List<DailyMetric>): String {
+        val now = java.time.ZonedDateTime.now()
+        val snapshot = "Snapshot local date: ${now.toLocalDate()}; timezone: ${now.zone.id}."
         if (days.isEmpty()) {
-            return "USER DATA: No wearable data is available yet (no synced days). " +
+            return "$snapshot\nUSER DATA: No wearable data is available yet (no synced days). " +
                 "Do not invent specific numbers; give general guidance and encourage the user " +
                 "to sync their strap so future advice can reference their real metrics."
         }
@@ -415,6 +417,8 @@ class AiCoach(
 
         val sb = StringBuilder()
         sb.append("USER DATA (most recent first; figures rounded; a dash means not recorded that day).\n\n")
+
+        sb.append(snapshot).append("\n\n")
 
         // --- Recent daily table (newest first for readability) ---
         sb.append("Last ${last14.size} days:\n")
@@ -694,11 +698,12 @@ class AiCoach(
             messages = messages,
             key = key,
             customAuthHeader = customAuthHeader,
-            modernParams = false,
+            modernParams = provider == AiProvider.OPENAI,
         )
         val responseText = if (code in 200..299) {
             text
-        } else if (code == 400 && shouldRetryOpenAiModernParams(text)) {
+        } else if (provider == AiProvider.CUSTOM &&
+            OpenAiChatContract.shouldRetryModernParams(code, text)) {
             val (retryCode, retryText) = executeOpenAiCompatible(
                 provider = provider,
                 url = url,
@@ -716,19 +721,18 @@ class AiCoach(
 
         val json = parse(responseText)
         val firstChoice = json.optJSONArray("choices")?.optJSONObject(0)
-        val content = firstChoice
-            ?.optJSONObject("message")
-            ?.optString("content")
-            ?.trim()
-
-        // Empty assistant content on a 200: some OpenAI-compatible servers (notably a model set by hand
-        // that the provider doesn't offer) return the real error INSIDE a 200 body rather than a 4xx, so
-        // surface it instead of a blanket "empty reply" that hides the cause (#1074).
-        if (content.isNullOrEmpty()) throw Exception(emptyReplyMessage(responseText))
+        val message = firstChoice?.optJSONObject("message")
+        val content = when {
+            message?.opt("content") is String -> message.getString("content")
+            message?.opt("refusal") is String -> message.getString("refusal")
+            else -> ""
+        }.trim()
+        if (json.has("error")) throw Exception(emptyReplyMessage(responseText))
+        OpenAiChatContract.validateReply(content, firstChoice?.optString("finish_reason")?.lowercase(), emptyReplyMessage(responseText))
 
         // Local servers (notably Ollama) stop with finish_reason "length" at the context-window edge
         // and give NO error, keep the partial text and append the actionable notice so it isn't silent.
-        val truncated = firstChoice.optString("finish_reason").lowercase() == "length"
+        val truncated = firstChoice?.optString("finish_reason")?.lowercase() == "length"
         return if (truncated) content + TRUNCATION_NOTE else content
     }
 
@@ -744,18 +748,7 @@ class AiCoach(
         val body = JSONObject()
             .put("model", model)
             .put("messages", messages)
-        if (modernParams) {
-            // #1074: same 4096 cap as the standard path below. This modern-params leg fronts REASONING
-            // models, which count hidden thinking tokens against max_completion_tokens — so 900 starved
-            // them into truncated/empty replies even more readily. A cap, not a target.
-            body.put("max_completion_tokens", 4096)
-        } else {
-            body.put("temperature", 0.6)
-            // #1074: 900 truncated detailed coaching replies mid-sentence on cloud providers (the reporter
-            // hit it on a DeepSeek "pro" model). 4096 lets a full multi-section reply complete; it is a cap,
-            // not a target, so short answers are unaffected. Matches the Gemini leg's maxOutputTokens.
-            body.put("max_tokens", 4096)
-        }
+        OpenAiChatContract.parameters(body, modernParams)
 
         val builder = Request.Builder()
             .url(url)
@@ -778,14 +771,6 @@ class AiCoach(
             CustomAiAuthHeader.BEARER -> builder.addHeader("Authorization", "Bearer $key")
             CustomAiAuthHeader.X_API_KEY -> builder.addHeader("x-api-key", key)
         }
-    }
-
-    private fun shouldRetryOpenAiModernParams(text: String): Boolean {
-        val detail = runCatching { parse(text).toString() }.getOrDefault(text).lowercase()
-        return detail.contains("max_completion_tokens") ||
-            detail.contains("max_tokens") ||
-            detail.contains("temperature") ||
-            detail.contains("unsupported")
     }
 
     /** Base for the Custom provider, the user's URL with any trailing slashes trimmed. */
@@ -937,8 +922,8 @@ class AiCoach(
     // K1: Streaming provider calls (SSE via OkHttp BufferedSource)
     // ---------------------------------------------------------------------------------------
 
-    /** Stream an OpenAI-compatible chat (OpenAI + Custom). Same body as [callOpenAiCompatible]'s
-     *  standard-params path, with `stream: true`. SSE parsed via [SseDeltas.openAiDelta]. */
+    /** OpenAI starts with current parameters. Custom servers get at most one rejected-parameter
+     * retry, before any payload arrives; a partial or completed generation is never replayed. */
     private fun callOpenAiCompatibleStream(
         provider: AiProvider,
         url: String,
@@ -952,23 +937,30 @@ class AiCoach(
         val messages = JSONArray()
         messages.put(JSONObject().put("role", "system").put("content", systemPrompt))
         for (m in history) messages.put(JSONObject().put("role", m.role).put("content", m.text))
-
-        val body = JSONObject()
-            .put("model", model)
-            .put("messages", messages)
-            .put("temperature", 0.6)
-            .put("max_tokens", 4096)
-            .put("stream", true)
-            .toString()
-
-        val builder = Request.Builder().url(url).addHeader("Content-Type", "application/json")
-            .post(body.toRequestBody(JSON))
-        when (provider) {
-            AiProvider.CUSTOM -> applyCustomAuthHeader(builder, key, customAuthHeader)
-            else -> if (!key.isNullOrBlank()) builder.addHeader("Authorization", "Bearer $key")
+        val state = OpenAiChatContract.StreamState()
+        fun attempt(modern: Boolean) {
+            val body = OpenAiChatContract.parameters(JSONObject()
+                .put("model", model).put("messages", messages).put("stream", true), modern)
+            val builder = Request.Builder().url(url).addHeader("Content-Type", "application/json")
+                .post(body.toString().toRequestBody(JSON))
+            when (provider) {
+                AiProvider.CUSTOM -> applyCustomAuthHeader(builder, key, customAuthHeader)
+                else -> if (!key.isNullOrBlank()) builder.addHeader("Authorization", "Bearer $key")
+            }
+            executeStreaming(builder.build(), provider, onDelta,
+                retryLegacyParameters = provider == AiProvider.CUSTOM && !modern) { payload -> state.consume(payload) }
         }
-        executeStreaming(builder.build(), provider, onDelta) { payload -> SseDeltas.openAiDelta(payload) }
+        try {
+            attempt(modern = provider == AiProvider.OPENAI)
+        } catch (rejection: OpenAiParameterRejection) {
+            if (state.receivedPayload) throw rejection
+            attempt(modern = true)
+        }
+        state.finish()
+        if (state.finishReason == "length") onDelta(TRUNCATION_NOTE)
     }
+
+    private class OpenAiParameterRejection : Exception()
 
     /** Stream an Anthropic chat. Same body as [callAnthropic], with `stream: true`. SSE parsed
      *  via [SseDeltas.anthropicDelta]. */
@@ -1043,12 +1035,16 @@ class AiCoach(
         request: Request,
         provider: AiProvider,
         onDelta: (String) -> Unit,
+        retryLegacyParameters: Boolean = false,
         extractDelta: (String) -> String?,
     ) {
         try {
             http.newCall(request).execute().use { resp ->
                 if (resp.code !in 200..299) {
                     val body = resp.body?.string().orEmpty()
+                    if (retryLegacyParameters && OpenAiChatContract.shouldRetryModernParams(resp.code, body)) {
+                        throw OpenAiParameterRejection()
+                    }
                     throw httpError(provider, resp.code, body)
                 }
                 val source = resp.body?.source()
@@ -1056,8 +1052,9 @@ class AiCoach(
                 while (!source.exhausted()) {
                     val line = source.readUtf8Line() ?: break
                     val payload = SseDeltas.dataPayload(fromLine = line) ?: continue
-                    val delta = extractDelta(payload) ?: continue
-                    onDelta(delta)
+                    val delta = extractDelta(payload)
+                    if (delta != null) onDelta(delta)
+                    if (SseDeltas.isDone(payload)) break
                 }
             }
         } catch (e: java.net.UnknownHostException) {
@@ -1274,7 +1271,7 @@ class AiCoach(
                     val id = data.optJSONObject(i)?.optString("id")?.trim().orEmpty()
                     if (id.isEmpty()) continue
                     val keep = when (provider) {
-                        AiProvider.OPENAI -> id.startsWith("gpt") || id.startsWith("o")
+                        AiProvider.OPENAI -> OpenAiChatContract.isModelCandidate(id)
                         AiProvider.ANTHROPIC, AiProvider.CUSTOM -> true
                         AiProvider.GEMINI -> true
                     }
@@ -1372,7 +1369,10 @@ class AiCoach(
          */
         const val DEFAULT_SYSTEM_PROMPT =
             "You are an elite, supportive recovery and performance coach with a real training " +
-                "methodology. You may be given a summary of the user's own wearable data (charge " +
+                "methodology. Reply in the language of the user's latest question. The current data snapshot " +
+                "takes precedence over figures in earlier conversation turns. Distinguish today's date " +
+                "from the latest day with available measurements; never describe an older measurement " +
+                "as today's or fill missing days. You may be given a summary of the user's own wearable data (charge " +
                 "0-100, effort 0-100, rest/sleep and its deep/REM/light breakdown, sleep " +
                 "efficiency, HRV, resting heart rate) and recent workouts. " +
                 "Charge is the daily recovery/readiness score; effort is the day's cardiovascular " +

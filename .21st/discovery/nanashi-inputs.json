@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Slider  [id: 1711]\nby shugar\nInput to select a value from a given range.\npreview: https://cdn.21st.dev/user_2uAqrF8oLIpxBVD9ZqYRYLfhKZ1/slider/slider/preview.1787930780684.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/shugar/slider?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 1711 })\n\n### [component] Slider with Value Output  [id: 25424]\nby bundui\nA range slider that displays the currently selected numeric value next to the track.\npreview: https://cdn.21st.dev/user_bundui/slider4/default/preview.1787759418302.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/bundui/slider4?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 25424 })\n\n### [component] Reshaped Radio  [id: 17933]\nby reshaped\nWorks like a native radio button with value passed to the form on submission, in controlled or uncontrolled mode. Comes in three sizes, supports error and disabled states, and a RadioGroup compound for exclusive selection with any layout, FormControl group labels and card-based composition.\npreview: https://cdn.21st.dev/larsen66/reshaped-radio/cards/preview.1783441236441.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/reshaped/reshaped-radio?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 17933 })\n\n### [component] Slider  [id: 35040]\nby kuratlielia\nA draggable range/value slider input with a rolling-number value bubble, rubber-band drag resistance, marks, and keyboard support.\npreview: https://cdn.21st.dev/user_registry_kuratlielia_1790903117010/slider/default/preview.1790978106946.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/kuratlielia/slider?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 35040 })\n\n### [component] Slider  [id: 34777]\nby halaska-studio\nA labeled numeric slider with a live value readout, available as a native range input or as a draggable spring-animated track with a thumb that grows while held.\npreview: https://cdn.21st.dev/user_registry_halaska-studio_1790790197996/slider/range/preview.1790886549240.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/halaska-studio/slider?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 34777 })\n\n### [component] Slider  [id: 11891]\nby jshguo\nSlider component built on Radix UI — supports single value and range selection.\npreview: https://cdn.21st.dev/reapollo/interfaces-slider/range/preview.1775124751250.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/jshguo/interfaces-slider?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 11891 })\n\n### [component] Slider  [id: 1338]\nby shadcn\nAn input where the user selects a value from within a given range.\npreview: https://cdn.21st.dev/user_shadcn/slider/default/preview.1786654041222.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcn/slider?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 1338 })\n\n### [component] Slider  [id: 322]\nby originui\nEnhanced shadcn/ui slider\npreview: https://cdn.21st.dev/user_originui/slider/default/preview.1737994991336.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/originui/slider?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 322 })\n\n### [component] Slider [react-aria-components]  [id: 827]\nby jolbol1\nA slider allows a user to select one or more values within a range.\n\nThe <input type=\"range\"> HTML element can be used to build a slider, however it is very difficult to style cross browser. Slider helps achieve accessible sliders that can be styled as needed.\npreview: https://cdn.21st.dev/user_jolbol1/slider/827/preview.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/jolbol1/slider?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 827 })\n\n### [component] Slider  [id: 31347]\nby wensity\nAn accessible range slider with single and dual thumbs, steps and a value bubble that appears on drag or focus. Use it for prices, volume and filter ranges.\npreview: https://cdn.21st.dev/wensity/slider/default/preview.1790294656195-54a8c983-2e76-484e-86f1-9e96b4903c02.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/wensity/slider?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 31347 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 1711,
+        "name": "Slider",
+        "description": "Input to select a value from a given range.",
+        "previewUrl": "https://cdn.21st.dev/user_2uAqrF8oLIpxBVD9ZqYRYLfhKZ1/slider/slider/preview.1787930780684.webp",
+        "videoUrl": "https://cdn.21st.dev/user_2uAqrF8oLIpxBVD9ZqYRYLfhKZ1/slider/slider/video.1787930784213.mp4",
+        "author": "shugar",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ydUFxckNKVkZJUFpGMDQ1cUQ0NnBHeTh0VDIifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shugar/slider?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shugar/components/slider"
+      },
+      {
+        "type": "component",
+        "id": 25424,
+        "name": "Slider with Value Output",
+        "description": "A range slider that displays the currently selected numeric value next to the track.",
+        "previewUrl": "https://cdn.21st.dev/user_bundui/slider4/default/preview.1787759418302.webp",
+        "videoUrl": "https://cdn.21st.dev/user_bundui/slider4/default/video.1787759395935.mp4",
+        "author": "bundui",
+        "authorImage": "https://shadcnuikit.com/logo.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/bundui/slider4?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@bundui/components/slider4"
+      },
+      {
+        "type": "component",
+        "id": 17933,
+        "name": "Reshaped Radio",
+        "description": "Works like a native radio button with value passed to the form on submission, in controlled or uncontrolled mode. Comes in three sizes, supports error and disabled states, and a RadioGroup compound for exclusive selection with any layout, FormControl group labels and card-based composition.",
+        "previewUrl": "https://cdn.21st.dev/larsen66/reshaped-radio/cards/preview.1783441236441.png",
+        "videoUrl": "https://cdn.21st.dev/larsen66/reshaped-radio/cards/video.1783441236441.mp4",
+        "author": "reshaped",
+        "authorImage": "https://avatars.githubusercontent.com/u/96989264?s=48&v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/reshaped/reshaped-radio?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@reshaped/components/reshaped-radio"
+      },
+      {
+        "type": "component",
+        "id": 35040,
+        "name": "Slider",
+        "description": "A draggable range/value slider input with a rolling-number value bubble, rubber-band drag resistance, marks, and keyboard support.",
+        "previewUrl": "https://cdn.21st.dev/user_registry_kuratlielia_1790903117010/slider/default/preview.1790978106946.webp",
+        "videoUrl": "https://cdn.21st.dev/kuratlielia/slider/default/video.1790978103786.mp4",
+        "author": "kuratlielia",
+        "authorImage": "https://avatars.githubusercontent.com/u/82137127?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/kuratlielia/slider?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@kuratlielia/components/slider"
+      },
+      {
+        "type": "component",
+        "id": 34777,
+        "name": "Slider",
+        "description": "A labeled numeric slider with a live value readout, available as a native range input or as a draggable spring-animated track with a thumb that grows while held.",
+        "previewUrl": "https://cdn.21st.dev/user_registry_halaska-studio_1790790197996/slider/range/preview.1790886549240.webp",
+        "videoUrl": "https://cdn.21st.dev/user_registry_halaska-studio_1790790197996/slider/range/video.1790886545294.mp4",
+        "author": "halaska-studio",
+        "authorImage": "https://avatars.githubusercontent.com/u/283849249?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/halaska-studio/slider?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@halaska-studio/components/slider"
+      },
+      {
+        "type": "component",
+        "id": 11891,
+        "name": "Slider",
+        "description": "Slider component built on Radix UI — supports single value and range selection.",
+        "previewUrl": "https://cdn.21st.dev/reapollo/interfaces-slider/range/preview.1775124751250.png",
+        "videoUrl": "https://cdn.21st.dev/reapollo/interfaces-slider/range/video.1775124751250.mp4",
+        "author": "jshguo",
+        "authorImage": "https://pbs.twimg.com/profile_images/1946774162124554241/hB_Gz7Wc_400x400.jpg",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/jshguo/interfaces-slider?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@jshguo/components/interfaces-slider"
+      },
+      {
+        "type": "component",
+        "id": 1338,
+        "name": "Slider",
+        "description": "An input where the user selects a value from within a given range.",
+        "previewUrl": "https://cdn.21st.dev/user_shadcn/slider/default/preview.1786654041222.png",
+        "videoUrl": "https://cdn.21st.dev/user_shadcn/slider/default/video.1786654061225.mp4",
+        "author": "shadcn",
+        "authorImage": "https://github.com/shadcn-ui.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcn/slider?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcn/components/slider"
+      },
+      {
+        "type": "component",
+        "id": 322,
+        "name": "Slider",
+        "description": "Enhanced shadcn/ui slider",
+        "previewUrl": "https://cdn.21st.dev/user_originui/slider/default/preview.1737994991336.png",
+        "videoUrl": "https://cdn.21st.dev/user_originui/slider/default/video.1737994995411.mp4",
+        "author": "originui",
+        "authorImage": "https://avatars.githubusercontent.com/u/185059885?s=200&v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/originui/slider?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@originui/components/slider"
+      },
+      {
+        "type": "component",
+        "id": 827,
+        "name": "Slider [react-aria-components]",
+        "description": "A slider allows a user to select one or more values within a range.\n\nThe <input type=\"range\"> HTML element can be used to build a slider, however it is very difficult to style cross browser. Slider helps achieve accessible sliders that can be styled as needed.",
+        "previewUrl": "https://cdn.21st.dev/user_jolbol1/slider/827/preview.png",
+        "videoUrl": "https://cdn.21st.dev/user_jolbol1/slider/827/video.mp4",
+        "author": "jolbol1",
+        "authorImage": "https://avatars.githubusercontent.com/u/5064896?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/jolbol1/slider?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@jolbol1/components/slider"
+      },
+      {
+        "type": "component",
+        "id": 31347,
+        "name": "Slider",
+        "description": "An accessible range slider with single and dual thumbs, steps and a value bubble that appears on drag or focus. Use it for prices, volume and filter ranges.",
+        "previewUrl": "https://cdn.21st.dev/wensity/slider/default/preview.1790294656195-54a8c983-2e76-484e-86f1-9e96b4903c02.png",
+        "videoUrl": null,
+        "author": "wensity",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_3JFJF7Mbb5ImA8DO9hE1FECx2fT/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/wensity/slider?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@wensity/components/slider"
+      }
+    ]
+  }
+}

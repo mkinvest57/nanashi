@@ -6,14 +6,15 @@
 # Mach-O so AltSign can provision the matching App IDs and shared App Group before re-signing.
 #
 # Usage:
-#   Tools/prepare-ios-sideload-app.sh path/to/NOOP.app
+#   Tools/prepare-ios-sideload-app.sh path/to/NOOP.app [path/to/Widget.appex]
 
 set -euo pipefail
 
-APP="${1:?usage: $0 path/to/NOOP.app}"
+APP="${1:?usage: $0 path/to/NOOP.app [path/to/Widget.appex]}"
 [ -d "$APP" ] || { echo "no such app bundle: $APP" >&2; exit 1; }
 
-WIDGET="$APP/PlugIns/NOOPWidgets.appex"
+# A personal build can rename the widget product while keeping its original bundle identity.
+WIDGET="${2:-$APP/PlugIns/NOOPWidgets.appex}"
 [ -d "$WIDGET" ] || { echo "widget extension missing: $WIDGET" >&2; exit 1; }
 
 APP_INFO="$APP/Info.plist"
@@ -40,6 +41,7 @@ WIDGET_ENTITLEMENTS="$ENTITLEMENTS_DIR/widget.plist"
 
 plutil -create xml1 "$APP_ENTITLEMENTS"
 plutil -insert 'com\.apple\.developer\.healthkit' -bool YES "$APP_ENTITLEMENTS"
+plutil -insert 'com\.apple\.developer\.healthkit\.background-delivery' -bool YES "$APP_ENTITLEMENTS"
 plutil -insert 'com\.apple\.developer\.healthkit\.access' -array "$APP_ENTITLEMENTS"
 plutil -insert 'com\.apple\.security\.application-groups' -array "$APP_ENTITLEMENTS"
 plutil -insert 'com\.apple\.security\.application-groups.0' -string "$APP_GROUP" "$APP_ENTITLEMENTS"

@@ -1,9 +1,9 @@
 import SwiftUI
 import StrandDesign
 
-/// Coach settings, split out of `CoachView` so the coach screen is the conversation and nothing else
-/// (#2243). Holds the surfaces that used to stack above the transcript: the data-sharing consent, the
-/// two further opt-ins that depend on it, the editable coach instructions, and the morning brief.
+/// Compact Coach settings: the daily remarks control stays visible, while model choice, data access,
+/// optional context, custom instructions and scheduled briefs expand only when requested. The same
+/// remarks control is reachable directly from the conversation.
 ///
 /// Connection management (the provider pill, Update key, Clear conversation, Disconnect) stays on
 /// `CoachView`, where both the conversation and the key editor are visible. The Kotlin twin
@@ -27,6 +27,10 @@ struct CoachSettingsView: View {
     /// The coach-instructions editor, collapsed until asked for.
     @State private var promptExpanded: Bool = false
     @State private var promptDraft: String = ""
+    @State private var customModelDraft = ""
+    @State private var modelExpanded = false
+    @State private var advancedExpanded = false
+    @State private var customModelExpanded = false
 
     var body: some View {
         // Literals, not String(localized:): `title`/`subtitle` are LocalizedStringKey, which converts
@@ -38,34 +42,73 @@ struct CoachSettingsView: View {
         // nowhere, and a macOS sheet has no swipe-to-dismiss: that combination would leave this screen
         // with no way out. (#2206 is the same mistake in the other direction.)
         ScreenScaffold(title: "Coach settings",
-                       subtitle: "What the coach may read, how it is told to answer, and when it writes to you.",
-                       topBackground: liquidScaffoldSky(),
+                       subtitle: "Choose how Nanashi talks to you.",
+                       topBackground: liquidScaffoldSky(), showsPresence: false,
                        trailing: {
                            Button("Done") { dismiss() }
                                .buttonStyle(.plain)
                                .font(StrandFont.subhead)
-                               .foregroundStyle(StrandPalette.accent)
+                               .foregroundStyle(StrandPalette.accentInk)
                                .accessibilityLabel("Close coach settings")
                        }) {
-            modelBar
-            consentBar
-            // v5: a SECOND opt-in, only meaningful once data access is on, folds a summary of the
-            // new on-device signals (your strongest patterns + Lab Book) into the coach context.
-            if coach.dataConsent { onDeviceSignalsBar }
-            if coach.dataConsent && coach.provider == .gemini { multimodalChartBar }
-            systemPromptBar
-            morningBriefBar
+            NanashiPresenceSettings()
+            settingsRow("Model and connection", subtitle: Text("\(coach.provider.displayName) · \(coach.model)"),
+                        icon: "cpu", expanded: $modelExpanded)
+            if modelExpanded { modelBar }
+            settingsRow("Advanced settings", subtitle: Text("Data access, tone and morning brief."),
+                        icon: "slider.horizontal.3", expanded: $advancedExpanded)
+            if advancedExpanded {
+                consentBar
+                if coach.dataConsent { onDeviceSignalsBar }
+                if coach.dataConsent && coach.provider == .gemini { multimodalChartBar }
+                systemPromptBar
+                morningBriefBar
+            }
         }
         // Opening this screen is the moment a stale catalogue is worth refreshing: a key exists here by
         // definition, and the picker above is about to be read. Rate-limited and silent on failure.
         .task { await coach.refreshModelsIfStale() }
     }
 
+    /// Source-derived preference rows keep optional configuration out of the primary path.
+    private func settingsRow(_ title: LocalizedStringKey, subtitle: Text, icon: String,
+                             expanded: Binding<Bool>) -> some View {
+        Button { expanded.wrappedValue.toggle() } label: {
+            NoopCard(padding: NoopMetrics.space4) {
+                HStack(spacing: NoopMetrics.space3) {
+                    Image(systemName: icon)
+                        .font(StrandFont.subhead)
+                        .foregroundStyle(StrandPalette.accentInk)
+                        .frame(width: NoopMetrics.controlHeight, height: NoopMetrics.controlHeight)
+                        .background(NoopPanelSurface(cornerRadius: NoopVisualStyle.compactRadius))
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: NoopMetrics.spaceHalf) {
+                        Text(title).font(StrandFont.subhead.weight(.semibold))
+                            .foregroundStyle(StrandPalette.textPrimary)
+                        subtitle.font(StrandFont.footnote)
+                            .foregroundStyle(StrandPalette.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: NoopMetrics.space2)
+                    Image(systemName: expanded.wrappedValue ? "chevron.up" : "chevron.down")
+                        .font(StrandFont.caption)
+                        .foregroundStyle(StrandPalette.textTertiary)
+                        .accessibilityHidden(true)
+                }
+                .frame(minHeight: NoopMetrics.controlHeight)
+                .contentShape(Rectangle())
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityValue(expanded.wrappedValue ? Text("Expanded") : Text("Collapsed"))
+    }
+
     /// Which model answers, and the control that refreshes the list of them.
     ///
     /// This lives HERE rather than on the setup card because of where a key exists. `setupCard` renders
     /// only while `isConfigured` is false, which for a cloud provider means no key is stored, and the
-    /// Refresh control is `.disabled(!coach.hasKey)` — gated on having a key inside a screen that only
+    /// Refresh control is `.disabled((!coach.hasKey && coach.provider != .custom) || coach.refreshingModels || coach.sending)` — gated on having a key inside a screen that only
     /// appears when there is none. So for OpenAI, Anthropic and Gemini that button was permanently
     /// disabled and the live catalogue those three publish was unreachable. A key exists by definition
     /// on this screen, so the picker and the refresh both work.
@@ -83,13 +126,17 @@ struct CoachSettingsView: View {
                     Button {
                         Task { await coach.refreshModels() }
                     } label: {
-                        Label("Refresh models", systemImage: "arrow.clockwise")
-                            .font(StrandFont.footnote)
-                            .labelStyle(.titleAndIcon)
+                        if coach.refreshingModels {
+                            ProgressView().controlSize(.small)
+                        } else {
+                            Label("Refresh models", systemImage: "arrow.clockwise")
+                                .font(StrandFont.footnote)
+                                .labelStyle(.titleAndIcon)
+                        }
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(StrandPalette.accent)
-                    .disabled(!coach.hasKey)
+                    .foregroundStyle(StrandPalette.accentInk)
+                    .disabled((!coach.hasKey && coach.provider != .custom) || coach.refreshingModels || coach.sending)
                     .accessibilityLabel("Refresh models from provider")
                 }
                 Picker("Model", selection: $coach.model) {
@@ -100,6 +147,58 @@ struct CoachSettingsView: View {
                 .labelsHidden()
                 .pickerStyle(.menu)
                 .accessibilityLabel("Model")
+                .disabled(coach.sending)
+                Button("Enter a custom model ID") { customModelExpanded.toggle() }
+                    .font(StrandFont.footnote)
+                    .foregroundStyle(StrandPalette.accentInk)
+                    .buttonStyle(.plain)
+                    .frame(minHeight: NoopMetrics.controlHeight)
+                if customModelExpanded {
+                    HStack(spacing: NoopMetrics.space2) {
+                        TextField("Enter a model id", text: $customModelDraft)
+                            .textFieldStyle(.plain)
+                            .font(StrandFont.body)
+                            .foregroundStyle(StrandPalette.textPrimary)
+                            .padding(NoopMetrics.space3)
+                            .background(StrandPalette.surfaceInset,
+                                        in: RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius))
+                            .disableAutocorrection(true)
+                            .accessibilityLabel("Custom model id")
+                        NoopButton("Use", kind: .secondary) {
+                            coach.setCustomModel(customModelDraft)
+                            customModelDraft = ""
+                        }
+                        .disabled(customModelDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || coach.sending)
+                    }
+                }
+                Text("Refreshing the list keeps your selected model unchanged.")
+                    .font(StrandFont.footnote)
+                    .foregroundStyle(StrandPalette.textSecondary)
+                if let updatedAt = coach.modelCatalogueUpdatedAt {
+                    Text("Provider catalogue updated \(updatedAt.formatted(date: .abbreviated, time: .shortened))")
+                        .font(StrandFont.caption)
+                        .foregroundStyle(StrandPalette.textTertiary)
+                } else {
+                    Text("Offline suggestions. Refresh to check your provider's current catalogue.")
+                        .font(StrandFont.caption)
+                        .foregroundStyle(StrandPalette.textTertiary)
+                }
+                if coach.selectedModelIsListed == false {
+                    Text("Your selected model was not in the last catalogue. It is kept until you choose another.")
+                        .font(StrandFont.footnote)
+                        .foregroundStyle(StrandPalette.statusWarning)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Text("A listed model still needs access and available quota on your provider account.")
+                    .font(StrandFont.caption)
+                    .foregroundStyle(StrandPalette.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let error = coach.errorText, !error.isEmpty {
+                    Text(error)
+                        .font(StrandFont.footnote)
+                        .foregroundStyle(StrandPalette.statusCritical)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
     }
@@ -117,8 +216,8 @@ struct CoachSettingsView: View {
                         .font(StrandFont.subhead).foregroundStyle(StrandPalette.textPrimary)
                     // The ON line NAMES what a session carries rather than saying "workouts" and
                     // leaving the reader to guess how much that is: the sport, how long, how far and how
-                    // hard, per session. This toggle is the only place someone is asked to agree to it.
-                    // Android says the same sentence (#2033).
+                    // hard, per session. The direct remarks control also offers an explicit combined
+                    // consent dialog; this toggle remains the independent revocation control.
                     Text(coach.dataConsent
                          ? "On: your charge, rest, HRV and workouts are sent to the provider, each workout with its sport, duration, distance and heart rate."
                          : "Off: the coach answers generally and sends none of your metrics.")
@@ -127,7 +226,7 @@ struct CoachSettingsView: View {
                 }
                 Spacer(minLength: 8)
                 Toggle("", isOn: $coach.dataConsent)
-                    .labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+                    .labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                     .accessibilityLabel("Let the coach use my data")
             }
         }
@@ -152,7 +251,7 @@ struct CoachSettingsView: View {
                 }
                 Spacer(minLength: 8)
                 Toggle("", isOn: $coach.includeOnDeviceSignals)
-                    .labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+                    .labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                     .accessibilityLabel("Also share my patterns and Lab Book with the coach")
             }
         }
@@ -177,7 +276,7 @@ struct CoachSettingsView: View {
                 }
                 Spacer(minLength: 8)
                 Toggle("", isOn: $coach.multimodalChartEnabled)
-                    .labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+                    .labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                     .accessibilityLabel("Send chart image to Gemini")
             }
         }
@@ -244,7 +343,7 @@ struct CoachSettingsView: View {
                                 .labelStyle(.titleAndIcon)
                         }
                         .buttonStyle(.plain)
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .disabled(!coach.hasCustomSystemPrompt)
                         .accessibilityLabel("Reset coach instructions to default")
                     }
@@ -265,14 +364,14 @@ struct CoachSettingsView: View {
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Morning brief").font(StrandFont.subhead).foregroundStyle(StrandPalette.textPrimary)
                         Text(briefEnabled
-                             ? "A local notification with today's readiness + training plan, generated on-device each morning."
+                             ? "A notification with today's brief from your selected AI provider."
                              : "Off: nothing is generated or sent on a schedule.")
                             .font(StrandFont.footnote).foregroundStyle(StrandPalette.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     Spacer(minLength: 8)
                     Toggle("", isOn: $briefEnabled)
-                        .labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+                        .labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                         .accessibilityLabel("Morning brief")
                 }
                 .onChangeCompat(of: briefEnabled) { on in

@@ -14,27 +14,15 @@ struct CustomClient: AIProviderClient {
         messages: [(role: ChatMessage.Role, content: String)],
         session: URLSession
     ) async throws -> String {
-        try AIProvider.guardCustomBaseURL()   // #321: reject a public cleartext Custom URL before egress
-        var wire: [[String: Any]] = [["role": "system", "content": systemPrompt]]
-        for m in messages { wire.append(["role": m.role.rawValue, "content": m.content]) }
-
-        // Standard params first. Some OpenAI-compatible servers (reasoning models behind a gateway)
-        // reject `temperature`/`max_tokens` and want `max_completion_tokens`; retry on that 400.
-        do {
-            return try await chat(key: key, model: model, wire: wire, modernParams: false, session: session)
-        } catch let AICoachError.server(code, detail) where code == 400 {
-            let d = detail.lowercased()
-            if d.contains("max_completion_tokens") || d.contains("max_tokens")
-                || d.contains("temperature") || d.contains("unsupported") {
-                return try await chat(key: key, model: model, wire: wire, modernParams: true, session: session)
-            }
-            throw AICoachError.server(code, detail)
-        }
+        try AIProvider.guardCustomBaseURL()
+        return try await OpenAIChatTransport.send(
+            request: request(key: key, model: model, systemPrompt: systemPrompt, messages: messages),
+            modernParams: false, allowModernRetry: true, session: session
+        )
     }
 
-    /// K1: Stream via `stream: true` (most local OpenAI-compatible servers support it). Same body
-    /// as `send`'s standard-params path, with `stream: true`. SSE parsing via `SseDeltas.openAiDelta`.
-    /// The modern-params retry on 400 is NOT streamed (rare path; falls back to `send`'s retry).
+    /// Older local servers retain their classic parameters. A parameter-specific HTTP 400 may
+    /// trigger one modern retry before any text arrives; a partial response is never replayed.
     func stream(
         key: String,
         model: String,
@@ -43,29 +31,11 @@ struct CustomClient: AIProviderClient {
         session: URLSession,
         onDelta: (String) -> Void
     ) async throws {
-        try AIProvider.guardCustomBaseURL()   // #321: reject a public cleartext Custom URL before egress
-        var wire: [[String: Any]] = [["role": "system", "content": systemPrompt]]
-        for m in messages { wire.append(["role": m.role.rawValue, "content": m.content]) }
-
-        let body: [String: Any] = [
-            "model": model,
-            "messages": wire,
-            "temperature": 0.6,
-            "max_tokens": 4096,
-            "stream": true
-        ]
-
-        var req = URLRequest(url: AIProvider.custom.endpoint)
-        req.httpMethod = "POST"
-        AIProvider.applyCustomAuthHeader(key, to: &req)
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-        try await performStreamingRequest(req, session: session) { payload in
-            if let delta = SseDeltas.openAiDelta(payload) {
-                onDelta(delta)
-            }
-        }
+        try AIProvider.guardCustomBaseURL()
+        try await OpenAIChatTransport.stream(
+            request: request(key: key, model: model, systemPrompt: systemPrompt, messages: messages),
+            modernParams: false, allowModernRetry: true, session: session, onDelta: onDelta
+        )
     }
 
     /// Appended to a reply when the server stopped early because it ran out of context window.
@@ -83,17 +53,7 @@ struct CustomClient: AIProviderClient {
     /// `truncationNote` when the server stopped early (`finish_reason == "length"`) so a context-
     /// window cutoff is never silent. No network — unit-tested.
     func parseChatContent(_ json: [String: Any]) throws -> String {
-        guard let choices = json["choices"] as? [[String: Any]],
-              let first = choices.first,
-              let message = first["message"] as? [String: Any],
-              let content = (message["content"] as? String)?
-                  .trimmingCharacters(in: .whitespacesAndNewlines), !content.isEmpty else {
-            throw emptyReplyError(json)   // #1074: surface the provider's real error if the 200 body has one
-        }
-        if (first["finish_reason"] as? String)?.lowercased() == "length" {
-            return content + Self.truncationNote
-        }
-        return content
+        try OpenAIChatTransport.parseContent(json)
     }
 
     func fetchModels(key: String, session: URLSession) async throws -> [String] {
@@ -127,34 +87,16 @@ struct CustomClient: AIProviderClient {
         }
     }
 
-    // MARK: Private
-
-    /// `modernParams`: use `max_completion_tokens`, drop `temperature` — for gateways fronting
-    /// reasoning models. The auth header is omitted when `key` is empty (local servers).
-    private func chat(
+    private func request(
         key: String,
         model: String,
-        wire: [[String: Any]],
-        modernParams: Bool,
-        session: URLSession
-    ) async throws -> String {
-        var body: [String: Any] = ["model": model, "messages": wire]
-        // #1074: 900 truncated detailed coaching replies mid-sentence on cloud providers; 4096 lets a
-        // full multi-section reply complete (a cap, not a target). Matches the Gemini leg + Android.
-        if modernParams {
-            body["max_completion_tokens"] = 4096
-        } else {
-            body["temperature"] = 0.6
-            body["max_tokens"] = 4096
-        }
-
-        var req = URLRequest(url: AIProvider.custom.endpoint)
-        req.httpMethod = "POST"
-        AIProvider.applyCustomAuthHeader(key, to: &req)
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-        let json = try await performRequest(req, session: session)
-        return try parseChatContent(json)
+        systemPrompt: String,
+        messages: [(role: ChatMessage.Role, content: String)]
+    ) throws -> URLRequest {
+        var request = try OpenAIChatTransport.request(
+            url: AIProvider.custom.endpoint, model: model, systemPrompt: systemPrompt, messages: messages
+        )
+        AIProvider.applyCustomAuthHeader(key, to: &request)
+        return request
     }
 }

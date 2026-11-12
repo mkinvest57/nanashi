@@ -1,0 +1,77 @@
+{
+  "query": "mono",
+  "results": [
+    {
+      "id": "2df6613a-a2d6-4271-81d3-c3086d3807d2",
+      "name": "Graphite Mono",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/graphite-mono",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "324578df-bf92-47cb-8093-90ebc6a86b35",
+      "name": "Indigo Mono",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/indigo-mono",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "220be2bf-f2f5-4aa6-bceb-85dc251f8f0c",
+      "name": "Azure Mono",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/azure-mono",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "88bcfca5-adeb-4e88-b7c0-35d579e7ef2a",
+      "name": "Mono",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/mono",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "6844bbfb-3b6f-4e8e-a1bc-039696589503",
+      "name": "Cobalt Mono",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/cobalt-mono",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "7018ea1f-898e-41b2-8517-8b570fc213a9",
+      "name": "Amber Mono",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/amber-mono",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "0254f9b4-fdfd-4549-a630-a8a1b7fd5044",
+      "name": "Amber Mono Linen",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/amber-mono-linen",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "de6f5300-4e78-488a-adcf-13994c0ef8db",
+      "name": "Inkwell Mono",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/inkwell-mono",
+      "previewUrl": null,
+      "type": "theme"
+    }
+  ]
+}

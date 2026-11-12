@@ -1,0 +1,79 @@
+Nanashi native design adaptations
+
+Upstream app: NOOP, https://github.com/ryanbr/noop
+The upstream license and credits remain in the repository and the app's About section.
+
+Design source credits and adaptation details: .21st/sources.json.
+Kuratli Slider and Expandable Card and Shadcn Space Focus Frame Border,
+Onboarding Stepper Progress, and Sync Status Toast are adapted for SwiftUI.
+Their source notices follow.
+
+MIT License
+
+Copyright (c) 2026 Elia Kuratli
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+Source: https://shadcnspace.com/license
+Retrieved: 2026-10-14
+
+Free License
+Copyright (c) 2026 Shadcn Space
+
+Our UI materials are free to use.
+
+You are free to use these components and templates in personal projects, commercial projects, and client work. You can also share or distribute them if needed.
+
+What You Are Allowed To Do
+You Can:
+- Download and use the templates or components
+- Copy the code
+- Change or edit it for your needs
+- Share it with others
+- Use it in personal or commercial projects
+- Sell projects that are built using this code
+
+You do not need special permission for any of the above.
+
+Important Note (Please Be Fair)
+You must not:
+- Scam anyone using the Shadcn Space name
+- Pretend the components are your original product
+- Use the Shadcn Space brand, logo, or name as your own
+- Misuse or misrepresent Shadcn Space intellectual property
+
+Use the code freely, but don't misuse the identity.
+
+License Conditions
+If you copy or share the software, you must include:
+- This copyright notice
+- This license text
+Include them in all copies or important parts of the software.
+
+No Warranty
+This software is provided “as is”
+That means:
+- No guarantees
+- No promise that everything will work perfectly
+You use it at your own risk.
+
+Shadcn Space is not responsible for:
+- Bugs
+- Data loss
+- Project issues
+- Any damage caused by using this software

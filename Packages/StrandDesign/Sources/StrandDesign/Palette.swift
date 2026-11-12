@@ -73,20 +73,13 @@ public extension Color {
 
 // MARK: - Strand Palette
 //
-// The "Titanium & Gold" re-skin: a premium dark theme built on a deep navy canvas with
-// per-domain accent "colour worlds" (Charge = gold, Effort = amber, Rest = blue,
-// Stress = blue→gold→orange). GOLD is the dominant brand anchor; titanium drives the
-// neutral chrome (tiles, avatars, icons).
-//
-// PUBLIC API IS FROZEN: every property name below is depended on by screens across
-// macOS / iOS, so the names never change — only the VALUES were re-themed. New
-// Titanium & Gold tokens (gold ramp, titanium ramp, gradients) are ADDED at the end
-// of the type; nothing existing was removed or renamed.
+// Nanashi Cold Glass uses Harbor Blue for chrome. The recovery, effort,
+// rest and stress colours retain their existing metric semantics and user choices.
+// Public names remain compatible with the shared macOS and iOS screens.
 
 public enum StrandPalette {
 
-    // MARK: Surfaces — deep navy canvas, tinted frosted cards
-    // Background is a near-black navy (NOT pure black); cards float just above it.
+    // MARK: Surfaces — frosted white and cold graphite
     public static let surfaceBase    = NoopVisualStyle.canvas
     public static let surfaceRaised  = NoopVisualStyle.surface
     public static let surfaceOverlay = NoopVisualStyle.surfaceTop
@@ -94,7 +87,7 @@ public enum StrandPalette {
     public static let hairline       = NoopVisualStyle.border
     public static let hairlineStrong = NoopVisualStyle.borderHighlight
 
-    // MARK: Text — deep navy-ink on paper / cool off-white on navy
+    // MARK: Text — graphite ink on paper / off-white on graphite
     public static let textPrimary    = NoopVisualStyle.primaryText
     public static let textSecondary  = NoopVisualStyle.secondaryText
     public static let textTertiary   = NoopVisualStyle.tertiaryText
@@ -106,9 +99,15 @@ public enum StrandPalette {
     // dark-on-near-black and vanish (#1013). These hold the light-on-dark values in BOTH schemes, so a
     // label always reads. (The Liquid hero card USED to need these, but its `heroFill` is theme-aware as of
     // #1160, so the hero now uses the normal text* tokens.)
-    public static let onDarkPrimary   = Color(hex: "#F4F6F8")
-    public static let onDarkSecondary = Color(hex: "#C8CFD8")
-    public static let onDarkTertiary  = Color(hex: "#8A94A4")
+    public static let invertedSurface = NoopVisualStyle.invertedSurface
+    public static let invertedBorder = NoopVisualStyle.invertedBorder
+    public static let onInverted = NoopVisualStyle.onInverted
+    public static let onInvertedMuted = NoopVisualStyle.onInvertedMuted
+    public static let invertedSelection = NoopVisualStyle.invertedSelection
+    public static let onInvertedSelection = NoopVisualStyle.onInvertedSelection
+    public static let onDarkPrimary   = onInverted
+    public static let onDarkSecondary = onInvertedMuted
+    public static let onDarkTertiary  = onInvertedMuted
 
     // MARK: Liquid hero card surface (#1160/#1161)
     // Was pinned near-black in BOTH themes, which read as a broken dark block in Light mode (#1160) and
@@ -116,8 +115,8 @@ public enum StrandPalette {
     // Light, so the hero fits in with the other cards. Its own text uses the regular text*/tint tokens
     // (which flip) — NOT onDark*, which stays fixed for the genuinely-always-dark SKY backdrop
     // (ScreenScaffold's over-sky title). 8-digit hex = RRGGBBAA (alpha last).
-    public static let heroFill   = Color(light: "FFFFFFD9", dark: "0D0E14CC")
-    public static let heroBorder = Color(light: "0000001A", dark: "FFFFFF1C")
+    public static let heroFill   = NoopVisualStyle.surface
+    public static let heroBorder = NoopVisualStyle.border
 
     // MARK: Glow — ambient bloom behind heroes / charts (additive on dark; faint warm on light)
     public static let glowAmbient    = NoopVisualStyle.mintGlow.opacity(0.28)
@@ -134,7 +133,138 @@ public enum StrandPalette {
     public static var accentHover: Color { accentChoice.accentHover }
     public static var accentMuted: Color { accentChoice.accentMuted }
     /// Focus ring color — the same accent, on both schemes.
-    public static var focusRing: Color { accentChoice.focusRing }
+    public static var focusRing: Color { accentInk }
+    /// Text on the active chrome accent. Cold Glass uses the source foreground pair;
+    /// custom choices resolve their foreground by relative luminance.
+    public static var onAccent: Color {
+        switch accentChoice {
+        case .mint:
+            return NoopVisualStyle.onPrimary
+        case .whoopBlue:
+            return Color(light: "#FFFFFF", dark: "#000000")
+        case .custom:
+            let c = Color.sRGBComponents(hex: customAccentHex)
+            func linear(_ value: Double) -> Double {
+                value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+            }
+            let luminance = 0.2126 * linear(c.r) + 0.7152 * linear(c.g) + 0.0722 * linear(c.b)
+            return luminance > 0.179 ? Color(hex: "#000000") : NoopVisualStyle.controlHighlight
+        }
+    }
+    public static var onAccentMuted: Color { onAccent.opacity(0.65) }
+    public static var accentTrack: Color { onAccent.opacity(0.16) }
+    /// Selection on the fixed graphite dock. Existing alternate accents retain their chosen fill.
+    public static var dockAccent: Color {
+        accentChoice == .mint ? invertedSelection : accent
+    }
+    public static var dockAccentInk: Color {
+        accentChoice == .mint ? onInvertedSelection : onAccent
+    }
+    /// Readable accent text on a frosted surface, from Harbor Blue's primary/chart-5 roles.
+    public static var accentInk: Color {
+        switch accentChoice {
+        case .mint: return coldGlassAccentInk
+        case .whoopBlue: return oceanAccentInk
+        case .custom:
+            return AccentInkCache.resolve(customAccentHex)
+        }
+    }
+
+    private static let coldGlassAccentInk = accessibleAccentColor(light: "#194391", dark: "#BFDBFE")
+    private static let oceanAccentInk = accessibleAccentColor(light: "#234F9E", dark: "#60A0E0")
+
+    private static func accessibleAccentColor(light: String, dark: String) -> Color {
+        // Check the most demanding source neutral surface in each appearance,
+        // including secondary and hover controls; raw user-selected fills are unchanged.
+        Color(light: accessibleAccentHex(light, background: "#DCE6F9", towardWhite: false),
+              dark: accessibleAccentHex(dark, background: "#334155", towardWhite: true))
+    }
+
+    private enum AccentInkCache {
+        static let lock = NSLock()
+        static var entries: [String: Color] = [:]
+        static func resolve(_ hex: String) -> Color {
+            lock.lock()
+            defer { lock.unlock() }
+            if let color = entries[hex] { return color }
+            let color = accessibleAccentColor(light: hex, dark: hex)
+            if entries.count >= 64 { entries.removeAll(keepingCapacity: true) }
+            entries[hex] = color
+            return color
+        }
+    }
+
+    /// Preserve the chosen hue while ensuring small accent labels clear neutral card contrast.
+    private static func accessibleAccentHex(_ hex: String, background: String, towardWhite: Bool) -> String {
+        let foreground = Color.sRGBComponents(hex: hex)
+        let surface = Color.sRGBComponents(hex: background)
+        func luminance(_ r: Double, _ g: Double, _ b: Double) -> Double {
+            func linear(_ v: Double) -> Double { v <= 0.04045 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4) }
+            return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
+        }
+        let backgroundLuminance = luminance(surface.r, surface.g, surface.b)
+        let target = towardWhite ? 1.0 : 0.0
+        func components(_ amount: Double) -> (r: Double, g: Double, b: Double) {
+            (foreground.r + (target - foreground.r) * amount,
+             foreground.g + (target - foreground.g) * amount,
+             foreground.b + (target - foreground.b) * amount)
+        }
+        func contrast(_ amount: Double) -> Double {
+            let c = components(amount)
+            let l = luminance(c.r, c.g, c.b)
+            return (max(l, backgroundLuminance) + 0.05) / (min(l, backgroundLuminance) + 0.05)
+        }
+        guard contrast(0) < 4.5 else { return hex }
+        var low = 0.0, high = 1.0
+        for _ in 0..<16 {
+            let midpoint = (low + high) / 2
+            if contrast(midpoint) >= 4.55 { high = midpoint } else { low = midpoint }
+        }
+        let c = components(high)
+        return String(format: "#%02X%02X%02X", Int((c.r * 255).rounded()),
+                      Int((c.g * 255).rounded()), Int((c.b * 255).rounded()))
+    }
+    /// Contrast-aware ink for a primary card whose fill respects the existing opacity preference.
+    /// Both appearances are resolved once, so transparent primary panels keep their text readable on the canvas.
+    public static func accentPanelInk(surfaceOpacity: Double) -> Color {
+        let accentColor = accent
+        let backgroundColor = surfaceBase
+        let opacity = min(max(surfaceOpacity, 0), 1)
+
+        func inkHex(dark: Bool) -> String {
+            var foreground = (r: 0.0, g: 0.0, b: 0.0, a: 1.0)
+            var background = foreground
+            #if os(watchOS)
+            foreground = accentColor.rgbaComponents
+            background = backgroundColor.rgbaComponents
+            #elseif canImport(UIKit)
+            let traits = UITraitCollection(userInterfaceStyle: dark ? .dark : .light)
+            func resolved(_ color: Color) -> (r: Double, g: Double, b: Double, a: Double) {
+                let native = UIColor(color).resolvedColor(with: traits)
+                var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+                native.getRed(&r, green: &g, blue: &b, alpha: &a)
+                return (Double(r), Double(g), Double(b), Double(a))
+            }
+            foreground = resolved(accentColor)
+            background = resolved(backgroundColor)
+            #elseif canImport(AppKit)
+            NSAppearance(named: dark ? .darkAqua : .aqua)?.performAsCurrentDrawingAppearance {
+                foreground = accentColor.rgbaComponents
+                background = backgroundColor.rgbaComponents
+            }
+            #endif
+            let alpha = opacity * foreground.a
+            func linear(_ component: Double, over base: Double) -> Double {
+                let value = component * alpha + base * (1 - alpha)
+                return value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+            }
+            let luminance = 0.2126 * linear(foreground.r, over: background.r)
+                + 0.7152 * linear(foreground.g, over: background.g)
+                + 0.0722 * linear(foreground.b, over: background.b)
+            return luminance > 0.179 ? "#000000" : "#FFFFFF"
+        }
+        return Color(light: inkHex(dark: false), dark: inkHex(dark: true))
+    }
     /// Opacity for dimmed/disabled sections (shared so screens don't invent their own value).
     public static let disabledOpacity: Double = 0.45
     /// Liquid-scene activity tint shared by heart-rate feedback and transient sync chrome.
@@ -334,13 +464,13 @@ public enum StrandPalette {
 
     /// Brand gold — primary accent. Gold FILLS stay bright (dark text on them is legible in both schemes);
     /// only a hair deeper on light so the fill doesn't wash out against white.
-    public static let gold          = Color(light: "#3A78C8", dark: "#60A0E0") // repointed to WHOOP blue (gold killed 2026-06-22)
+    public static var gold: Color { accent }
     /// Bright blue — accent highlight / hover (was champagne).
-    public static let goldLight     = Color(light: "#6FA8E0", dark: "#9FC8F0")
+    public static var goldLight: Color { accentHover }
     /// Deep blue — accent low stop (was bronze).
-    public static let goldDeep      = Color(light: "#2A5C9E", dark: "#3A78C8")
+    public static var goldDeep: Color { accent }
     /// Near-black brown — text / icons placed ON gold surfaces (scheme-invariant; gold fills stay gold).
-    public static let goldDeepText  = Color(hex: "#FFFFFF") // white text/icons on accent fills (WHOOP, gold killed)
+    public static var goldDeepText: Color { onAccent }
     /// The bright core dot at a gauge arc tip / sparkline head. White reads as a highlight on the dark
     /// canvas; on light it would vanish into the white card, so it flips to a deep ink that reads as a
     /// crisp centre on the (deepened) coloured tip bead.
@@ -348,7 +478,7 @@ public enum StrandPalette {
     /// High-vis signal yellow — sparing emphasis (badges / alerts); deepened on light to stay visible.
     public static let signalYellow  = Color(light: "#E8A800", dark: "#FFD63D")
     /// 135–155° gold ramp for buttons, ring fills, FAB (light → gold → deep).
-    public static let goldGradient  = Gradient(colors: [goldLight, gold, goldDeep])
+    public static var goldGradient: Gradient { Gradient(colors: [gold, gold]) }
 
     /// Brushed-titanium ramp (top highlight → mid body → low → deep) for tiles, avatars and icon plates.
     /// Shifted to a MID-grey ramp on light so brushed-metal tiles stay visible against white cards.

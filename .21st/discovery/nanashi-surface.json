@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Spotlight  [id: 35180]\nby kevingirelli\nA soft radial light that follows the pointer across a card or surface, with an optional lit edge ring, for highlighting hoverable panels.\npreview: https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/spotlight/default/preview.1791207448218.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/kevingirelli/spotlight?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 35180 })\n\n### [component] Spotlight  [id: 1500]\nby ibelick\nA dynamic spotlight effect component that follows cursor movement.\npreview: https://cdn.21st.dev/user_2rkgEMvkQ7I2oxalLXELCy8NObN/spotlight/default/preview.1740776371985.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ibelick/spotlight?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 1500 })\n\n### [component] Animated Border  [id: 35188]\nby kevingirelli\nA card or container border with a glowing light that travels around its edge, used to draw attention to featured content.\npreview: https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/animated-border/default/preview.1791206987082.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/kevingirelli/animated-border?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 35188 })\n\n### [component] Spotlight Card  [id: 2487]\nby jahed\npreview: https://cdn.21st.dev/user_2xJxXqdwWohYrdd6fiMYrS9hbmO/spotlight-card/default/preview.1785940290519.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/jahed/spotlight-card?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 2487 })\n\n### [component] Spotlight Card  [id: 2220]\nby preetsuthar17\nCreate a spotlight effect on hover on a card component.\npreview: https://cdn.21st.dev/preetsuthar17/spotlight-card/default/preview.1747709960379.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/preetsuthar17/spotlight-card?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 2220 })\n\n### [component] Card Spotlight  [id: 986]\nby manuarora700\nA card component with a spotlight effect revealing a radial gradient background\npreview: https://cdn.21st.dev/user_aceternity/card-spotlight/986/preview.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/manuarora700/card-spotlight?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 986 })\n\n### [component] Glowing Effect  [id: 1567]\nby manuarora700\nA border glowing effect that adapts to any container or card, as seen on Cursor's website\npreview: https://cdn.21st.dev/manuarora700/glowing-effect/default/preview.1785354797569-beab0bd6-8414-4d42-9103-cbdbbe633b41.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/manuarora700/glowing-effect?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 1567 })\n\n### [component] Bento Grid  [id: 622]\nby kokonutd\nA nice Bento Grid with hover items and shadow.\npreview: https://cdn.21st.dev/user_2rQ1QHrJyxpmWMHhqhANzWMc64n/bento-grid/default/preview.1788461825727.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/kokonutd/bento-grid?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 622 })\n\n### [component] Focus Frame Border  [id: 29885]\nby shadcnspace\nA wrapper that adds a camera-style focus-lock border to any card or panel, using four pulsing glowing corner brackets instead of a continuous shine ring.\npreview: https://cdn.21st.dev/shadcnspace/shine-border-06/default/preview.1790133202193-ab524238-42dc-495a-877b-e5fdd3cb03de.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcnspace/shine-border-06?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 29885 })\n\n### [component] Glowing Card  [id: 5328]\nby ravikatiyar162\nA sleek, glassmorphic stat display card with a subtle glowing effect that highlights the featured metric. The card uses soft light streaks, rounded corners, and a dark translucent background to create a modern, futuristic look. Perfect for dashboards, analytics tools, and live data displays to showcase key stats like views, likes, or revenue in an eye-catching way.\npreview: https://cdn.21st.dev/ravikatiyar162/glowing-card/default/preview.1755200622157.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ravikatiyar162/glowing-card?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 5328 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 35180,
+        "name": "Spotlight",
+        "description": "A soft radial light that follows the pointer across a card or surface, with an optional lit edge ring, for highlighting hoverable panels.",
+        "previewUrl": "https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/spotlight/default/preview.1791207448218.webp",
+        "videoUrl": "https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/spotlight/default/video.1791207442672.mp4",
+        "author": "kevingirelli",
+        "authorImage": "https://avatars.githubusercontent.com/u/131497909?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/kevingirelli/spotlight?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@kevingirelli/components/spotlight"
+      },
+      {
+        "type": "component",
+        "id": 1500,
+        "name": "Spotlight",
+        "description": "A dynamic spotlight effect component that follows cursor movement.",
+        "previewUrl": "https://cdn.21st.dev/user_2rkgEMvkQ7I2oxalLXELCy8NObN/spotlight/default/preview.1740776371985.png",
+        "videoUrl": "https://cdn.21st.dev/user_2rkgEMvkQ7I2oxalLXELCy8NObN/spotlight/default/video.1740776373836.mp4",
+        "author": "ibelick",
+        "authorImage": "https://pbs.twimg.com/profile_images/1639622839329325056/6w4WgjGQ_400x400.jpg",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ibelick/spotlight?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ibelick/components/spotlight"
+      },
+      {
+        "type": "component",
+        "id": 35188,
+        "name": "Animated Border",
+        "description": "A card or container border with a glowing light that travels around its edge, used to draw attention to featured content.",
+        "previewUrl": "https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/animated-border/default/preview.1791206987082.webp",
+        "videoUrl": "https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/animated-border/default/video.1791206978309.mp4",
+        "author": "kevingirelli",
+        "authorImage": "https://avatars.githubusercontent.com/u/131497909?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/kevingirelli/animated-border?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@kevingirelli/components/animated-border"
+      },
+      {
+        "type": "component",
+        "id": 2487,
+        "name": "Spotlight Card",
+        "description": "",
+        "previewUrl": "https://cdn.21st.dev/user_2xJxXqdwWohYrdd6fiMYrS9hbmO/spotlight-card/default/preview.1785940290519.png",
+        "videoUrl": "https://cdn.21st.dev/user_2xJxXqdwWohYrdd6fiMYrS9hbmO/spotlight-card/default/video.1785940304718.mp4",
+        "author": "jahed",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2xJxXqdwWohYrdd6fiMYrS9hbmO/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/jahed/spotlight-card?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@jahed/components/spotlight-card"
+      },
+      {
+        "type": "component",
+        "id": 2220,
+        "name": "Spotlight Card",
+        "description": "Create a spotlight effect on hover on a card component.",
+        "previewUrl": "https://cdn.21st.dev/preetsuthar17/spotlight-card/default/preview.1747709960379.png",
+        "videoUrl": "https://cdn.21st.dev/preetsuthar17/spotlight-card/default/video.1747709960379.mp4",
+        "author": "preetsuthar17",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2rWolCuRnJW3DRiuQ5JHrl5kj8a/avatar.jpeg",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/preetsuthar17/spotlight-card?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@preetsuthar17/components/spotlight-card"
+      },
+      {
+        "type": "component",
+        "id": 986,
+        "name": "Card Spotlight",
+        "description": "A card component with a spotlight effect revealing a radial gradient background",
+        "previewUrl": "https://cdn.21st.dev/user_aceternity/card-spotlight/986/preview.png",
+        "videoUrl": "https://cdn.21st.dev/user_aceternity/card-spotlight/986/video.mp4",
+        "author": "manuarora700",
+        "authorImage": "https://avatars.githubusercontent.com/u/23276437?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/manuarora700/card-spotlight?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@manuarora700/components/card-spotlight"
+      },
+      {
+        "type": "component",
+        "id": 1567,
+        "name": "Glowing Effect",
+        "description": "A border glowing effect that adapts to any container or card, as seen on Cursor's website",
+        "previewUrl": "https://cdn.21st.dev/manuarora700/glowing-effect/default/preview.1785354797569-beab0bd6-8414-4d42-9103-cbdbbe633b41.png",
+        "videoUrl": "https://cdn.21st.dev/manuarora700/glowing-effect/default/video.1785354797569-beab0bd6-8414-4d42-9103-cbdbbe633b41.mp4",
+        "author": "manuarora700",
+        "authorImage": "https://avatars.githubusercontent.com/u/23276437?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/manuarora700/glowing-effect?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@manuarora700/components/glowing-effect"
+      },
+      {
+        "type": "component",
+        "id": 622,
+        "name": "Bento Grid",
+        "description": "A nice Bento Grid with hover items and shadow.",
+        "previewUrl": "https://cdn.21st.dev/user_2rQ1QHrJyxpmWMHhqhANzWMc64n/bento-grid/default/preview.1788461825727.png",
+        "videoUrl": "https://cdn.21st.dev/user_2rQ1QHrJyxpmWMHhqhANzWMc64n/bento-grid/default/video.1788462109063.mp4",
+        "author": "kokonutd",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2rQ1QHrJyxpmWMHhqhANzWMc64n/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/kokonutd/bento-grid?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@kokonutd/components/bento-grid"
+      },
+      {
+        "type": "component",
+        "id": 29885,
+        "name": "Focus Frame Border",
+        "description": "A wrapper that adds a camera-style focus-lock border to any card or panel, using four pulsing glowing corner brackets instead of a continuous shine ring.",
+        "previewUrl": "https://cdn.21st.dev/shadcnspace/shine-border-06/default/preview.1790133202193-ab524238-42dc-495a-877b-e5fdd3cb03de.png",
+        "videoUrl": null,
+        "author": "shadcnspace",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zOHFBT3VLQWpSb3c5SjlUdGttSGhYZnBiZ28ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcnspace/shine-border-06?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcnspace/components/shine-border-06"
+      },
+      {
+        "type": "component",
+        "id": 5328,
+        "name": "Glowing Card",
+        "description": "A sleek, glassmorphic stat display card with a subtle glowing effect that highlights the featured metric. The card uses soft light streaks, rounded corners, and a dark translucent background to create a modern, futuristic look. Perfect for dashboards, analytics tools, and live data displays to showcase key stats like views, likes, or revenue in an eye-catching way.",
+        "previewUrl": "https://cdn.21st.dev/ravikatiyar162/glowing-card/default/preview.1755200622157.png",
+        "videoUrl": "https://cdn.21st.dev/ravikatiyar162/glowing-card/default/video.1755200622157.mp4",
+        "author": "ravikatiyar162",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2zMtrqo9RMaaIn4f8F2z3oeY497/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ravikatiyar162/glowing-card?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ravikatiyar162/components/glowing-card"
+      }
+    ]
+  }
+}

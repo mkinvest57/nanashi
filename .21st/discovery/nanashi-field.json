@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Floating Label  [id: 23565]\nby ddoemonn\nA text input whose label animates up into a reserved slot above the field instead of disappearing, with focus/invalid states, an optional hint line and a character counter.\npreview: https://cdn.21st.dev/user_2y2pjLtk7oS33zts6BqhEIOHrAj/floating-label/default/preview.1787587654402.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ddoemonn/floating-label?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 23565 })\n\n### [component] Correct Number Input  [id: 5944]\nby ruixen.ui\nThis is a sleek, minimal number input with custom chevron buttons and a floating label. It hides the browser’s default arrows, keeps the label clean, and ensures 0 doesn’t overlap, working seamlessly in both light and dark themes.\npreview: https://cdn.21st.dev/ruixen.ui/correct-number-input/default/preview.1755965925490.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/correct-number-input?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 5944 })\n\n### [component] Label Input  [id: 10260]\nby tom_ui\nInput field with floating label and password visibility toggle.\npreview: https://cdn.21st.dev/larsen66/label-input/default/preview.1773097339249.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/tom_ui/label-input?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 10260 })\n\n### [component] Number Field with Side Buttons  [id: 28589]\nby sean0205\nA numeric input field with a scrub area label and increment/decrement buttons grouped on the right side, for adjusting quantities like amounts or counts.\npreview: https://cdn.21st.dev/sean0205/c-number-field-4/default/preview.1789991185687-4f1ac49a-e589-442a-b200-ffbb09af68be.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/sean0205/c-number-field-4?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 28589 })\n\n### [component] Floating Input  [id: 6840]\nby ruixen.ui\nThis component is a modern floating-label input designed for clean, user-friendly forms. It features an icon on the left, which can represent the type of input (like email, username, or password), and a label that smoothly floats above the field when focused or filled, eliminating the need for a traditional placeholder. The input automatically adjusts padding so that typed text never overlaps the icon or label.\npreview: https://cdn.21st.dev/ruixen.ui/floating-input/default/preview.1757011777436.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/floating-input?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 6840 })\n\n### [component] Field  [id: 11461]\nby coss.com\nA form field wrapper that provides labeling, description, and validation messaging for any input control. Supports required fields, disabled states, error messages, and real-time validity tracking via Base UI primitives.\npreview: https://cdn.21st.dev/coss.com/field/number-field/preview.1774281231358.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/coss.com/field?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 11461 })\n\n### [component] Reshaped Number field  [id: 17838]\nby reshaped\nNumeric input with increase/decrease controls and keyboard arrow support, based on TextField so it inherits its variants and sizes. Works in controlled and uncontrolled modes, supports icons, and integrates with the FormControl utility for labels and status messages.\npreview: https://cdn.21st.dev/larsen66/reshaped-number-field/controlled/preview.1783431936465.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/reshaped/reshaped-number-field?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 17838 })\n\n### [component] Number Field  [id: 28180]\nby coss.com\nA stepper input for entering and adjusting numeric values with increment/decrement buttons, keyboard support, and optional drag-to-scrub interaction.\npreview: https://cdn.21st.dev/coss.com/number-field/default/preview.1789956912343-241eb51d-2fba-4942-9103-647ff724278a.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/coss.com/number-field?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 28180 })\n\n### [component] Input Group with Tooltip  [id: 29842]\nby sean0205\nA numeric input field with an inline info-icon button that shows a tooltip explaining the field, such as a monthly request limit.\npreview: https://cdn.21st.dev/sean0205/c-input-group-14/default/preview.1790127097092-91ea3cc1-77aa-44d3-a935-ad5422f0f8c6.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/sean0205/c-input-group-14?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 29842 })\n\n### [component] Input  [id: 161]\nby originui\nUpgaraded shadcn/ui Input\npreview: https://cdn.21st.dev/user_originui/input/default/preview.1737999371671.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/originui/input?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 161 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 23565,
+        "name": "Floating Label",
+        "description": "A text input whose label animates up into a reserved slot above the field instead of disappearing, with focus/invalid states, an optional hint line and a character counter.",
+        "previewUrl": "https://cdn.21st.dev/user_2y2pjLtk7oS33zts6BqhEIOHrAj/floating-label/default/preview.1787587654402.png",
+        "videoUrl": "https://cdn.21st.dev/user_2y2pjLtk7oS33zts6BqhEIOHrAj/floating-label/default/video.1787587671983.mp4",
+        "author": "ddoemonn",
+        "authorImage": "https://github.com/ddoemonn.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ddoemonn/floating-label?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ddoemonn/components/floating-label"
+      },
+      {
+        "type": "component",
+        "id": 5944,
+        "name": "Correct Number Input",
+        "description": "This is a sleek, minimal number input with custom chevron buttons and a floating label. It hides the browser’s default arrows, keeps the label clean, and ensures 0 doesn’t overlap, working seamlessly in both light and dark themes.",
+        "previewUrl": "https://cdn.21st.dev/ruixen.ui/correct-number-input/default/preview.1755965925490.png",
+        "videoUrl": null,
+        "author": "ruixen.ui",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2y5Wd5l713ZIFYjX19aZXSyXd6b/avatar.svg+xml",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/correct-number-input?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ruixen.ui/components/correct-number-input"
+      },
+      {
+        "type": "component",
+        "id": 10260,
+        "name": "Label Input",
+        "description": "Input field with floating label and password visibility toggle.",
+        "previewUrl": "https://cdn.21st.dev/larsen66/label-input/default/preview.1773097339249.png",
+        "videoUrl": "https://cdn.21st.dev/larsen66/label-input/default/video.1773097339249.webm",
+        "author": "tom_ui",
+        "authorImage": "https://pbs.twimg.com/profile_images/1863135999087505408/5qjunahh_400x400.jpg ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/tom_ui/label-input?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@tom_ui/components/label-input"
+      },
+      {
+        "type": "component",
+        "id": 28589,
+        "name": "Number Field with Side Buttons",
+        "description": "A numeric input field with a scrub area label and increment/decrement buttons grouped on the right side, for adjusting quantities like amounts or counts.",
+        "previewUrl": "https://cdn.21st.dev/sean0205/c-number-field-4/default/preview.1789991185687-4f1ac49a-e589-442a-b200-ffbb09af68be.png",
+        "videoUrl": "https://cdn.21st.dev/sean0205/c-number-field-4/default/video.1789991185687-4f1ac49a-e589-442a-b200-ffbb09af68be.mp4",
+        "author": "sean0205",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2wpPk1CyWKAxM46S7k5UoCQhmqF/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/sean0205/c-number-field-4?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@sean0205/components/c-number-field-4"
+      },
+      {
+        "type": "component",
+        "id": 6840,
+        "name": "Floating Input",
+        "description": "This component is a modern floating-label input designed for clean, user-friendly forms. It features an icon on the left, which can represent the type of input (like email, username, or password), and a label that smoothly floats above the field when focused or filled, eliminating the need for a traditional placeholder. The input automatically adjusts padding so that typed text never overlaps the icon or label.",
+        "previewUrl": "https://cdn.21st.dev/ruixen.ui/floating-input/default/preview.1757011777436.png",
+        "videoUrl": "https://cdn.21st.dev/ruixen.ui/floating-input/default/video.1757011777436.mp4",
+        "author": "ruixen.ui",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2y5Wd5l713ZIFYjX19aZXSyXd6b/avatar.svg+xml",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/floating-input?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ruixen.ui/components/floating-input"
+      },
+      {
+        "type": "component",
+        "id": 11461,
+        "name": "Field",
+        "description": "A form field wrapper that provides labeling, description, and validation messaging for any input control. Supports required fields, disabled states, error messages, and real-time validity tracking via Base UI primitives.",
+        "previewUrl": "https://cdn.21st.dev/coss.com/field/number-field/preview.1774281231358.png",
+        "videoUrl": "https://cdn.21st.dev/coss.com/field/number-field/video.1774281231358.mp4",
+        "author": "coss.com",
+        "authorImage": "https://www.google.com/s2/favicons?domain=coss.com&sz=128",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/coss.com/field?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@coss.com/components/field"
+      },
+      {
+        "type": "component",
+        "id": 17838,
+        "name": "Reshaped Number field",
+        "description": "Numeric input with increase/decrease controls and keyboard arrow support, based on TextField so it inherits its variants and sizes. Works in controlled and uncontrolled modes, supports icons, and integrates with the FormControl utility for labels and status messages.",
+        "previewUrl": "https://cdn.21st.dev/larsen66/reshaped-number-field/controlled/preview.1783431936465.png",
+        "videoUrl": "https://cdn.21st.dev/larsen66/reshaped-number-field/controlled/video.1783431936465.mp4",
+        "author": "reshaped",
+        "authorImage": "https://avatars.githubusercontent.com/u/96989264?s=48&v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/reshaped/reshaped-number-field?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@reshaped/components/reshaped-number-field"
+      },
+      {
+        "type": "component",
+        "id": 28180,
+        "name": "Number Field",
+        "description": "A stepper input for entering and adjusting numeric values with increment/decrement buttons, keyboard support, and optional drag-to-scrub interaction.",
+        "previewUrl": "https://cdn.21st.dev/coss.com/number-field/default/preview.1789956912343-241eb51d-2fba-4942-9103-647ff724278a.png",
+        "videoUrl": "https://cdn.21st.dev/coss.com/number-field/default/video.1789956912343-241eb51d-2fba-4942-9103-647ff724278a.mp4",
+        "author": "coss.com",
+        "authorImage": "https://www.google.com/s2/favicons?domain=coss.com&sz=128",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/coss.com/number-field?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@coss.com/components/number-field"
+      },
+      {
+        "type": "component",
+        "id": 29842,
+        "name": "Input Group with Tooltip",
+        "description": "A numeric input field with an inline info-icon button that shows a tooltip explaining the field, such as a monthly request limit.",
+        "previewUrl": "https://cdn.21st.dev/sean0205/c-input-group-14/default/preview.1790127097092-91ea3cc1-77aa-44d3-a935-ad5422f0f8c6.png",
+        "videoUrl": "https://cdn.21st.dev/sean0205/c-input-group-14/default/video.1790127097092-91ea3cc1-77aa-44d3-a935-ad5422f0f8c6.mp4",
+        "author": "sean0205",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2wpPk1CyWKAxM46S7k5UoCQhmqF/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/sean0205/c-input-group-14?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@sean0205/components/c-input-group-14"
+      },
+      {
+        "type": "component",
+        "id": 161,
+        "name": "Input",
+        "description": "Upgaraded shadcn/ui Input",
+        "previewUrl": "https://cdn.21st.dev/user_originui/input/default/preview.1737999371671.png",
+        "videoUrl": "https://cdn.21st.dev/user_originui/input/default/video.1737999375549.mp4",
+        "author": "originui",
+        "authorImage": "https://avatars.githubusercontent.com/u/185059885?s=200&v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/originui/input?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@originui/components/input"
+      }
+    ]
+  }
+}

@@ -73,7 +73,7 @@ struct LiveWorkoutView: View {
         #if os(iOS)
         // #697/#horizontal-swipe parity, see ScreenScaffold. This is the full-screen in-exercise
         // tracker, up for the whole workout, so worth the same defensive fix.
-        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .scrollBounceBasedOnSizeCompat(axes: .horizontal)
         #endif
         // Floating end / elapsed / sport-type controls sit in the bottom safe area so the scroll
         // content never owns the chrome and the timer can stay screen-centered.
@@ -470,8 +470,8 @@ private extension View {
         self.nativeLiquidGlassButtonChrome(controlSize: .large) {
             self
                 .buttonStyle(LiquidPressStyle())
-                .background(.ultraThinMaterial, in: Circle())
-                .overlay(Circle().strokeBorder(.white.opacity(0.16), lineWidth: 0.8))
+                .background(StrandPalette.surfaceRaised, in: Circle())
+                .overlay(Circle().strokeBorder(StrandPalette.hairline, lineWidth: NoopMetrics.lineWidth))
         }
     }
 }

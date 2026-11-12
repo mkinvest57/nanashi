@@ -1,11 +1,45 @@
 #if os(iOS)
 import SwiftUI
+import UIKit
 import StrandDesign
+
+private extension View {
+    /// Bound metadata construction for the root's compatibility modifiers. A single uninterrupted
+    /// chain overflows the Swift runtime stack on device before the first tab can render. These
+    /// boundaries are unconditional, so state changes keep the same tab and navigation identities.
+    func rootShellBoundary() -> AnyView { AnyView(self) }
+}
 
 /// iOS navigation shell. macOS uses a `NavigationSplitView` sidebar (`RootView`); on iPhone the
 /// natural analogue is a `TabView` with the most-used screens as tabs and everything else under a
 /// "More" list. Every screen is the same `StrandDesign`-built view the macOS app uses.
 struct RootTabView: View {
+    @EnvironmentObject private var repo: Repository
+    let homeScreenQuickActionsEnabled: Bool
+    let initialTab: Int
+
+    init(homeScreenQuickActionsEnabled: Bool = true, initialTab: Int = 0) {
+        self.homeScreenQuickActionsEnabled = homeScreenQuickActionsEnabled
+        self.initialTab = initialTab
+    }
+
+    var body: some View {
+        // The shell needs Repository only for explicit refresh actions. Passing its stable reference
+        // through this boundary prevents every live sensor publication from invalidating all tabs.
+        NanashiTabShell(repo: repo, homeScreenQuickActionsEnabled: homeScreenQuickActionsEnabled,
+                        initialTab: initialTab)
+            .equatable()
+    }
+}
+
+private struct NanashiTabShell: View, Equatable {
+    let repo: Repository
+    let initialTab: Int
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.repo === rhs.repo && lhs.homeScreenQuickActionsEnabled == rhs.homeScreenQuickActionsEnabled
+            && lhs.initialTab == rhs.initialTab
+    }
     /// #1841: shared with Android by NAME and meaning, not by storage — the two platforms keep their own
     /// stores, exactly as the Clock format setting does.
     ///
@@ -29,7 +63,6 @@ struct RootTabView: View {
     /// that state; keeping it explicit here prevents this shell's window-level sheet from covering a gate.
     let homeScreenQuickActionsEnabled: Bool
 
-    @EnvironmentObject private var repo: Repository
     /// Cross-screen navigation requests (e.g. Live → "Manage devices"). Devices isn't a tab — it lives
     /// behind the More list — so a request presents it as a sheet, matching the quick-action screens.
     @EnvironmentObject private var router: NavRouter
@@ -43,9 +76,15 @@ struct RootTabView: View {
     /// A routed v5 pillar screen (Insights hub / Lab Book / fused record / Rhythm) presented as a sheet
     /// when a hub row deep-links to it via NavRouter. nil = closed.
     @State private var routedPillar: NavRouter.Destination?
-    /// Selected tab — bound so tab switches can crossfade (README §Motion: ~240ms opacity swap
-    /// between tab roots, calm easing). Defaults to Today.
+    /// Native tab content switches immediately; only the persistent dock animates its selection.
     @State private var selectedTab: Int = 0
+    @State private var activitySection: NanashiActivitySection = .sessions
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var dockIsCompact = false
+    @State private var keyboardVisible = false
+    @State private var dockContentHeight = NoopColdGlassMetrics.dockCellHeight
+        + NoopMetrics.dockInset * 2 + NoopMetrics.space2 * 2
+    @State private var dockScroll = EditorialDockScrollTracker()
     /// One `NavigationPath` per tab, indexed by tab tag. Re-tapping the already-active tab pops
     /// that tab's stack to its root (#135) by clearing its path — an animated pop that leaves the
     /// root view alive, so an at-root re-tap keeps scroll position and never re-runs `.task`
@@ -63,20 +102,39 @@ struct RootTabView: View {
     /// `@AppStorage` CSV string (keyed identically to the Android `MoreSectionPrefs`), bridged to a
     /// `Set<String>` through `MoreSectionPrefs` so the section logic below is unchanged.
     @AppStorage(MoreSectionPrefs.storageKey) private var expandedMoreSectionsCSV = MoreSectionPrefs.defaultCSV
-    private var expandedMoreSections: Set<String> { MoreSectionPrefs.decode(expandedMoreSectionsCSV) }
 
     /// V8 liquid redesign is the default Today; the Settings toggle lets a user fall back to the classic
     /// Today if they prefer it (keyed identically to the SettingsView toggle). Default ON.
     @AppStorage("noop.liquidTodayEnabled") private var liquidTodayEnabled = true
+
+    init(repo: Repository, homeScreenQuickActionsEnabled: Bool = true, initialTab: Int = 0) {
+        self.repo = repo
+        self.initialTab = initialTab
+        self.homeScreenQuickActionsEnabled = homeScreenQuickActionsEnabled
+        _selectedTab = State(initialValue: min(4, max(0, initialTab)))
+    }
+
+    private var presenceIsUncovered: Bool {
+        quickAction == nil && !showDevices && routedPillar == nil && !liftSession.isPresented
+    }
+
+    private func presenceScene(for tag: Int) -> NanashiPresenceScene {
+        switch tag {
+        case 0: return .day
+        case 1: return .activity
+        case 2: return .sleep
+        case 4: return .explore
+        default: return .general
+        }
+    }
 
     /// The Today tab root, honouring the liquid/classic preference.
     @ViewBuilder private var todayTabRoot: some View {
         if liquidTodayEnabled { LiquidTodayView() } else { TodayView() }
     }
 
-    /// Native tab selection binding. SwiftUI sends taps on the already-selected item through the
-    /// setter, which lets the system tab bar retain the app's refresh / pop-to-root / scroll-to-top
-    /// convention without placing a custom hit-testing layer over the platform bar.
+    /// Keep one selection binding for the native containers and the source-derived dock.
+    /// Re-selecting a tab retains the refresh / pop-to-root / scroll-to-top convention.
     private var nativeTabSelection: Binding<Int> {
         Binding(
             get: { selectedTab },
@@ -99,36 +157,13 @@ struct RootTabView: View {
         }
     }
 
-    /// The anywhere-swipe tab-switch drag (2026-07-02). Held as a property so the attachment site can
-    /// enable or disable it through a `GestureMask` instead of attaching it conditionally: a conditional
-    /// attachment changes view identity, and this condition toggles on every push and pop, which would
-    /// rebuild the tab roots underneath it. The same class of rebuild is what #197 caused with an
-    /// `.id()` reset and #198 had to undo — it lost scroll position and re-ran `.task`.
-    ///
-    /// Only a decisive horizontal flick switches tabs, and Today is carved out because it uses
-    /// horizontal swipe to change DAYS. Both thresholds are unchanged from the original gesture.
-    private var tabSwipeGesture: some Gesture {
-        DragGesture(minimumDistance: 24)
-            .onEnded { v in
-                // Today (tab 0) uses horizontal swipe to change DAYS, so tab-swipe is off there.
-                guard selectedTab != 0 else { return }
-                let dx = v.translation.width, dy = v.translation.height
-                guard abs(dx) > 60, abs(dx) > abs(dy) * 1.6 else { return }
-                let next = min(4, max(0, selectedTab + (dx < 0 ? 1 : -1)))
-                if next != selectedTab {
-                    withAnimation(.timingCurve(0.22, 1, 0.36, 1, duration: 0.24)) { selectedTab = next }
-                }
-            }
-    }
-
     var body: some View {
-        // The platform tab bar is intentionally left fully native. iOS 26 supplies Liquid Glass and
-        // its dynamic interaction with scrolling content automatically; older supported releases use
-        // the corresponding system material and safe-area behaviour from the same TabView.
+        // Keep native tab/navigation identity. A single persistent dock overlays the shell rather
+        // than being removed and re-created inside each tab during selection.
         TabView(selection: nativeTabSelection) {
-            tab(todayTabRoot, "Today", "square.grid.2x2", path: $tabPaths[0], scrollSignal: scrollTop[0]).tag(0)
-            tab(TrendsView(), "Trends", "chart.line.uptrend.xyaxis", path: $tabPaths[1], scrollSignal: scrollTop[1]).tag(1)
-            tab(SleepView(), "Sleep", "bed.double", path: $tabPaths[2], scrollSignal: scrollTop[2]).tag(2)
+            tab(todayTabRoot, "Today", "square.grid.2x2", path: $tabPaths[0], scrollSignal: scrollTop[0], tag: 0).tag(0)
+            tab(NanashiActivityView(selection: $activitySection), "Activity", "figure.run", path: $tabPaths[1], scrollSignal: scrollTop[1], tag: 1).tag(1)
+            tab(SleepView(), "Sleep", "bed.double", path: $tabPaths[2], scrollSignal: scrollTop[2], tag: 2).tag(2)
             // K3: Coach promoted to a top-level tab (was behind the More list). The sparkles icon
             // matches the More-tab row and the macOS sidebar entry.
             // Conditional on the master switch. The tags stay LITERAL rather than being renumbered when
@@ -136,45 +171,45 @@ struct RootTabView: View {
             // shapes, so a wearer's More tab keeps its identity, its navigation path and its scroll
             // position across a flip instead of inheriting Coach's.
             if coachEnabled {
-                tab(CoachView(), "Coach", "sparkles", path: $tabPaths[3], scrollSignal: scrollTop[3]).tag(3)
+                tab(CoachView(), "Coach", "sparkles", path: $tabPaths[3], scrollSignal: scrollTop[3], tag: 3).tag(3)
             }
             moreTab(path: $tabPaths[4], scrollSignal: scrollTop[4]).tag(4)
         }
-        .tint(StrandPalette.accent)
+        .overlay(alignment: .bottom) {
+            if !keyboardVisible { bottomChrome }
+        }
+        .tint(StrandPalette.accentInk)
+        .toolbar(.hidden, for: .tabBar)
+        .environment(\.noopDockActiveTab, selectedTab)
+        .onPreferenceChange(NoopDockScrollOffsetKey.self) { sample in
+            updateDockScroll(sample)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            keyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            keyboardVisible = false
+        }
+        .rootShellBoundary()
+        .onChangeCompat(of: selectedTab) { _ in expandDock() }
+        .onChangeCompat(of: tabPaths.map(\.count)) { _ in expandDock() }
+        .onChangeCompat(of: scrollTop) { _ in expandDock() }
+        .onChangeCompat(of: bottomBarAutoHide) { _ in expandDock() }
+        .rootShellBoundary()
+        .onChangeCompat(of: quickAction) { _ in expandDock() }
+        .onChangeCompat(of: showDevices) { _ in expandDock() }
+        .onChangeCompat(of: routedPillar) { _ in expandDock() }
+        .onChangeCompat(of: liftSession.isPresented) { _ in expandDock() }
+        .rootShellBoundary()
         // Switching Coach off while STANDING on it leaves `selectedTab` pointing at a tag no tab claims
         // any more, which renders as an empty tab rather than as an error. Send that wearer to Today, and
         // only in that case, so a flip made from anywhere else does not move them.
         .onChangeCompat(of: coachEnabled) { enabled in
             if !enabled && selectedTab == 3 { selectedTab = 0 }
         }
-        // #1841: the same "Hide bar when scrolling" preference Android drives its own bar with. Here the
-        // system owns the behaviour — iOS 26's tab bar MINIMISES to a pill on scroll down rather than
-        // sliding away entirely, so this is the platform's read of the same intent, not a copy of ours.
-        .noopTabBarAutoHide(bottomBarAutoHide)
-            // Tab crossfade — README §Motion: ~240ms opacity swap between tab roots, global calm
-            // easing cubic-bezier(0.22,1,0.36,1).
-            .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 0.24), value: selectedTab)
-            // Swipe left/right anywhere to move between tabs (2026-07-02), but ONLY while the current
-            // tab is at its root. Attaching this ancestor drag gesture unconditionally defeated the
-            // edge-restriction of a pushed NavigationStack screen's native interactive-pop gesture —
-            // any More-tab subscreen (Settings, Devices, …) became draggable/rubber-banding from
-            // anywhere, not just the left edge (#519). Disabling the recognizer once a push is active,
-            // rather than just gating the onEnded action, is what stops the interference: the action
-            // never runs early enough, because the recognizer competes during recognition.
-            //
-            // The mask does that WITHOUT changing view identity. #519 attached the gesture through a
-            // conditional ViewModifier, which put the two states in separate _ConditionalContent
-            // branches — and since this condition toggles on every push and pop, each navigation
-            // rebuilt the whole TabView subtree and could reset @State inside the tab roots (scroll
-            // offsets, chart ranges, expanded sections). `including:` keeps one view type in both
-            // states, so nothing is torn down.
-            //
-            // The mask MUST be `.subviews`, not `.none`. `.subviews` means "enable the subview
-            // hierarchy's gestures, disable the added one" — exactly this requirement. `.none` disables
-            // the subview hierarchy TOO, which on a pushed screen would take out scrolling, taps and the
-            // interactive-pop itself: far worse than the bug being fixed.
-            .simultaneousGesture(tabSwipeGesture,
-                                 including: tabPaths[selectedTab].isEmpty ? .all : .subviews)
+        .onAppear {
+            if !coachEnabled && selectedTab == 3 { selectedTab = 0 }
+        }
         .task {
             await repo.refresh()
             // Backup & Sync: on-launch catch-up (see RootView). Detached + utility priority so a
@@ -184,25 +219,30 @@ struct RootTabView: View {
                 await FolderBackup.catchUpIfDue(checkpoint: { await backupRepo.checkpointForBackup() })
             }
         }
+        .rootShellBoundary()
         // Quick-action sheet presents with the calm easing (~0.42s) per the README sheet spec —
         // the easing is applied where `quickAction` is set (see `presentQuickAction`), keeping the
         // animation scoped to the sheet rather than the whole shell.
         .sheet(item: $quickAction) { action in
             quickActionDestination(action)
+                .environment(\.noopDockOwnsBottomInset, false)
         }
         // Live's "Manage devices" affordance (and any future cross-screen link to Devices) routes here:
         // present the Devices manager in its own nav stack, the same way the quick-action screens do.
         .sheet(isPresented: $showDevices) {
             devicesScreen
+                .environment(\.noopDockOwnsBottomInset, false)
         }
         // v5 pillar deep-links (Insights hub / Lab Book / fused record / Rhythm) present as a sheet in
         // their own nav stack — the same idiom the quick-action + Devices screens use on iPhone.
         .sheet(item: $routedPillar) { dest in
             pillarScreen(dest)
+                .environment(\.noopDockOwnsBottomInset, false)
         }
+        .rootShellBoundary()
         // Honour a router request: Devices keeps its dedicated sheet; the v5 pillars route through the
         // shared pillar sheet. Cleared so the same tap can fire again later.
-        .onChange(of: router.requestedDestination) { _, dest in
+        .onChangeCompat(of: router.requestedDestination) { dest in
             switch dest {
             case .devices:
                 showDevices = true
@@ -223,11 +263,13 @@ struct RootTabView: View {
                     router.requestedDestination = nil
                     break
                 }
-                withAnimation(.timingCurve(0.22, 1, 0.36, 1, duration: 0.24)) { selectedTab = 3 }
+                selectedTab = 3
                 router.requestedDestination = nil
             case .trends:
-                // Trends is a primary tab on iPhone (not a pillar sheet) — switch to it.
-                withAnimation(.timingCurve(0.22, 1, 0.36, 1, duration: 0.24)) { selectedTab = 1 }
+                // Preserve the legacy route: explicitly select Trends inside Activity.
+                activitySection = .trends
+                tabPaths[1] = NavigationPath()
+                selectedTab = 1
                 router.requestedDestination = nil
             case .activeWorkout:
                 // The Today active-workout indicator opens Live through the quick-action Live sheet; once
@@ -238,7 +280,7 @@ struct RootTabView: View {
             case .liveSession:
                 // Live Sessions is presented from Today's own Start entry (a cover, not a routed sheet),
                 // so a deep-link lands on the Today tab where that entry lives.
-                withAnimation(.timingCurve(0.22, 1, 0.36, 1, duration: 0.24)) { selectedTab = 0 }
+                selectedTab = 0
                 router.requestedDestination = nil
             case .journal:
                 // The #627 Today journal widget opens the journal through the quick-action Journal sheet
@@ -250,7 +292,7 @@ struct RootTabView: View {
             }
         }
         // A screen's top-bar "+" routes here: open the quick-action sheet, then clear the flag.
-        .onChange(of: router.quickActionsRequested) { _, req in
+        .onChangeCompat(of: router.quickActionsRequested) { req in
             if req {
                 withAnimation(Self.sheetEase) { quickAction = .menu }
                 router.quickActionsRequested = false
@@ -261,32 +303,63 @@ struct RootTabView: View {
         .onAppear {
             presentPendingHomeScreenQuickActionIfPossible()
         }
-        .onChange(of: homeScreenQuickActions.pendingAction) { _, _ in
+        .onChangeCompat(of: homeScreenQuickActions.pendingAction) { _ in
             presentPendingHomeScreenQuickActionIfPossible()
         }
-        .onChange(of: homeScreenQuickActionsEnabled) { _, _ in
+        .onChangeCompat(of: homeScreenQuickActionsEnabled) { _ in
             presentPendingHomeScreenQuickActionIfPossible()
         }
+        .rootShellBoundary()
         // The running gym session, reachable from ANY tab. It sits above the tab bar rather than
         // inside the Lift Log screen, because a workout outlives whichever screen you wandered to —
         // and because swiping the sheet away must minimise the session, not end it.
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if liftSession.isActive {
-                LiftSessionBar()
-                    .padding(.horizontal, 14)
-                    // Clear the floating tab bar with the same constant every screen uses, or the
-                    // session bar sits on top of the tab labels.
-                    .padding(.bottom, NoopMetrics.tabBarClearance)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: liftSession.isActive)
         // A session left running by a previous launch is back before this view exists
         // (`LiftSessionController.resumeSaved`, from `StrandiOSApp.init`), as the BAR — not as a sheet
         // thrown in the user's face; they open it when they want it.
         .sheet(isPresented: $liftSession.isPresented) {
             LiftSessionView { }
         }
+    }
+
+    private var bottomChrome: some View {
+        VStack(spacing: NoopMetrics.space2) {
+            if liftSession.isActive {
+                LiftSessionBar()
+                    .padding(.horizontal, NoopMetrics.screenHPadding)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+            NanashiDock(selectedTab: selectedTab, coachEnabled: coachEnabled, isCompact: dockIsCompact) { tag in
+                if tag == selectedTab { reselectTab(tag) }
+                else { selectedTab = tag }
+            }
+        }
+        .animation(reduceMotion ? nil : StrandMotion.interactive, value: liftSession.isActive)
+        .background {
+            GeometryReader { geometry in
+                Color.clear.preference(key: NanashiDockHeightKey.self, value: geometry.size.height)
+            }
+        }
+        .onPreferenceChange(NanashiDockHeightKey.self) { height in
+            guard height.isFinite, height > 0 else { return }
+            let measuredHeight = height.rounded(.up)
+            guard measuredHeight != dockContentHeight else { return }
+            // Layout feedback must not inherit the dock's spring or tiny material geometry changes.
+            var transaction = Transaction(animation: nil)
+            transaction.disablesAnimations = true
+            withTransaction(transaction) { dockContentHeight = measuredHeight }
+        }
+    }
+
+    private func updateDockScroll(_ sample: NoopDockScrollSample?) {
+        guard #available(iOS 26.0, *), bottomBarAutoHide, let sample else { return }
+        guard let compact = dockScroll.compactState(for: sample), compact != dockIsCompact else { return }
+        dockIsCompact = compact
+    }
+
+    private func expandDock() {
+        dockScroll.reset()
+        guard dockIsCompact else { return }
+        dockIsCompact = false
     }
 
     /// Mandatory launch gates defer an external action. Once the shell is available, an explicit Home
@@ -353,7 +426,7 @@ struct RootTabView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { routedPillar = nil }
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                 }
             }
         }
@@ -377,7 +450,7 @@ struct RootTabView: View {
                     withAnimation(Self.sheetEase) { quickAction = picked }
                 }
             }
-            .presentationDetents([.height(344)])
+            .presentationDetents([.medium, .large])
             .presentationDragIndicator(.hidden)
         case .live:
             quickScreen(LiveView())
@@ -406,7 +479,7 @@ struct RootTabView: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Done") { quickAction = nil }
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                     }
                 }
         }
@@ -425,14 +498,14 @@ struct RootTabView: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Done") { showDevices = false }
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                     }
                 }
         }
     }
 
     private func tab<V: View>(_ view: V, _ title: LocalizedStringKey, _ icon: String,
-                              path: Binding<NavigationPath>, scrollSignal: Int) -> some View {
+                              path: Binding<NavigationPath>, scrollSignal: Int, tag: Int) -> some View {
         // Each primary tab gets its OWN NavigationStack so the in-content NavigationLinks (e.g. the Today
         // dashboard card rows) both navigate AND render opaque. An ORPHANED NavigationLink (no
         // NavigationStack ancestor) renders its whole label in a disabled/translucent state — that was
@@ -441,83 +514,59 @@ struct RootTabView: View {
         // detail screens get their own nav bar + back button. The stack is bound to the tab's path so a
         // re-tap of the active tab can pop it to the root (#135/#198); the roots' first-hop links push
         // TabRoute values, registered here ONCE per stack (a double registration double-pushes, #38).
+        // Snapshot DynamicProperty values before entering the factory. Reading shell State from
+        // inside its body would subscribe the boundary to unrelated tab/chrome changes again.
+        let revision = tabRevision(tag: tag, path: path.wrappedValue, scrollSignal: scrollSignal)
+        let scene = presenceScene(for: tag)
+        return PresentationValueBoundary(revision: revision) {
         NavigationStack(path: path) {
             view
+                .environment(\.nanashiPresenceScene, scene)
+                .environment(\.nanashiPresenceIsActive,
+                             revision.isSelected && tag != 3 && revision.path.isEmpty && revision.presenceIsUncovered)
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    if tag == 3 && !revision.keyboardVisible {
+                        Color.clear.frame(height: revision.dockContentHeight)
+                            .allowsHitTesting(false).accessibilityHidden(true)
+                    }
+                }
                 .background(StrandPalette.surfaceBase.ignoresSafeArea())
                 .toolbar(.hidden, for: .navigationBar)
                 .tabRouteDestinations()
         }
+        // UIKit tab/navigation boundaries can discard a safe-area reservation. Non-Coach pages
+        // therefore scroll behind the shell overlay and reserve its measured height in their CONTENT.
+        // Coach keeps its proven inner reservation beside the composer; never reserve it twice.
         // Drive this tab's root scroll-to-top on an at-root re-tap (#198 follow-up); read by ScreenScaffold
         // / LiquidTodayView inside. Only THIS tab's token changes on its reselect, so the others don't scroll.
-        .environment(\.scrollToTopSignal, scrollSignal)
+        .environment(\.scrollToTopSignal, revision.scrollSignal)
+        .environment(\.presentationIsActive, revision.isSelected)
+        .environment(\.noopDockScrollTrackingTag, tag)
+        .environment(\.noopDockOwnsBottomInset, tag == 3)
+        .environment(\.noopDockContentClearance, tag == 3 ? nil : (revision.keyboardVisible ? 0 : revision.dockContentHeight))
+        .environment(\.nanashiPresenceIsActive, revision.isSelected && tag != 3 && revision.presenceIsUncovered)
+        .toolbar(.hidden, for: .tabBar)
+        }
+        .equatable()
         .tabItem { Label(title, systemImage: icon) }
     }
 
-    // The "More" tab is the app's catch-all index. It was a plain SwiftUI `List` with system large-title
-    // + system title-case section headers, so it didn't match any other page (which all use ScreenScaffold
-    // + SectionHeader's UPPERCASE overline + the 28pt section rhythm). Rebuilt on the shared page chrome:
-    // ScreenScaffold for the title1 "More" + subtitle, a `SectionHeader` overline per group, and the group's
-    // rows in a single grouped NoopCard with hairline dividers — the same row idiom Settings/Health use.
+    // The command index retains route-valued links and the More tab's bound navigation path.
     private func moreTab(path: Binding<NavigationPath>, scrollSignal: Int) -> some View {
+        let revision = tabRevision(tag: 4, path: path.wrappedValue, scrollSignal: scrollSignal)
+        let expandedSections = $expandedMoreSectionsCSV
+        let repository = repo
+        return PresentationValueBoundary(revision: revision) {
         NavigationStack(path: path) {
-            ScreenScaffold(title: "More", subtitle: "Everything else, one tap away",
-                           onRefresh: { await repo.refresh() },
-                           topBackground: liquidScaffoldSky()) {
-                moreSection("Insights") {
-                    MoreRow("What Moves You", "wand.and.sparkles", .insightsHub)
-                    MoreRow("Intelligence", "brain.head.profile", .intelligence)
-                    // K3: Coach promoted to a top-level tab — no longer listed under More.
-                    MoreRow("Insights", "lightbulb.fill", .insights)
-                    MoreRow("Explore", "square.grid.2x2.fill", .explore)
-                    MoreRow("Compare", "rectangle.split.2x1.fill", .compare)
-                }
-                moreSection("Body") {
-                    MoreRow("Live", "waveform.path.ecg", .live)
-                    MoreRow("Workouts", "figure.run", .workouts)
-                    MoreRow("Lift Log", "dumbbell.fill", .liftLog)
-                    MoreRow("Health", "heart.text.square.fill", .health)
-                    MoreRow("Lab Book", "books.vertical.fill", .labBook)
-                    MoreRow("Stress", "bolt.heart.fill", .stress)
-                    MoreRow("Breathe", "wind", .breathe)
-                    MoreRow("Intervals", "timer", .intervals)
-                    // Experimental beat-to-beat regularity visualization — self-gates on its own consent.
-                    MoreRow("Rhythm", "waveform.path", .rhythm)
-                }
-                moreSection("Data") {
-                    MoreRow("Your Data, Fused", "square.stack.3d.up.fill", .fusedRecord)
-                    MoreRow("Apple Health", "heart.fill", .appleHealth)
-                    MoreRow("Mi Band", "figure.walk.motion", .miBand)
-                    MoreRow("Data Sources", "externaldrive.fill", .dataSources)
-                    MoreRow("Backup & Sync", "externaldrive.fill.badge.icloud", .backupSync)
-                    // #155: HealthKit-free Apple Health path for sideloaded installs (Siri Shortcut
-                    // reads the opt-in Documents/noop_sync.txt drop file).
-                    MoreRow("Shortcuts Export", "square.and.arrow.up.fill", .shortcutsExport)
-                    // The plain 4.0 vs 5.0/MG capability grid — what NOOP reads live off each strap.
-                    MoreRow("NOOP Limitations", "list.bullet.rectangle", .noopLimitations)
-                }
-                moreSection("App") {
-                    // #805/#811: the v7.3.1 #766 alarm consolidation moved Smart Alarm under a single
-                    // "Alarms" sidebar entry (RootView .smartAlarm) but the regression dropped the row
-                    // from the iPhone More list, leaving Alarms unreachable on iPhone. Restore it here
-                    // (route to SmartAlarmView, the cross-platform iOS/macOS surface).
-                    //
-                    // Notifications (RootView .notifications) is deliberately NOT added: that screen is
-                    // macOS-only (it picks which Mac apps tap your wrist via NSWorkspace, imports AppKit,
-                    // and project.yml excludes Screens/NotificationSettingsView.swift from the iOS target),
-                    // so it can't compile or apply on iPhone. iPhone's wrist-alert controls live on the
-                    // Automations screen instead. Its absence from the iPhone More list is correct.
-                    MoreRow("Alarms", "alarm.fill", .alarms)
-                    MoreRow("Automations", "wand.and.stars", .automations)
-                    // The Test Centre (the diagnostics + bug-report hub) gets a first-class home here, not
-                    // just buried in Settings, so the feedback loop is one tap from the More tab.
-                    MoreRow("Test Centre", "stethoscope", .testCentre)
-                    MoreRow("Siri & Shortcuts", "mic.fill", .siriShortcuts)
-                    // #477 lives here rather than inside Settings: the strap-battery levers are the
-                    // ones people reach for when a strap is running down, so they get their own row.
-                    MoreRow("Power saving", "battery.25", .powerSaving)
-                    MoreRow("Settings", "gearshape.fill", .settings)
+            ScreenScaffold(title: "Explore", subtitle: "Everything else, one tap away",
+                           onRefresh: { await repository.refresh() }, topBackground: liquidScaffoldSky()) {
+                MoreCommandIndex(expandedSectionsCSV: expandedSections) { action in
+                    withAnimation(revision.reduceMotion ? nil : Self.sheetEase) { quickAction = action }
                 }
             }
+            .environment(\.nanashiPresenceScene, .explore)
+            .environment(\.nanashiPresenceIsActive,
+                         revision.isSelected && revision.path.isEmpty && revision.presenceIsUncovered)
             // The rows push MoreDestination VALUES so a re-tap of the More tab can pop them off the
             // bound path (#135/#198). Each destination keeps the per-screen wrapper the rows used to
             // apply inline (surfaceBase background, inline title bar, hidden bar background):
@@ -527,70 +576,391 @@ struct RootTabView: View {
             // identical at rest — the destination's own surfaceBase background shows through the bar.
             .navigationDestination(for: MoreDestination.self) { route in
                 route.destination
+                    .environment(\.nanashiPresenceScene, .general)
+                    .environment(\.nanashiPresenceIsActive, revision.isSelected && revision.presenceIsUncovered)
                     .background(StrandPalette.surfaceBase.ignoresSafeArea())
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbarBackground(.hidden, for: .navigationBar)
             }
         }
         // Scroll the More index to the top on an at-root re-tap (#198 follow-up); read by its ScreenScaffold.
-        .environment(\.scrollToTopSignal, scrollSignal)
-        .tabItem { Label("More", systemImage: "ellipsis") }
+        .environment(\.scrollToTopSignal, revision.scrollSignal)
+        .environment(\.presentationIsActive, revision.isSelected)
+        .environment(\.noopDockScrollTrackingTag, 4)
+        .environment(\.noopDockOwnsBottomInset, false)
+        .environment(\.noopDockContentClearance, revision.keyboardVisible ? 0 : revision.dockContentHeight)
+        .environment(\.nanashiPresenceIsActive, revision.isSelected && revision.presenceIsUncovered)
+        .toolbar(.hidden, for: .tabBar)
+        }
+        .equatable()
+        .tabItem { Label("Explore", systemImage: "square.grid.3x3") }
     }
 
-    /// One titled, COLLAPSIBLE group in the More index (S2): the app's overline (UPPERCASE) becomes a
-    /// tappable header with a disclosure chevron; tapping it expands/collapses the grouped rows card.
-    /// Insights + Body default open, Data + App default collapsed (the `expandedMoreSections` seed) so the
-    /// list is shorter at rest without dropping a single row. The grouped card is unchanged: a single
-    /// `NoopCard` holding a `VStack(spacing: 0)` whose `MoreRow`s draw their own hairlines, clipped to the
-    /// card's rounded shape so the last divider is trimmed inside the corners. Same idiom Settings/Health use.
-    @ViewBuilder
-    private func moreSection<Rows: View>(_ title: String,
-                                         @ViewBuilder rows: @escaping () -> Rows) -> some View {
-        let isOpen = expandedMoreSections.contains(title)
-        VStack(alignment: .leading, spacing: 10) {
-            // Tappable overline header: the same ALL-CAPS tracked label as before, now with a trailing
-            // chevron that rotates open. A plain Button (not a SwiftUI DisclosureGroup) so the header keeps
-            // the exact strandOverline styling and the card layout below stays identical to before.
-            Button {
-                withAnimation(.timingCurve(0.22, 1, 0.36, 1, duration: 0.24)) {
-                    // Persist the toggle via the CSV-backed @AppStorage so the choice survives leaving and
-                    // re-entering the More tab and relaunch (#860 item 2). MoreSectionPrefs owns encode/decode.
-                    var open = expandedMoreSections
-                    if isOpen { open.remove(title) } else { open.insert(title) }
-                    expandedMoreSectionsCSV = MoreSectionPrefs.encode(open)
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    Text(title).strandOverline()
-                    Spacer(minLength: 8)
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(StrandPalette.textTertiary)
-                        .rotationEffect(.degrees(isOpen ? 0 : -90))
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text(title))
-            .accessibilityValue(Text(isOpen ? String(localized: "Expanded") : String(localized: "Collapsed")))
-            .accessibilityHint(Text(isOpen ? String(localized: "Double tap to collapse") : String(localized: "Double tap to expand")))
+    /// A tab only follows its own route, active state and layout. Before this boundary a dock tap
+    /// rebuilt all five navigation factories, including the invisible history/chart roots.
+    private func tabRevision(tag: Int, path: NavigationPath, scrollSignal: Int) -> TabRevision {
+        TabRevision(path: path, scrollSignal: scrollSignal, isSelected: selectedTab == tag,
+                    presenceIsUncovered: presenceIsUncovered, keyboardVisible: keyboardVisible,
+                    dockContentHeight: dockContentHeight, reduceMotion: reduceMotion,
+                    liquidTodayEnabled: tag == 0 && liquidTodayEnabled,
+                    activitySection: tag == 1 ? activitySection : nil,
+                    expandedMoreSections: tag == 4 ? expandedMoreSectionsCSV : "")
+    }
 
-            if isOpen {
-                // Zero internal padding so each MoreRow owns its own comfortable insets + height; the rows
-                // supply their own hairline separators (drawn at the bottom of every row but the last via the
-                // divider overlay) so the group reads as one continuous grouped list, matching Settings/Health.
+    private struct TabRevision: Equatable {
+        let path: NavigationPath
+        let scrollSignal: Int
+        let isSelected: Bool
+        let presenceIsUncovered: Bool
+        let keyboardVisible: Bool
+        let dockContentHeight: CGFloat
+        let reduceMotion: Bool
+        let liquidTodayEnabled: Bool
+        let activitySection: NanashiActivitySection?
+        let expandedMoreSections: String
+    }
+
+}
+
+/// One long-lived glass rail, adapted from 21st Pill Morph Tabs (7878).
+/// Its namespace and spring stay local: screen layout, charts and safe areas never join the animation.
+private struct NanashiDock: View {
+    let selectedTab: Int
+    let coachEnabled: Bool
+    let isCompact: Bool
+    let onSelect: (Int) -> Void
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Namespace private var dockSelection
+
+    /// Pill Morph Tabs (21st 7878, ruixen.ui): translucent rail and a spring-driven
+    /// glass selection. Dock Nav (19177) supplies the icon-led navigation structure.
+    /// Labels stay visible on touch; the five targets never change width.
+    var body: some View {
+        HStack(spacing: NoopMetrics.dockGap) {
+            dockItem(0, title: "Day", icon: "square.grid.2x2")
+            dockItem(2, title: "Sleep", icon: "moon")
+            dockItem(1, title: "Activity", icon: "figure.run")
+            if coachEnabled { dockItem(3, title: "Coach", icon: "sparkles") }
+            dockItem(4, title: "Explore", icon: "square.grid.3x3")
+        }
+        .padding(isCompact ? NoopMetrics.space1 : NoopMetrics.dockInset)
+        .background(NoopPanelSurface(cornerRadius: NoopMetrics.space8, elevated: true))
+        .frame(maxWidth: NoopColdGlassMetrics.dockWidth)
+        .padding(.horizontal, NoopMetrics.screenHPadding)
+        .padding(.vertical, NoopMetrics.space2)
+        .frame(maxWidth: .infinity)
+        .background(alignment: .bottom) {
+            LinearGradient(colors: [.clear, StrandPalette.surfaceBase],
+                           startPoint: .top, endPoint: .bottom)
+                .frame(height: NoopMetrics.dockScrimHeight)
+                .ignoresSafeArea(edges: .bottom)
+                .allowsHitTesting(false).accessibilityHidden(true)
+        }
+        .animation(reduceMotion ? nil : StrandMotion.interactive, value: selectedTab)
+        .animation(reduceMotion ? nil : StrandMotion.interactive, value: isCompact)
+        .accessibilityElement(children: .contain)
+    }
+
+    private func dockItem(_ tag: Int, title: LocalizedStringKey, icon: String) -> some View {
+        let selected = selectedTab == tag
+        return Button {
+            onSelect(tag)
+        } label: {
+            VStack(spacing: NoopMetrics.space1) {
+                Image(systemName: icon)
+                    .font(StrandFont.number(NoopMetrics.dockIconSize, weight: selected ? .semibold : .regular))
+                    .frame(height: NoopMetrics.dockIconSize)
+                Text(title).font(StrandFont.overline)
+                    .lineLimit(1).minimumScaleFactor(0.8)
+                    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+            }
+            .foregroundStyle(selected ? StrandPalette.textPrimary : StrandPalette.textSecondary)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: isCompact ? NoopButtonMetrics.minHitTarget : NoopColdGlassMetrics.dockCellHeight)
+            .contentShape(RoundedRectangle(cornerRadius: NoopMetrics.space6))
+            .background {
+                if selected {
+                    NoopGlassControlSurface(cornerRadius: NoopMetrics.space6, isSelected: true)
+                        .matchedGeometryEffect(id: "coldglass.dock.selection", in: dockSelection)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(title))
+        .accessibilityAddTraits(selected ? .isSelected : [])
+        .accessibilityIdentifier("noop.dock.\(tag)")
+        .accessibilityShowsLargeContentViewer { Label(title, systemImage: icon) }
+    }
+
+}
+
+private struct NanashiDockHeightKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
+/// Local navigation search adapted from Command Menu with Global Search (27378).
+/// Groups use the existing route index; filtering never writes the user's expansion choices.
+private struct MoreCommandIndex: View {
+    @Binding var expandedSectionsCSV: String
+    let onQuickAction: (QuickAction) -> Void
+    @State private var query = ""
+    @State private var filter: MoreRouteGroup?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var isFiltering: Bool { !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || filter != nil }
+    private var matches: [MoreRouteEntry] {
+        MoreRouteEntry.all.filter { entry in
+            (filter == nil || filter == entry.group) &&
+                moreSearchMatches(query: query, title: entry.title, group: entry.group.title, sourceTitle: entry.titleKey)
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: NoopMetrics.sectionSpacing) {
+            MoreQuickCommand(onPick: onQuickAction)
+            VStack(alignment: .leading, spacing: NoopMetrics.space3) {
+                NoopLiquidGlassSearchField(text: $query, prompt: String(localized: "Search screens"))
+                    .accessibilityIdentifier("noop.more.search")
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: NoopMetrics.space2) {
+                        filterPill(nil, title: String(localized: "All"))
+                        ForEach(MoreRouteGroup.allCases) { group in
+                            filterPill(group, title: group.title)
+                        }
+                    }
+                }
+                .scrollBounceBasedOnSizeCompat(axes: .horizontal)
+            }
+            if matches.isEmpty {
+                VStack(spacing: NoopMetrics.space3) {
+                    Image(systemName: "magnifyingglass")
+                        .font(StrandFont.title2).foregroundStyle(StrandPalette.textTertiary)
+                        .accessibilityHidden(true)
+                    Text("No matching screens").font(StrandFont.headline)
+                    Text("Try another word or group.")
+                        .font(StrandFont.subhead).foregroundStyle(StrandPalette.textSecondary)
+                    Button("Clear filters") { query = ""; filter = nil }
+                        .buttonStyle(NoopButtonStyle(.secondary))
+                        .accessibilityIdentifier("noop.more.clearFilters")
+                }
+                .padding(NoopMetrics.space6)
+                .frame(maxWidth: .infinity)
+                .background(NoopPanelSurface())
+                .accessibilityIdentifier("noop.more.empty")
+            } else {
+                ForEach(MoreRouteGroup.allCases) { group in
+                    let entries = matches.filter { $0.group == group }
+                    if !entries.isEmpty { routeGroup(group, entries: entries) }
+                }
+            }
+        }
+    }
+
+    private func filterPill(_ group: MoreRouteGroup?, title: String) -> some View {
+        let selected = filter == group
+        return Button { filter = group } label: {
+            Text(title).font(StrandFont.footnote.weight(.semibold))
+                .foregroundStyle(selected ? StrandPalette.onAccent : StrandPalette.textSecondary)
+                .padding(.horizontal, NoopMetrics.space3)
+                .frame(minHeight: NoopButtonMetrics.minHitTarget)
+                .background(selected ? StrandPalette.accent : StrandPalette.surfaceInset, in: Capsule())
+                .overlay(Capsule().strokeBorder(selected ? StrandPalette.accent : StrandPalette.hairline,
+                                               lineWidth: NoopMetrics.hairlineWidth))
+        }
+        .buttonStyle(LiquidPressStyle())
+        .accessibilityAddTraits(selected ? .isSelected : [])
+        .accessibilityIdentifier("noop.more.filter.\(group?.rawValue.lowercased() ?? "all")")
+    }
+
+    private func routeGroup(_ group: MoreRouteGroup, entries: [MoreRouteEntry]) -> some View {
+        let persistedOpen = MoreSectionPrefs.decode(expandedSectionsCSV).contains(group.rawValue)
+        let shown = isFiltering || persistedOpen
+        return VStack(alignment: .leading, spacing: NoopMetrics.space2) {
+            if isFiltering {
+                Text(group.title).strandOverline()
+                    .accessibilityAddTraits(.isHeader)
+            } else {
+                Button {
+                    withAnimation(reduceMotion ? nil : StrandMotion.interactive) {
+                        var expanded = MoreSectionPrefs.decode(expandedSectionsCSV)
+                        if persistedOpen { expanded.remove(group.rawValue) }
+                        else { expanded.insert(group.rawValue) }
+                        expandedSectionsCSV = MoreSectionPrefs.encode(expanded)
+                    }
+                } label: {
+                    HStack(spacing: NoopMetrics.space2) {
+                        Text(group.title).strandOverline()
+                        Spacer(minLength: NoopMetrics.space2)
+                        Image(systemName: "chevron.down")
+                            .font(StrandFont.footnote.weight(.semibold))
+                            .foregroundStyle(StrandPalette.textTertiary)
+                            .rotationEffect(.degrees(persistedOpen ? 0 : -90))
+                            .accessibilityHidden(true)
+                    }
+                    .frame(minHeight: NoopButtonMetrics.minHitTarget)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(group.title)
+                .accessibilityValue(persistedOpen ? String(localized: "Expanded") : String(localized: "Collapsed"))
+            }
+            if shown {
                 NoopCard(padding: 0) {
-                    VStack(spacing: 0) { rows() }
-                        // Clip the rows column to the card's rounded shape so the last row's bottom hairline is
-                        // trimmed inside the corners (the card draws its surface in the BACKGROUND and doesn't
-                        // clip content itself, so without this the final divider would run past the rounded edge).
-                        .clipShape(RoundedRectangle(cornerRadius: NoopMetrics.cardRadius, style: .continuous))
+                    VStack(spacing: 0) {
+                        ForEach(entries) { entry in
+                            MoreRow(entry.title, entry.icon, entry.route, query: query)
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: NoopMetrics.cardRadius, style: .continuous))
                 }
             }
         }
     }
 }
+
+private enum MoreRouteGroup: String, CaseIterable, Identifiable {
+    case insights = "Insights", body = "Body", data = "Data", app = "App"
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .insights: return String(localized: "Insights")
+        case .body: return String(localized: "Activity")
+        case .data: return String(localized: "Data Sources")
+        case .app: return String(localized: "Settings")
+        }
+    }
+}
+
+private struct MoreRouteEntry: Identifiable {
+    let titleKey: String
+    let icon: String
+    let route: MoreDestination
+    let group: MoreRouteGroup
+    var id: MoreDestination { route }
+    var title: String { String(localized: String.LocalizationValue(titleKey)) }
+
+    static let all: [MoreRouteEntry] = [
+        .init(titleKey: "What Moves You", icon: "wand.and.sparkles", route: .insightsHub, group: .insights),
+        .init(titleKey: "Intelligence", icon: "brain.head.profile", route: .intelligence, group: .insights),
+        .init(titleKey: "Insights", icon: "lightbulb.fill", route: .insights, group: .insights),
+        .init(titleKey: "Explore", icon: "square.grid.2x2.fill", route: .explore, group: .insights),
+        .init(titleKey: "Compare", icon: "rectangle.split.2x1.fill", route: .compare, group: .insights),
+        .init(titleKey: "Live", icon: "waveform.path.ecg", route: .live, group: .body),
+        .init(titleKey: "Workouts", icon: "figure.run", route: .workouts, group: .body),
+        .init(titleKey: "Lift Log", icon: "dumbbell.fill", route: .liftLog, group: .body),
+        .init(titleKey: "Health", icon: "heart.text.square.fill", route: .health, group: .body),
+        .init(titleKey: "Lab Book", icon: "books.vertical.fill", route: .labBook, group: .body),
+        .init(titleKey: "Stress", icon: "bolt.heart.fill", route: .stress, group: .body),
+        .init(titleKey: "Breathe", icon: "wind", route: .breathe, group: .body),
+        .init(titleKey: "Intervals", icon: "timer", route: .intervals, group: .body),
+        .init(titleKey: "Rhythm", icon: "waveform.path", route: .rhythm, group: .body),
+        .init(titleKey: "Devices", icon: "sensor.tag.radiowaves.forward", route: .devices, group: .data),
+        .init(titleKey: "Your Data, Fused", icon: "square.stack.3d.up.fill", route: .fusedRecord, group: .data),
+        .init(titleKey: "Apple Health", icon: "heart.fill", route: .appleHealth, group: .data),
+        .init(titleKey: "Mi Band", icon: "figure.walk.motion", route: .miBand, group: .data),
+        .init(titleKey: "Data Sources", icon: "externaldrive.fill", route: .dataSources, group: .data),
+        .init(titleKey: "Backup & Sync", icon: "externaldrive.fill.badge.icloud", route: .backupSync, group: .data),
+        .init(titleKey: "Shortcuts Export", icon: "square.and.arrow.up.fill", route: .shortcutsExport, group: .data),
+        .init(titleKey: "NOOP Limitations", icon: "list.bullet.rectangle", route: .noopLimitations, group: .data),
+        .init(titleKey: "Alarms", icon: "alarm.fill", route: .alarms, group: .app),
+        .init(titleKey: "Automations", icon: "wand.and.stars", route: .automations, group: .app),
+        .init(titleKey: "Test Centre", icon: "stethoscope", route: .testCentre, group: .app),
+        .init(titleKey: "Siri & Shortcuts", icon: "mic.fill", route: .siriShortcuts, group: .app),
+        .init(titleKey: "Power saving", icon: "battery.25", route: .powerSaving, group: .app),
+        .init(titleKey: "Settings", icon: "gearshape.fill", route: .settings, group: .app)
+    ]
+}
+
+/// Match localized and source names so language changes do not make a route unfindable.
+private func moreSearchMatches(query: String, title: String, group: String, sourceTitle: String) -> Bool {
+    let needle = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+    guard !needle.isEmpty else { return true }
+    return "\(title) \(group) \(sourceTitle)"
+        .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+        .contains(needle)
+}
+
+/// Tap-expanded command pill and action grid adapted from Command Menu (23173).
+/// Real destinations replace the source's demo links and optional rotating status.
+private struct MoreQuickCommand: View {
+    let onPick: (QuickAction) -> Void
+    @State private var expanded = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Namespace private var commandSelection
+    @State private var selectedAction: QuickAction?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: expanded ? NoopMetrics.space3 : 0) {
+            Button {
+                withAnimation(reduceMotion ? nil : StrandMotion.interactive) { expanded.toggle() }
+            } label: {
+                HStack(spacing: NoopMetrics.space3) {
+                    Image(systemName: "command")
+                        .font(StrandFont.headline).foregroundStyle(StrandPalette.accentInk)
+                    Text("Quick actions").font(StrandFont.subhead.weight(.semibold))
+                        .foregroundStyle(StrandPalette.textPrimary)
+                    if expanded { Spacer(minLength: NoopMetrics.space2) }
+                    Image(systemName: expanded ? "xmark" : "chevron.down")
+                        .font(StrandFont.caption.weight(.semibold)).foregroundStyle(StrandPalette.textSecondary)
+                        .accessibilityHidden(true)
+                }
+                .padding(.horizontal, NoopMetrics.space4)
+                .frame(minHeight: NoopMetrics.controlHeight)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityValue(expanded ? String(localized: "Expanded") : String(localized: "Collapsed"))
+            .accessibilityIdentifier("noop.more.quickActions")
+            .keyboardShortcut("k", modifiers: .command)
+            if expanded {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: NoopMetrics.space2) {
+                    action(.live, title: "Live HR", icon: "waveform.path.ecg")
+                    action(.workout, title: "Start workout", icon: "figure.run")
+                    action(.journal, title: "Log journal", icon: "square.and.pencil")
+                    action(.breathe, title: "Breathe", icon: "wind")
+                }
+                .padding(.horizontal, NoopMetrics.space3)
+                .padding(.bottom, NoopMetrics.space3)
+                .transition(.opacity)
+            }
+        }
+        .frame(maxWidth: expanded ? .infinity : nil, alignment: .leading)
+        .background(NoopPanelSurface(cornerRadius: expanded ? NoopMetrics.cardRadius : NoopMetrics.pillRadius))
+        .animation(reduceMotion ? nil : StrandMotion.interactive, value: expanded)
+    }
+
+    private func action(_ action: QuickAction, title: LocalizedStringKey, icon: String) -> some View {
+        Button {
+            selectedAction = action
+            expanded = false
+            onPick(action)
+        } label: {
+            VStack(alignment: .leading, spacing: NoopMetrics.space2) {
+                Image(systemName: icon).font(StrandFont.headline).foregroundStyle(StrandPalette.accentInk)
+                Text(title).font(StrandFont.subhead.weight(.semibold)).foregroundStyle(StrandPalette.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, minHeight: NoopMetrics.controlHeight, alignment: .leading)
+            .padding(NoopMetrics.space3)
+            .background {
+                if selectedAction == action {
+                    RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius)
+                        .fill(StrandPalette.accentMuted)
+                        .matchedGeometryEffect(id: "more.command.selection", in: commandSelection)
+                } else {
+                    RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius).fill(StrandPalette.surfaceInset)
+                }
+            }
+            .contentShape(RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius))
+        }
+        .buttonStyle(LiquidPressStyle())
+        .accessibilityIdentifier("noop.more.quickAction.\(action.rawValue)")
+        .onHover { hovering in selectedAction = hovering ? action : nil }
+    }
+}
+
 
 /// Every screen the More index links to, as a `Hashable` value the tab's `NavigationPath` can carry
 /// (#198): a closure-destination push would bypass the path and be un-poppable on tab re-tap. The
@@ -599,7 +969,7 @@ struct RootTabView: View {
 private enum MoreDestination: Hashable {
     case insightsHub, intelligence, coach, insights, explore, compare
     case live, workouts, liftLog, health, labBook, stress, breathe, intervals, rhythm
-    case fusedRecord, appleHealth, miBand, dataSources, backupSync, shortcutsExport, noopLimitations
+    case fusedRecord, appleHealth, miBand, dataSources, backupSync, shortcutsExport, noopLimitations, devices
     case alarms, automations, testCentre, siriShortcuts, powerSaving, settings
 
     @ViewBuilder var destination: some View {
@@ -619,6 +989,7 @@ private enum MoreDestination: Hashable {
         case .breathe:         BreathingView()
         case .intervals:       IntervalTimerView()
         case .rhythm:          RhythmHost()
+        case .devices:         DevicesView()
         case .fusedRecord:     FusedRecordHost()
         case .appleHealth:     AppleHealthView()
         case .miBand:          XiaomiBandView()
@@ -642,46 +1013,92 @@ private enum MoreDestination: Hashable {
 /// trailing `chevron.right` in `textTertiary`. ~44pt min height + the card's row insets keep the whole row a
 /// comfortable tap target.
 private struct MoreRow: View {
-    let title: LocalizedStringKey
+    let title: String
     let icon: String
     let route: MoreDestination
 
-    init(_ title: LocalizedStringKey, _ icon: String, _ route: MoreDestination) {
-        self.title = title; self.icon = icon; self.route = route
+    let query: String
+
+    init(_ title: String, _ icon: String, _ route: MoreDestination, query: String = "") {
+        self.title = title; self.icon = icon; self.route = route; self.query = query
+    }
+
+    private var titleText: Text {
+        let needle = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !needle.isEmpty,
+              let match = title.range(of: needle, options: [.caseInsensitive, .diacriticInsensitive]) else {
+            return Text(title)
+        }
+        return Text(String(title[..<match.lowerBound])) +
+            Text(String(title[match])).foregroundColor(StrandPalette.accentInk).bold() +
+            Text(String(title[match.upperBound...]))
     }
 
     var body: some View {
         NavigationLink(value: route) {
-            HStack(spacing: 14) {
-                // Pin the icon to the accent explicitly. A plain inherited tint gets re-resolved by iOS to
-                // its default blue a beat after first render — so the icons flashed green→blue (#184). The
-                // explicit foregroundStyle on the image overrides that; the title keeps the primary colour.
+            HStack(spacing: NoopMetrics.space3) {
                 Image(systemName: icon)
-                    .font(.system(size: 17, weight: .regular))
-                    .foregroundStyle(StrandPalette.accent)
-                    .frame(width: 26, alignment: .center)
-                Text(title)
-                    .font(StrandFont.body)
-                    .foregroundStyle(StrandPalette.textPrimary)
-                Spacer(minLength: 8)
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(StrandFont.subhead.weight(.medium))
+                    .foregroundStyle(StrandPalette.textSecondary)
+                    .frame(width: NoopMetrics.compactControlSize, height: NoopMetrics.compactControlSize)
+                    .background(StrandPalette.surfaceInset, in: RoundedRectangle(cornerRadius: NoopMetrics.space2))
+                    .overlay(RoundedRectangle(cornerRadius: NoopMetrics.space2)
+                        .strokeBorder(StrandPalette.hairline, lineWidth: NoopMetrics.hairlineWidth))
+                    .accessibilityHidden(true)
+                titleText.font(StrandFont.subhead.weight(.semibold)).foregroundStyle(StrandPalette.textPrimary)
+                Spacer(minLength: NoopMetrics.space2)
+                Image(systemName: "chevron.right").font(StrandFont.footnote.weight(.semibold))
                     .foregroundStyle(StrandPalette.textTertiary)
+                    .accessibilityHidden(true)
             }
-            .padding(.horizontal, 16)
-            .frame(minHeight: 44)
+            .padding(.horizontal, NoopMetrics.cardPadding)
+            .padding(.vertical, NoopMetrics.space3)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
-            // Hairline under every row; the grouped container clips the last one's overflow so the bottom
-            // edge stays clean (the divider sits inside the card's rounded corners).
             .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(StrandPalette.hairline)
-                    .frame(height: 1)
-                    .padding(.leading, 16)
+                Rectangle().fill(StrandPalette.hairline).frame(height: NoopMetrics.hairlineWidth)
+                    .padding(.leading, NoopMetrics.cardPadding + NoopMetrics.compactControlSize + NoopMetrics.space3)
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(LiquidPressStyle())
+        .accessibilityIdentifier("noop.more.route.\(String(describing: route))")
+    }
+}
+
+/// A small scroll-direction accumulator; it owns no timer and publishes only a dock state change.
+private final class EditorialDockScrollTracker {
+    private var screen: UUID?
+    private var lastOffset: CGFloat?
+    private var travel: CGFloat = 0
+
+    func reset() {
+        screen = nil
+        lastOffset = nil
+        travel = 0
+    }
+
+    func compactState(for sample: NoopDockScrollSample) -> Bool? {
+        if screen != sample.screen {
+            screen = sample.screen
+            lastOffset = sample.offset
+            travel = 0
+            return false
+        }
+        let previous = lastOffset
+        lastOffset = sample.offset
+        if sample.offset >= -NoopMetrics.space5 {
+            travel = 0
+            return false
+        }
+        guard let previous else { return nil }
+        let delta = sample.offset - previous
+        guard delta != 0 else { return nil }
+        if (travel < 0) != (delta < 0) { travel = delta }
+        else { travel += delta }
+        guard abs(travel) >= NoopMetrics.space4 else { return nil }
+        let compact = travel < 0
+        travel = 0
+        return compact
     }
 }
 
@@ -701,68 +1118,39 @@ private struct QuickActionSheet: View {
     let onPick: (QuickAction) -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Grab handle (36×4) in the slate hairline tone.
-            Capsule()
-                .fill(StrandPalette.hairlineStrong)
-                .frame(width: 36, height: 4)
-                .padding(.top, 10)
-                .padding(.bottom, 14)
-
-            Text("QUICK ACTIONS")
-                .font(StrandFont.overline)
-                .tracking(1.6)
-                .foregroundStyle(StrandPalette.textTertiary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 10)
-
-            VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: NoopMetrics.space6) {
+            Text("QUICK ACTIONS").font(StrandFont.overline)
+                .tracking(StrandFont.overlineTracking).foregroundStyle(StrandPalette.textTertiary)
+            VStack(spacing: NoopMetrics.space2) {
                 row("Live HR", icon: "waveform.path.ecg", tint: StrandPalette.metricRose) { onPick(.live) }
                 row("Start workout", icon: "figure.run", tint: StrandPalette.effortColor) { onPick(.workout) }
                 row("Log journal", icon: "square.and.pencil", tint: StrandPalette.accent) { onPick(.journal) }
                 row("Breathe", icon: "wind", tint: StrandPalette.restColor) { onPick(.breathe) }
             }
-            .padding(.horizontal, 16)
-
             Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(
-            NoopChromeSurface()
-                .overlay(alignment: .top) {
-                    // Gold hairline top edge per the bottom-sheet spec.
-                    Rectangle()
-                        .fill(StrandPalette.gold.opacity(0.35))
-                        .frame(height: 1)
-                }
-                .ignoresSafeArea()
-        )
+        .padding(NoopMetrics.space6)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(StrandPalette.surfaceBase.ignoresSafeArea())
     }
 
-    /// One flat action row: hued line-icon tile + title, inset surface, hairline border.
+    /// Quiet icon-tile rows retain the source Preferences Card hierarchy (30553).
     private func row(_ title: LocalizedStringKey, icon: String, tint: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            HStack(spacing: 13) {
-                Image(systemName: icon)
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(tint)
-                    .frame(width: 38, height: 38)
-                    .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(StrandPalette.surfaceInset))
-                Text(title)
-                    .font(StrandFont.headline)
-                    .foregroundStyle(StrandPalette.textPrimary)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
+            HStack(spacing: NoopMetrics.space3) {
+                Image(systemName: icon).font(StrandFont.headline).foregroundStyle(tint)
+                    .frame(width: NoopMetrics.controlHeight, height: NoopMetrics.controlHeight)
+                    .background(StrandPalette.surfaceInset, in: RoundedRectangle(cornerRadius: NoopMetrics.space3))
+                Text(title).font(StrandFont.headline).foregroundStyle(StrandPalette.textPrimary)
+                Spacer(minLength: NoopMetrics.space2)
+                Image(systemName: "chevron.right").font(StrandFont.caption.weight(.semibold))
                     .foregroundStyle(StrandPalette.textTertiary)
             }
-            .padding(.vertical, 10)
-            .padding(.horizontal, 12)
-            .background(NoopPanelSurface(cornerRadius: 14))
+            .padding(NoopMetrics.space3)
+            .background(NoopPanelSurface(cornerRadius: NoopVisualStyle.compactRadius))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(LiquidPressStyle())
     }
 }
 

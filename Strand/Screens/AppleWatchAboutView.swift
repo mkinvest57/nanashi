@@ -123,7 +123,7 @@ struct AppleWatchAboutView: View {
                 HStack(spacing: 10) {
                     Image(systemName: "applewatch")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .frame(width: 34, height: 34)
                         .background(StrandPalette.accent.opacity(0.14),
                                     in: RoundedRectangle(cornerRadius: 10, style: .continuous))

@@ -17,6 +17,61 @@ import UIKit
 /// ActivityKit for it.
 @MainActor
 final class LiftLiveActivityController {
+    static let silentAlertSound = "lift-step-silence.caf"
+    private let implementation: (any LiftLiveActivityDriving)?
+
+    /// What the push for a strap step did about lighting the screen — one strap-log line per step, so a
+    /// step that did not light can be told apart: NOOP was on screen, no banner was running, or the alert
+    /// went to iOS and iOS chose (a face-down phone, a Focus, its own limits).
+    enum LightUp {
+        case askedIOS, appOnScreen, noBanner
+
+        var logLine: String {
+            switch self {
+            case .askedIOS:    return "Lift Log: strap step sent to the Lock Screen with a light-up alert"
+            case .appOnScreen: return "Lift Log: strap step not lighting the Lock Screen — NOOP is open on screen"
+            case .noBanner:    return "Lift Log: strap step not lighting the Lock Screen — no Lift Log banner is running"
+            }
+        }
+    }
+
+    init(log: @escaping (String) -> Void = { _ in }) {
+        if #available(iOS 16.2, *) {
+            implementation = SupportedLiftLiveActivityController(log: log)
+        } else {
+            implementation = nil
+        }
+    }
+
+    var isShowing: Bool { implementation?.isShowing ?? false }
+
+    @discardableResult
+    func update(state: LiftActivityAttributes.ContentState?, alert: Bool = false) -> LightUp? {
+        guard let implementation else { return alert ? .noBanner : nil }
+        return implementation.update(state: state, alert: alert)
+    }
+
+    func updateHeartRate(_ bpm: Int?) {
+        implementation?.updateHeartRate(bpm)
+    }
+
+    func end() async {
+        await implementation?.end()
+    }
+}
+
+@MainActor
+private protocol LiftLiveActivityDriving: AnyObject {
+    var isShowing: Bool { get }
+    func update(state: LiftActivityAttributes.ContentState?, alert: Bool) -> LiftLiveActivityController.LightUp?
+    func updateHeartRate(_ bpm: Int?)
+    func end() async
+}
+
+/// Preserves the Lift Log banner lifecycle where ActivityContent is supported.
+@available(iOS 16.2, *)
+@MainActor
+private final class SupportedLiftLiveActivityController: LiftLiveActivityDriving {
     private var activity: Activity<LiftActivityAttributes>?
     /// A Lift Log banner is on screen — what NOOP's live heart rate banner makes room for (`LiveHRBannerLifecycle`).
     var isShowing: Bool { activity != nil }
@@ -42,22 +97,9 @@ final class LiftLiveActivityController {
     /// A bundled sound file of silence. ActivityKit offers an alert only the default sound or a named
     /// file, and a chime from a phone on a bench every set is not what the lifter asked for; the strap
     /// has already buzzed.
-    static let silentAlertSound = "lift-step-silence.caf"
+    static let silentAlertSound = LiftLiveActivityController.silentAlertSound
 
-    /// What the push for a strap step did about lighting the screen — one strap-log line per step, so a
-    /// step that did not light can be told apart: NOOP was on screen, no banner was running, or the alert
-    /// went to iOS and iOS chose (a face-down phone, a Focus, its own limits).
-    enum LightUp {
-        case askedIOS, appOnScreen, noBanner
-
-        var logLine: String {
-            switch self {
-            case .askedIOS:    return "Lift Log: strap step sent to the Lock Screen with a light-up alert"
-            case .appOnScreen: return "Lift Log: strap step not lighting the Lock Screen — NOOP is open on screen"
-            case .noBanner:    return "Lift Log: strap step not lighting the Lock Screen — no Lift Log banner is running"
-            }
-        }
-    }
+    typealias LightUp = LiftLiveActivityController.LightUp
 
     init(log: @escaping (String) -> Void = { _ in }) {
         self.log = log

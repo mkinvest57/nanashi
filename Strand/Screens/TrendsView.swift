@@ -13,6 +13,7 @@ import Foundation
 // recovery YearHeatStrip in a NoopCard. No hand-sized cards anywhere.
 
 struct TrendsView: View {
+    var usesFloatingHeader = false
     @EnvironmentObject var repo: Repository
     @Environment(\.locale) private var locale
     // NOTE: deliberately does NOT observe LiveState — Trends shows historical data only, and
@@ -59,6 +60,9 @@ struct TrendsView: View {
     /// it once (mirroring TodayView's restScore source) and key by day for `resolve` below.
     @State private var sleepPerfByDay: [String: Double] = [:]
     @State private var sleepPerfRevision = 0
+    @State private var seriesLoad = PresentationLoadState<HistoricalSeriesRevision>()
+    @Environment(\.presentationIsActive) private var presentationIsActive
+    @State private var presentationActivity = PresentationActivityState()
     @State private var resolvedCache = ResolvedCache()
 
     // #710 — browse previous weeks in the Week-in-review digest. 0 = the week containing today; each step
@@ -291,46 +295,52 @@ struct TrendsView: View {
 
     private var scaffold: some View {
         ScreenScaffold(title: "Trends", subtitle: "The thread of you over time.",
-                       // PERF (scroll): lazy column — byte-identical layout (LazyVStack == eager VStack
-                       // alignment/spacing/header). The content is one inner eager VStack, so the staggered
-                       // section reveal is unchanged; this only defers building that stack until it scrolls in.
-                       onRefresh: { await repo.refresh() },
+                       // Each section is a direct lazy child, so off-screen charts do not compete
+                       // with the tab's first frame. The scaffold owns the same spacing/alignment.
+                       onRefresh: { await repo.refresh(); await loadSleepSeries(force: true) },
                        lazy: true,
-                       topBackground: liquidScaffoldSky()) {
+                       topBackground: liquidScaffoldSky(), usesFloatingHeader: usesFloatingHeader) {
             if repo.days.isEmpty {
-                ComingSoon(what: repo.loaded
-                    ? "Trends need history to draw. Import your WHOOP export in Data Sources to see weeks, months and years instantly."
-                    : "Loading your history…")
+                if repo.loaded {
+                    NoopNotice(String(localized: "No history yet"),
+                               message: String(localized: "Trends need history to draw. Import your WHOOP export in Data Sources to see weeks, months and years instantly."),
+                               systemImage: "chart.xyaxis.line")
+                } else {
+                    NoopNotice(String(localized: "Loading your history…"),
+                               systemImage: "hourglass")
+                }
             } else {
                 // Reuse the resolved windows until the data, range, or loaded Rest series changes.
                 // An unrelated Repository publication must not re-filter five years of history.
                 let metrics = resolvedMetrics
-                VStack(alignment: .leading, spacing: NoopMetrics.sectionSpacing) {
-                    // The main card list ripples in once on appear (Reduce-Motion safe).
-                    Group {
-                        // Week-in-review digest (#208) with prev/next week browsing (#710) — self-hides
-                        // only when NO week in history has data. Past weeks render in the same format.
-                        weeklyDigestNav
-                            .staggeredAppear(index: 0)
-                        // The Charge / Effort / Rest trio, presented in NOOP's pip language.
+                // A Group preserves independent lazy children instead of one eager chart column.
+                Group {
+                    // Week-in-review digest (#208) with prev/next week browsing (#710) — self-hides
+                    // only when NO week in history has data. Past weeks render in the same format.
+                    DeferredPresentation { weeklyDigestNav }
+                        .staggeredAppear(index: 0)
+                    // The Charge / Effort / Rest trio, presented in NOOP's pip language.
+                    DeferredPresentation {
                         weekInReview(charge: metrics.recovery, effort: metrics.strain, rest: metrics.rest)
-                            .staggeredAppear(index: 1)
-                        rangeBar(recovery: metrics.recovery)
-                            .staggeredAppear(index: 2)
-                        heroRecovery(recovery: metrics.recovery)
-                            .staggeredAppear(index: 3)
-                        smallMultiples(hrv: metrics.hrv, rhr: metrics.rhr, strain: metrics.strain)
-                            .staggeredAppear(index: 4)
-                        // Long-horizon training load (CTL/ATL/TSB). Uses the FULL history, not the
-                        // range window — chronic load is inherently a 42-day horizon. Self-hides its
-                        // chart behind an honest "needs N more days" state until enough history exists.
-                        TrainingLoadCard(days: repo.days)
-                            .staggeredAppear(index: 5)
-                        yearStrip
-                            .staggeredAppear(index: 6)
-                        exportReportRow
-                            .staggeredAppear(index: 7)
                     }
+                        .staggeredAppear(index: 1)
+                    DeferredPresentation { rangeBar(recovery: metrics.recovery) }
+                        .staggeredAppear(index: 2)
+                    DeferredPresentation { heroRecovery(recovery: metrics.recovery) }
+                        .staggeredAppear(index: 3)
+                    DeferredPresentation {
+                        smallMultiples(hrv: metrics.hrv, rhr: metrics.rhr, strain: metrics.strain)
+                    }
+                        .staggeredAppear(index: 4)
+                    // Long-horizon training load (CTL/ATL/TSB). Uses the FULL history, not the
+                    // range window — chronic load is inherently a 42-day horizon. Self-hides its
+                    // chart behind an honest "needs N more days" state until enough history exists.
+                    TrainingLoadCard(days: repo.days)
+                        .staggeredAppear(index: 5)
+                    DeferredPresentation { yearStrip }
+                        .staggeredAppear(index: 6)
+                    exportReportRow
+                        .staggeredAppear(index: 7)
                 }
             }
         }
@@ -338,15 +348,35 @@ struct TrendsView: View {
         .sheet(isPresented: $showingReport) {
             TrendsReportSheet(days: repo.days)
         }
-        // #732 — load the resolved sleep_performance series so Rest plots the SAME composite the Today
-        // Rest score uses (not raw efficiency). Mirrors TodayView's restScore read. Keyed on the day
-        // count so a newly-banked/-scored night refreshes Rest reactively, like the other metrics that
-        // read `repo.days` directly (and like the Android LaunchedEffect(days) twin).
-        .task(id: repo.days.count) {
-            let s = await repo.exploreSeries(key: "sleep_performance", source: "my-whoop")
-            sleepPerfByDay = Dictionary(s.map { ($0.day, $0.value) }, uniquingKeysWith: { _, last in last })
+        // A correction updates the same rows; row count alone cannot invalidate this series.
+        .onChangeCompat(of: presentationIsActive) { presentationActivity.isActive = $0 }
+        .task(id: presentationIsActive ? historyRevision : nil) {
+            guard !Task.isCancelled else { return }
+            presentationActivity.isActive = presentationIsActive
+            guard presentationIsActive else { return }
+            await loadSleepSeries()
+        }
+    }
+
+    private var historyRevision: HistoricalSeriesRevision {
+        HistoricalSeriesRevision(deviceID: repo.deviceId, generation: repo.refreshSeq)
+    }
+
+    @MainActor
+    private func loadSleepSeries(force: Bool = false) async {
+        guard presentationActivity.isActive, !Task.isCancelled else { return }
+        let revision = historyRevision
+        guard let ticket = seriesLoad.begin(key: revision, force: force) else { return }
+        defer { seriesLoad.finish(ticket) }
+        let series = await repo.exploreSeries(key: "sleep_performance", source: "my-whoop")
+        guard presentationActivity.isActive,
+              seriesLoad.isCurrent(ticket, key: historyRevision, cancelled: Task.isCancelled) else { return }
+        let values = Dictionary(series.map { ($0.day, $0.value) }, uniquingKeysWith: { _, last in last })
+        if values != sleepPerfByDay {
+            sleepPerfByDay = values
             sleepPerfRevision += 1
         }
+        seriesLoad.complete(ticket, key: historyRevision, cancelled: Task.isCancelled)
     }
 
     // MARK: Week-in-review digest with prev/next week browsing (#710)
@@ -563,7 +593,7 @@ struct TrendsView: View {
             HStack(spacing: NoopMetrics.space3) {
                 Image(systemName: "doc.richtext")
                     .font(StrandFont.title2)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: NoopMetrics.space1) {
                     Text("Export trends report").strandOverline()

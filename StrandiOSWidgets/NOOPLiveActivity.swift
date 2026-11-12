@@ -4,6 +4,7 @@ import ActivityKit
 import StrandDesign
 
 /// Live Activity for an active live-HR session — shown on the Lock Screen and in the Dynamic Island.
+@available(iOS 16.2, *)
 struct NOOPLiveActivity: Widget {
     /// The heart rate to draw: none once iOS has marked the banner stale. Each push is fresh for 30 s
     /// (`LiveActivityController.staleAfter`) and NOOP re-pushes a steady number well inside that, so a stale banner
@@ -24,7 +25,7 @@ struct NOOPLiveActivity: Widget {
                     Text(context.attributes.title)
                         .font(.caption).foregroundStyle(StrandPalette.textSecondary)
                     Text("\(Self.shownBpm(context).map(String.init) ?? "–") bpm")
-                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .font(StrandFont.number(26, weight: .bold))
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
                 Spacer()

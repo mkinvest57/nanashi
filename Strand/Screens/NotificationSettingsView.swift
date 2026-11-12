@@ -47,7 +47,7 @@ struct NotificationSettingsView: View {
                         .font(StrandFont.body)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
+                .toggleStyle(NoopToggleStyle())
                 .tint(StrandPalette.accent)
 
                 HStack(spacing: 10) {
@@ -75,7 +75,7 @@ struct NotificationSettingsView: View {
     private var deliveryNote: some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: "info.circle.fill")
-                .foregroundStyle(StrandPalette.accent)
+                .foregroundStyle(StrandPalette.accentInk)
                 .font(.system(size: 13))
                 .accessibilityHidden(true)
             Text("Wrist delivery isn't live yet. It needs a small on-device watcher (coming in an update) to read macOS notifications. Everything stays on this Mac. Your choices are saved now and will apply automatically once delivery ships.")
@@ -151,7 +151,7 @@ struct NotificationSettingsView: View {
                 get: { store.isEnabled(app.id) },
                 set: { store.setEnabled(app.id, $0) }))
                 .labelsHidden()
-                .toggleStyle(.switch)
+                .toggleStyle(NoopToggleStyle())
                 .tint(StrandPalette.accent)
                 .accessibilityLabel("\(app.name) wrist alerts")
         }
@@ -309,7 +309,7 @@ private struct AlertSection<Content: View>: View {
                     Text("\(overline)").strandOverline()
                     HStack(spacing: NoopMetrics.space2 + 2) {
                         Image(systemName: icon)
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                             .accessibilityHidden(true)
                         Text(title)
                             .font(StrandFont.title2)
@@ -348,7 +348,7 @@ private struct FormToggleRow: View {
             Spacer()
             Toggle("", isOn: $isOn)
                 .labelsHidden()
-                .toggleStyle(.switch)
+                .toggleStyle(NoopToggleStyle())
                 .tint(StrandPalette.accent)
                 .accessibilityLabel(label)
         }

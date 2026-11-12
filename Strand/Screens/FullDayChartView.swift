@@ -164,7 +164,7 @@ struct FullDayChartView: View {
                 Image(systemName: "chevron.left").font(StrandFont.headline.weight(.semibold))
             }
             .buttonStyle(.plain)
-            .foregroundStyle(StrandPalette.accent)
+            .foregroundStyle(StrandPalette.accentInk)
             .accessibilityLabel("Previous day")
 
             Spacer()
@@ -337,7 +337,7 @@ struct FullDayChartView: View {
             if zoomDomain != nil {
                 Button("Reset") { withAnimation(StrandMotion.interactive) { zoomDomain = nil } }
                     .font(StrandFont.footnote)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                     .buttonStyle(.plain)
             }
         }

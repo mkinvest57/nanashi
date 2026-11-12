@@ -1,0 +1,112 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [theme] Modern Minimal  [id: 88cbde1f-7527-430c-b4d5-49bb3b9e621d]\nby serafimcloud\n→ open: https://21st.dev/community/themes/modern-minimal\n\n### [theme] Amber Minimal  [id: 94e6d897-3245-4a19-b22b-00eac7e02295]\nby serafimcloud\n→ open: https://21st.dev/community/themes/amber-minimal\n\n### [theme] Slate Minimal  [id: e514f13f-0164-426c-a4ae-13a76e76d769]\nby damanhduy2111\n→ open: https://21st.dev/community/themes/slate-minimal-1784598526079\n\n### [theme] Modern Minimal remix  [id: 5bcd4ab8-ccb6-44f2-9567-44f2636369ce]\nby maxmok404\n→ open: https://21st.dev/community/themes/modern-minimal-remix-1782799115038\n\n### [theme] Modern Minimal remix  [id: 8ce6566e-5436-4101-9e7c-b8b0464a29e5]\nby otiktok932\n→ open: https://21st.dev/community/themes/modern-minimal-remix-1784019825388\n\n### [theme] Modern Minimal remix  [id: 1101be7e-98e2-4b38-ad83-eeda26820d85]\nby 99singh.jas\n→ open: https://21st.dev/community/themes/modern-minimal-remix-1783197535050\n\n### [theme] Modern Minimal remix  [id: 78a44c33-5f4b-4301-9bf9-6b035d9ccc48]\nby 369cv\n→ open: https://21st.dev/community/themes/modern-minimal-remix-1783057707880\n\n### [theme] Amber Minimal remix  [id: 58cb6a4b-d00c-4fff-ae32-69dec109d965]\nby k4m65k6\n→ open: https://21st.dev/community/themes/amber-minimal-remix-1784031991159\n\n### [theme] Modern Minimal remix  [id: 82b96f3c-ed92-4d25-b2f9-b54637e80b7a]\nby pmetha9595\n→ open: https://21st.dev/community/themes/modern-minimal-remix-1783671047984\n\n### [theme] Slate Minimal  [id: 068ee08a-4d62-496e-b822-907d5685fc35]\nby matheus.rezendevr\n→ open: https://21st.dev/community/themes/slate-minimal-1785641895048"
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "theme",
+        "id": "88cbde1f-7527-430c-b4d5-49bb3b9e621d",
+        "name": "Modern Minimal",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/modern-minimal"
+      },
+      {
+        "type": "theme",
+        "id": "94e6d897-3245-4a19-b22b-00eac7e02295",
+        "name": "Amber Minimal",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/amber-minimal"
+      },
+      {
+        "type": "theme",
+        "id": "e514f13f-0164-426c-a4ae-13a76e76d769",
+        "name": "Slate Minimal",
+        "description": null,
+        "previewUrl": null,
+        "author": "damanhduy2111",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zR25CcWFTZ1ZkcVFNYzVwZ09QNlQwQ3hoNWcifQ",
+        "url": "https://21st.dev/community/themes/slate-minimal-1784598526079"
+      },
+      {
+        "type": "theme",
+        "id": "5bcd4ab8-ccb6-44f2-9567-44f2636369ce",
+        "name": "Modern Minimal remix",
+        "description": null,
+        "previewUrl": null,
+        "author": "maxmok404",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zRnFPTzltM1A4bWlZbVNzWFBaejN3dUYzUVYifQ",
+        "url": "https://21st.dev/community/themes/modern-minimal-remix-1782799115038"
+      },
+      {
+        "type": "theme",
+        "id": "8ce6566e-5436-4101-9e7c-b8b0464a29e5",
+        "name": "Modern Minimal remix",
+        "description": null,
+        "previewUrl": null,
+        "author": "otiktok932",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zR0Z4SUtBZjhna0lXMnFpTkRPS2RybWVnbHYifQ",
+        "url": "https://21st.dev/community/themes/modern-minimal-remix-1784019825388"
+      },
+      {
+        "type": "theme",
+        "id": "1101be7e-98e2-4b38-ad83-eeda26820d85",
+        "name": "Modern Minimal remix",
+        "description": null,
+        "previewUrl": null,
+        "author": "99singh.jas",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdCIsImlpZCI6Imluc18ybXdGd3U1cW5FQXozZ1U2dmxnMW13ZU1PZEoiLCJyaWQiOiJ1c2VyXzNHM09aaVRPZ2pTZXFTcDdGYVBHNUtSNGYwZyIsImluaXRpYWxzIjoiSlMifQ",
+        "url": "https://21st.dev/community/themes/modern-minimal-remix-1783197535050"
+      },
+      {
+        "type": "theme",
+        "id": "78a44c33-5f4b-4301-9bf9-6b035d9ccc48",
+        "name": "Modern Minimal remix",
+        "description": null,
+        "previewUrl": null,
+        "author": "369cv",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ydXFaMXlOTnprdXpmNmlrT3BDSGQzMXNyWkMifQ",
+        "url": "https://21st.dev/community/themes/modern-minimal-remix-1783057707880"
+      },
+      {
+        "type": "theme",
+        "id": "58cb6a4b-d00c-4fff-ae32-69dec109d965",
+        "name": "Amber Minimal remix",
+        "description": null,
+        "previewUrl": null,
+        "author": "k4m65k6",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeW5UY09hZVdaUWl6YmNMb2lmbVJpYWhWRW4ifQ",
+        "url": "https://21st.dev/community/themes/amber-minimal-remix-1784031991159"
+      },
+      {
+        "type": "theme",
+        "id": "82b96f3c-ed92-4d25-b2f9-b54637e80b7a",
+        "name": "Modern Minimal remix",
+        "description": null,
+        "previewUrl": null,
+        "author": "pmetha9595",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zR0dtNTB0YjBvTkhTdzJ0Z3lvbEtlbkdSSkEifQ",
+        "url": "https://21st.dev/community/themes/modern-minimal-remix-1783671047984"
+      },
+      {
+        "type": "theme",
+        "id": "068ee08a-4d62-496e-b822-907d5685fc35",
+        "name": "Slate Minimal",
+        "description": null,
+        "previewUrl": null,
+        "author": "matheus.rezendevr",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zSExIc2MzQ1FoN005SnNhYjhxbmFmWjRSek0ifQ",
+        "url": "https://21st.dev/community/themes/slate-minimal-1785641895048"
+      }
+    ]
+  }
+}

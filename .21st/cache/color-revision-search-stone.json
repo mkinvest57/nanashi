@@ -1,0 +1,41 @@
+{
+  "query": "stone",
+  "results": [
+    {
+      "id": "68388792-99b4-44ee-a3b3-b15bb6f22329",
+      "name": "Honey Sandstone",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/honey-sandstone",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "878937dc-efe6-4f8a-9371-683be1c0c28e",
+      "name": "Linen Stone",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/linen-stone",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "91f50c74-83ac-47ab-9709-e106e4ec0f7a",
+      "name": "Linen Stone remix",
+      "author": "andre.procopio",
+      "description": null,
+      "url": "https://21st.dev/community/themes/linen-stone-remix-1782992417442",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "50c9f8db-3293-436a-9aa8-25653d55c02f",
+      "name": "Honey Sandstone remix",
+      "author": "djuny.alain",
+      "description": null,
+      "url": "https://21st.dev/community/themes/honey-sandstone-remix-1783833872987",
+      "previewUrl": null,
+      "type": "theme"
+    }
+  ]
+}

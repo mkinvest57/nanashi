@@ -1,0 +1,23 @@
+{
+  "query": "default",
+  "results": [
+    {
+      "id": "244cbc5b-8208-4407-88ee-2d798c461d4b",
+      "name": "AI Dimensie Default",
+      "author": "jsnmhbl",
+      "description": null,
+      "url": "https://21st.dev/community/themes/ai-dimensie-default-1789891300738",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "66fb95c2-5175-4ba0-9747-adf18f8908e0",
+      "name": "AI Dimensie Default",
+      "author": "jasonmohab-ali",
+      "description": null,
+      "url": "https://21st.dev/community/themes/ai-dimensie-default-1789866789921",
+      "previewUrl": null,
+      "type": "theme"
+    }
+  ]
+}

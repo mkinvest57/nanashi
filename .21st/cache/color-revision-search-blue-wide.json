@@ -1,0 +1,77 @@
+{
+  "query": "blue",
+  "results": [
+    {
+      "id": "c6cd78bb-c040-494f-a826-daebf3d48870",
+      "name": "Harbor Blue",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/harbor-blue",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "12b00883-ea08-4925-9f08-bc5daae42eb6",
+      "name": "Meridian Blue",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/meridian-blue",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "d42915be-14f7-4f14-be8f-15f8e5740d41",
+      "name": "Powder Blue",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/powder-blue",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "2fd94f86-8d8c-4fc2-a8f8-fd80cc12c671",
+      "name": "Blue Soft",
+      "author": "skyfoco60",
+      "description": null,
+      "url": "https://21st.dev/community/themes/blue-soft-1787236951556",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "85f53f4d-4e0e-40a7-858e-6fc59557a3a7",
+      "name": "Blue Soft",
+      "author": "reachekdave124",
+      "description": null,
+      "url": "https://21st.dev/community/themes/blue-soft-1787632782787",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "670ff662-1124-4e5f-94db-ee96b683465e",
+      "name": "MoBau Blueprint",
+      "author": "jaeger.digitallight",
+      "description": null,
+      "url": "https://21st.dev/community/themes/mobau-blueprint-1789053724600",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "7b575ab4-337c-4c99-8496-1f9284896fc0",
+      "name": "Blue Soft",
+      "author": "mahalalilvillaflores",
+      "description": null,
+      "url": "https://21st.dev/community/themes/blue-soft-1789659959408",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "6c01bd24-d24f-4aca-af50-3c37a7066d35",
+      "name": "Blue Soft",
+      "author": "marcos.goi.ma",
+      "description": null,
+      "url": "https://21st.dev/community/themes/blue-soft-1789695308705",
+      "previewUrl": null,
+      "type": "theme"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import SwiftUI
 import StrandDesign
 
-/// Standard scrollable screen container: title + dark surface + content column.
+/// Editorial page frame: a scalable title, optional context and a readable content column.
 struct ScreenScaffold<Content: View, Trailing: View>: View {
     /// Optional — when nil (and no subtitle) the header is omitted entirely, so a screen can supply its
     /// own custom header in `content` (iOS Today's compact top bar).
@@ -20,6 +20,13 @@ struct ScreenScaffold<Content: View, Trailing: View>: View {
     /// Optional full-bleed view drawn behind the scroll content at the TOP of the screen (e.g. Today's
     /// day-cycle scene). Defaults to nil so other screens stay on the flat canvas; nil renders nothing.
     var topBackground: AnyView? = nil
+    /// Optional section jump driven by a local screen control; no persisted state.
+    var scrollToID: String? = nil
+    var scrollToSignal: Int = 0
+    /// Opt in only for the Activity root screens; sheets and pushed screens keep normal spacing.
+    var usesFloatingHeader: Bool = false
+    /// Custom page layouts can place their one remark explicitly instead of using this slot.
+    var showsPresence: Bool = true
     /// Optional element pinned to the header's trailing edge (e.g. the strap-battery badge on Today).
     /// Defaults to `EmptyView` via the convenience init below, so other screens are unaffected.
     @ViewBuilder var trailing: () -> Trailing
@@ -37,6 +44,10 @@ struct ScreenScaffold<Content: View, Trailing: View>: View {
     /// at-root re-tap of the active tab (#198 follow-up). Default 0 never changes, so macOS and every
     /// non-tab screen keep their exact prior scroll behaviour.
     @Environment(\.scrollToTopSignal) private var scrollToTopSignal
+    @Environment(\.noopDockOwnsBottomInset) private var dockOwnsBottomInset
+    @Environment(\.noopDockContentClearance) private var dockContentClearance
+    @Environment(\.noopFloatingHeaderClearance) private var floatingHeaderClearance
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -44,15 +55,17 @@ struct ScreenScaffold<Content: View, Trailing: View>: View {
             // Scroll-to-top anchor (#198 follow-up): a zero-height marker pinned above the content so an
             // at-root tab re-tap can bring the screen back to the very top. Layout-neutral.
             Color.clear.frame(height: 0).id(screenScaffoldTopAnchorID)
+                .background(NoopDockScrollOffsetProbe())
             column
             #if os(iOS)
             // Unified side margins matching the floating navigation bar so every page's cards + header line up
             // to the same edges (2026-07-02); macOS keeps the classic 28 in the #else branch.
             .padding(.horizontal, NoopMetrics.screenHPadding)
-            .padding(.top, 24)
-            // The tab bar floats over the scroll content, so the last card sat hidden behind it.
-            // Reserve extra bottom scroll room so every screen's final card clears the floating bar.
-            .padding(.bottom, NoopMetrics.tabBarClearance)
+            .padding(.top, NoopMetrics.space6 + (usesFloatingHeader ? floatingHeaderClearance : 0))
+            // An overlaid dock reserves measured room in scroll CONTENT, independent of whether
+            // TabView/NavigationStack forward safe-area changes. Coach owns its inner reservation.
+            .padding(.bottom, dockContentClearance.map { max(0, $0) + NoopMetrics.space6 }
+                     ?? (dockOwnsBottomInset ? NoopMetrics.space6 : NoopMetrics.tabBarClearance))
             // iPad: cap the readable column, then centre it in the full-width scroll viewport.
             // iPhone (.compact): the inner frame is .infinity/.leading, identical to before.
             .frame(maxWidth: hSizeClass == .regular ? 700 : .infinity,
@@ -62,12 +75,29 @@ struct ScreenScaffold<Content: View, Trailing: View>: View {
             .padding(28)
             .frame(maxWidth: .infinity, alignment: .leading)
             #endif
+            #if DEBUG && targetEnvironment(simulator)
+            if ProcessInfo.processInfo.arguments.contains("--demo-scroll-bottom") {
+                Color.clear.frame(height: 0).id(screenScaffoldBottomAnchorID)
+            }
+            #endif
         }
+        .coordinateSpace(name: NoopDockScrollOffsetProbe.coordinateSpaceName)
+        #if DEBUG && targetEnvironment(simulator)
+        .task {
+            guard ProcessInfo.processInfo.arguments.contains("--demo-scroll-bottom") else { return }
+            // Exercise the real scroll extent after first layout, including the measured dock footer.
+            // This simulator-only fixture is inert unless explicitly requested by the review harness.
+            do { try await Task.sleep(nanoseconds: 600_000_000) }
+            catch { return }
+            guard !Task.isCancelled else { return }
+            proxy.scrollTo(screenScaffoldBottomAnchorID, anchor: .bottom)
+        }
+        #endif
         #if os(iOS)
         // #697: stop a vertical scroll from drifting/bouncing the screen left-right. `.basedOnSize` only
         // permits horizontal bounce when content genuinely overflows the width (it does not here, the column
         // is width-capped), so the spurious horizontal rubber-band that caused the sideways drift is gone.
-        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .scrollBounceBasedOnSizeCompat(axes: .horizontal)
         #endif
         // The flat canvas, plus an optional full-bleed TOP backdrop (Today's day-cycle scene) drawn behind
         // the scroll content — edge-to-edge under the status bar. The scene is CONFINED to the header+hero
@@ -86,13 +116,22 @@ struct ScreenScaffold<Content: View, Trailing: View>: View {
         // (the scroll-under-titlebar blend). Hide it so the sky reads edge-to-edge and dark, like iOS.
         .toolbarBackground(.hidden, for: .windowToolbar)
         #endif
+        .onChangeCompat(of: scrollToSignal) { _ in
+            guard let scrollToID else { return }
+            withAnimation(reduceMotion ? nil : StrandMotion.interactive) {
+                proxy.scrollTo(scrollToID, anchor: .top)
+            }
+        }
         #if os(iOS)
         // Scroll-to-top on an at-root tab re-tap (#198 follow-up). iOS-only: the tab shell is the only
         // driver, and gating here keeps the two-param onChange off macOS 13. Inert until the signal moves.
-        .onChange(of: scrollToTopSignal) { _, _ in
-            withAnimation(.easeOut(duration: 0.35)) { proxy.scrollTo(screenScaffoldTopAnchorID, anchor: .top) }
+        .onChangeCompat(of: scrollToTopSignal) { _ in
+            withAnimation(reduceMotion ? nil : StrandMotion.interactive) { proxy.scrollTo(screenScaffoldTopAnchorID, anchor: .top) }
         }
         #endif
+        }
+        .background {
+            if showsPresence { NanashiPresenceLifecycleProbe() }
         }
     }
 
@@ -102,25 +141,28 @@ struct ScreenScaffold<Content: View, Trailing: View>: View {
     /// the previous layout. `@ViewBuilder` lets the two stack types resolve to one opaque return.
     @ViewBuilder private var column: some View {
         if lazy {
-            LazyVStack(alignment: .leading, spacing: 20) {
+            LazyVStack(alignment: .leading, spacing: NoopMetrics.sectionSpacing) {
                 if title != nil || subtitle != nil { header }
+                if showsPresence { NanashiAside() }
                 content()
             }
         } else {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: NoopMetrics.sectionSpacing) {
                 if title != nil || subtitle != nil { header }
+                if showsPresence { NanashiAside() }
                 content()
             }
         }
     }
 
     private var header: some View {
-        HStack(alignment: .center, spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
+        HStack(alignment: .center, spacing: NoopMetrics.space3) {
+            VStack(alignment: .leading, spacing: NoopMetrics.space2) {
                 if let title {
-                    // Match the liquid home's title face (SF Rounded 28) so every page's header reads
-                    // identically (2026-07-02 cohesion pass).
-                    Text(title).font(StrandFont.rounded(28)).foregroundStyle(StrandPalette.textPrimary)
+                    Text(title)
+                        .font(StrandFont.title1)
+                        .foregroundStyle(StrandPalette.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 if let subtitle {
                     Text(subtitle).font(StrandFont.subhead).foregroundStyle(StrandPalette.textSecondary)
@@ -137,9 +179,13 @@ extension ScreenScaffold where Trailing == EmptyView {
     /// call site (which never passed `trailing`) source-compatible.
     init(title: LocalizedStringKey?, subtitle: LocalizedStringKey? = nil,
          onRefresh: (() async -> Void)? = nil, lazy: Bool = false, topBackground: AnyView? = nil,
+         scrollToID: String? = nil, scrollToSignal: Int = 0, usesFloatingHeader: Bool = false,
+         showsPresence: Bool = true,
          @ViewBuilder content: @escaping () -> Content) {
         self.init(title: title, subtitle: subtitle, onRefresh: onRefresh, lazy: lazy,
-                  topBackground: topBackground, trailing: { EmptyView() }, content: content)
+                  topBackground: topBackground, scrollToID: scrollToID, scrollToSignal: scrollToSignal,
+                  usesFloatingHeader: usesFloatingHeader, showsPresence: showsPresence,
+                  trailing: { EmptyView() }, content: content)
     }
 }
 
@@ -157,27 +203,12 @@ private struct RefreshableIfNeeded: ViewModifier {
     }
 }
 
-/// Empty / pending-data placeholder for screens still gathering history. Mirrors `DataPendingNote`'s
-/// icon-anchored card so an empty screen reads as an intentional state rather than a stray text box.
+/// Empty-data treatment adapted from 21st.dev's Empty State component (1435).
 struct ComingSoon: View {
     let what: LocalizedStringKey
     var symbol: String = "sparkles"
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: symbol)
-                .font(StrandFont.headline)
-                .foregroundStyle(StrandPalette.accent)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Coming together")
-                    .font(StrandFont.headline).foregroundStyle(StrandPalette.textPrimary)
-                Text(what)
-                    .font(StrandFont.body).foregroundStyle(StrandPalette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .padding(20).frame(maxWidth: .infinity, alignment: .leading)
-        .frostedCardSurface()
+        EditorialPendingSurface(title: "Coming together", message: what, symbol: symbol)
     }
 }
 
@@ -224,23 +255,44 @@ struct DataPendingNote: View {
     var symbol: String = "sparkles"
 
     var body: some View {
-        StrandCard(padding: 20) {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: symbol)
-                    .font(StrandFont.headline)
-                    .foregroundStyle(StrandPalette.accent)
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(title)
-                        .font(StrandFont.headline)
-                        .foregroundStyle(StrandPalette.textPrimary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text(message)
-                        .font(StrandFont.subhead)
-                        .foregroundStyle(StrandPalette.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
+        EditorialPendingSurface(title: title, message: message, symbol: symbol)
+    }
+}
+
+private struct EditorialPendingSurface: View {
+    let title: LocalizedStringKey
+    let message: LocalizedStringKey
+    let symbol: String
+
+    var body: some View {
+        VStack(spacing: NoopMetrics.space4) {
+            Image(systemName: symbol)
+                .font(StrandFont.title2)
+                .foregroundStyle(StrandPalette.accentInk)
+                .frame(width: NoopMetrics.controlHeight, height: NoopMetrics.controlHeight)
+                .background(StrandPalette.surfaceRaised,
+                            in: RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius, style: .continuous)
+                        .strokeBorder(StrandPalette.hairline, lineWidth: NoopMetrics.hairlineWidth)
                 }
+                .accessibilityHidden(true)
+            VStack(spacing: NoopMetrics.space2) {
+                Text(title).font(StrandFont.headline).foregroundStyle(StrandPalette.textPrimary)
+                Text(message).font(StrandFont.subhead).foregroundStyle(StrandPalette.textSecondary)
             }
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(NoopMetrics.space6)
+        .frame(maxWidth: .infinity)
+        .background(StrandPalette.surfaceRaised,
+                    in: RoundedRectangle(cornerRadius: NoopMetrics.cardRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: NoopMetrics.cardRadius, style: .continuous)
+                .strokeBorder(StrandPalette.hairlineStrong,
+                              style: StrokeStyle(lineWidth: NoopMetrics.hairlineWidth,
+                                                 dash: [NoopMetrics.space1, NoopMetrics.space1]))
         }
     }
 }
@@ -256,11 +308,45 @@ struct DataPendingNote: View {
 /// generic (`<Content, Trailing>`) and Swift forbids stored static properties on generic types.
 private let screenScaffoldTopAnchorID = "screenScaffold.top"
 
+#if DEBUG && targetEnvironment(simulator)
+private let screenScaffoldBottomAnchorID = "screenScaffold.bottom"
+#endif
+
+private struct DockOwnsBottomInsetKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+private struct FloatingHeaderClearanceKey: EnvironmentKey {
+    static let defaultValue: CGFloat = 0
+}
+
+private struct DockContentClearanceKey: EnvironmentKey {
+    static let defaultValue: CGFloat? = nil
+}
+
 private struct ScrollToTopSignalKey: EnvironmentKey {
     static let defaultValue: Int = 0
 }
 
 extension EnvironmentValues {
+    /// Measured overlaid dock height. Zero means hidden; nil keeps standalone/inner-inset behavior.
+    var noopDockContentClearance: CGFloat? {
+        get { self[DockContentClearanceKey.self] }
+        set { self[DockContentClearanceKey.self] = newValue }
+    }
+
+    /// Measured floating chrome height, consumed by an explicitly opted-in root scaffold only.
+    var noopFloatingHeaderClearance: CGFloat {
+        get { self[FloatingHeaderClearanceKey.self] }
+        set { self[FloatingHeaderClearanceKey.self] = newValue }
+    }
+
+    /// True only inside a tab stack whose shell reserves the floating dock.
+    var noopDockOwnsBottomInset: Bool {
+        get { self[DockOwnsBottomInsetKey.self] }
+        set { self[DockOwnsBottomInsetKey.self] = newValue }
+    }
+
     var scrollToTopSignal: Int {
         get { self[ScrollToTopSignalKey.self] }
         set { self[ScrollToTopSignalKey.self] = newValue }

@@ -1,0 +1,40 @@
+{
+  "component": {
+    "id": 23625,
+    "componentId": 11482,
+    "authorUserId": "user_36Tbt0v8JdD4jEycmBFhR8tojnR",
+    "name": "Announcement Banner",
+    "demoName": "Default",
+    "description": "A dismissible announcement banner alert with an icon, title, description and a call-to-action link.",
+    "previewUrl": "https://cdn.21st.dev/cnippet.dev/announcement-banner/default/preview.1785493882128-b4444249-c576-42fe-a621-e2151e5c4c79.png",
+    "installCommand": "npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/announcement-banner?api_key=$API_KEY_21ST\"",
+    "componentCode": "\"use client\";\n\nimport { ArrowRightIcon, MegaphoneIcon, XIcon } from \"lucide-react\";\nimport { useState } from \"react\";\nimport {\n  Alert,\n  AlertAction,\n  AlertDescription,\n  AlertTitle,\n} from \"@/components/ui/announcement-banner-utils/alert\";\nimport { Button } from \"@/components/ui/announcement-banner-utils/button\";\n\nexport function Pattern() {\n  const [visible, setVisible] = useState(true);\n\n  if (!visible) return null;\n\n  return (\n    <div className=\"w-full max-w-2xl\">\n      <Alert className=\"border-violet-200 bg-violet-50 dark:border-violet-800 dark:bg-violet-950/40\">\n        <MegaphoneIcon className=\"text-violet-600 dark:text-violet-400\" />\n        <AlertTitle className=\"text-violet-900 dark:text-violet-100\">\n          Introducing Cnippet Pro\n        </AlertTitle>\n        <AlertAction className=\"flex items-start\">\n          <Button\n            className=\"-mt-1 -mr-1 size-7 text-violet-500 hover:bg-violet-100 dark:hover:bg-violet-900\"\n            onClick={() => setVisible(false)}\n            size=\"xs\"\n            variant=\"ghost\"\n          >\n            <XIcon className=\"size-3.5\" />\n          </Button>\n        </AlertAction>\n        <AlertDescription className=\"text-violet-700 dark:text-violet-300\">\n          Unlock premium components, templates, and priority support.{\" \"}\n          <Button\n            className=\"mr-auto h-auto p-0 text-violet-700 underline underline-offset-2 dark:text-violet-300\"\n            size=\"sm\"\n            variant=\"link\"\n          >\n            Learn more\n            <ArrowRightIcon className=\"size-3\" />\n          </Button>\n        </AlertDescription>\n      </Alert>\n    </div>\n  );\n}\n\nexport default Pattern;\n",
+    "demoCode": "import AnnouncementBanner from \"@/components/ui/announcement-banner\";\n\nexport default function Default() {\n  return (\n    <div className=\"flex min-h-svh w-full items-center justify-center p-6\">\n      <AnnouncementBanner />\n    </div>\n  );\n}\n",
+    "registryDependencies": {
+      "filesWithRegistry": {
+        "/components/ui/alert.tsx": {
+          "code": "import * as React from \"react\"\nimport { cva, type VariantProps } from \"class-variance-authority\"\n\nimport { cn } from \"@/lib/utils\"\n\nconst alertVariants = cva(\n  \"relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground\",\n  {\n    variants: {\n      variant: {\n        default: \"bg-background text-foreground\",\n        destructive:\n          \"border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive\",\n      },\n    },\n    defaultVariants: {\n      variant: \"default\",\n    },\n  },\n)\n\nconst Alert = React.forwardRef<\n  HTMLDivElement,\n  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>\n>(({ className, variant, ...props }, ref) => (\n  <div\n    ref={ref}\n    role=\"alert\"\n    className={cn(alertVariants({ variant }), className)}\n    {...props}\n  />\n))\nAlert.displayName = \"Alert\"\n\nconst AlertTitle = React.forwardRef<\n  HTMLParagraphElement,\n  React.HTMLAttributes<HTMLHeadingElement>\n>(({ className, ...props }, ref) => (\n  <h5\n    ref={ref}\n    className={cn(\"mb-1 font-medium leading-none tracking-tight\", className)}\n    {...props}\n  />\n))\nAlertTitle.displayName = \"AlertTitle\"\n\nconst AlertDescription = React.forwardRef<\n  HTMLParagraphElement,\n  React.HTMLAttributes<HTMLParagraphElement>\n>(({ className, ...props }, ref) => (\n  <div\n    ref={ref}\n    className={cn(\"text-sm [&_p]:leading-relaxed\", className)}\n    {...props}\n  />\n))\nAlertDescription.displayName = \"AlertDescription\"\n\nexport { Alert, AlertTitle, AlertDescription }\n",
+          "registry": "ui"
+        },
+        "/components/ui/button.tsx": {
+          "code": "import * as React from \"react\"\nimport { Slot } from \"@radix-ui/react-slot\"\nimport { cva, type VariantProps } from \"class-variance-authority\"\n\nimport { cn } from \"@/lib/utils\"\n\nconst buttonVariants = cva(\n  \"inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50\",\n  {\n    variants: {\n      variant: {\n        default: \"bg-primary text-primary-foreground hover:bg-primary/90\",\n        destructive:\n          \"bg-destructive text-destructive-foreground hover:bg-destructive/90\",\n        outline:\n          \"border border-input bg-background hover:bg-accent hover:text-accent-foreground\",\n        secondary:\n          \"bg-secondary text-secondary-foreground hover:bg-secondary/80\",\n        ghost: \"hover:bg-accent hover:text-accent-foreground\",\n        link: \"text-primary underline-offset-4 hover:underline\",\n      },\n      size: {\n        default: \"h-10 px-4 py-2\",\n        sm: \"h-9 rounded-md px-3\",\n        lg: \"h-11 rounded-md px-8\",\n        icon: \"h-10 w-10\",\n      },\n    },\n    defaultVariants: {\n      variant: \"default\",\n      size: \"default\",\n    },\n  },\n)\n\nexport interface ButtonProps\n  extends React.ButtonHTMLAttributes<HTMLButtonElement>,\n    VariantProps<typeof buttonVariants> {\n  asChild?: boolean\n}\n\nconst Button = React.forwardRef<HTMLButtonElement, ButtonProps>(\n  ({ className, variant, size, asChild = false, ...props }, ref) => {\n    const Comp = asChild ? Slot : \"button\"\n    return (\n      <Comp\n        className={cn(buttonVariants({ variant, size, className }))}\n        ref={ref}\n        {...props}\n      />\n    )\n  },\n)\nButton.displayName = \"Button\"\n\nexport { Button, buttonVariants }\n",
+          "registry": "ui"
+        }
+      },
+      "npmDependencies": {
+        "class-variance-authority": "latest",
+        "@radix-ui/react-slot": "latest"
+      }
+    },
+    "isPublic": true,
+    "registryTeamId": null,
+    "registryUserId": "user_36Tbt0v8JdD4jEycmBFhR8tojnR"
+  },
+  "quota": {
+    "tier": "paid",
+    "remaining": null,
+    "perDay": null,
+    "resetAt": null,
+    "upgradeUrl": null
+  }
+}

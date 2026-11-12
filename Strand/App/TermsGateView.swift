@@ -17,31 +17,37 @@ struct TermsGateView: View {
             StrandPalette.surfaceBase.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                VStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: NoopMetrics.space3) {
+                    BrandMark(size: NoopMetrics.controlHeight)
                     Text("Before you use NOOP")
+                        .fixedSize(horizontal: false, vertical: true)
                         .font(StrandFont.title1)
                         .foregroundStyle(StrandPalette.textPrimary)
                     Text("Please read the points below, then confirm each statement.")
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textSecondary)
-                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.top, 36)
-                .padding(.bottom, 22)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, NoopMetrics.space6)
+                .padding(.top, NoopMetrics.space6)
+                .padding(.bottom, NoopMetrics.space6)
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
+                    VStack(alignment: .leading, spacing: NoopMetrics.space5) {
                         ForEach(Terms.points, id: \.0) { point in
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: NoopMetrics.space2) {
                                 Text(point.0)
                                     .font(StrandFont.headline)
                                     .foregroundStyle(StrandPalette.textPrimary)
                                 Text(point.1)
-                                    .font(StrandFont.footnote)
+                                    .font(StrandFont.subhead)
                                     .foregroundStyle(StrandPalette.textSecondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(NoopMetrics.cardPadding)
+                            .background(NoopPanelSurface())
                         }
 
                         Rectangle()
@@ -56,12 +62,15 @@ struct TermsGateView: View {
                         ForEach(Array(Terms.attestations.enumerated()), id: \.offset) { idx, line in
                             Toggle(isOn: Binding(get: { checks[idx] }, set: { checks[idx] = $0 })) {
                                 Text(line)
-                                    .font(StrandFont.footnote)
+                                    .font(StrandFont.subhead)
                                     .foregroundStyle(StrandPalette.textPrimary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
+                            .padding(.vertical, NoopMetrics.space2)
                             #if os(macOS)
                             .toggleStyle(.checkbox)   // iOS falls back to the default switch toggle
+                            #else
+                            .toggleStyle(NoopToggleStyle())
                             #endif
                         }
 
@@ -70,13 +79,13 @@ struct TermsGateView: View {
                             .foregroundStyle(StrandPalette.textTertiary)
                             .padding(.top, 2)
                     }
-                    .padding(.horizontal, 30)
-                    .padding(.bottom, 18)
+                    .padding(.horizontal, NoopMetrics.space6)
+                    .padding(.bottom, NoopMetrics.space6)
                 }
                 #if os(iOS)
                 // #697/#horizontal-swipe parity, see ScreenScaffold. Shown before onboarding/pairing,
                 // on top of everything, so this is the very first screen a new install sees.
-                .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+                .scrollBounceBasedOnSizeCompat(axes: .horizontal)
                 #endif
 
                 Rectangle()
@@ -87,13 +96,11 @@ struct TermsGateView: View {
                     Text("Accept & Continue")
                         .font(StrandFont.headline)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 9)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(StrandPalette.accent)
+                .buttonStyle(NoopButtonStyle(.primary, fullWidth: true))
                 .disabled(!allChecked)
                 .keyboardShortcut(.defaultAction)
-                .padding(26)
+                .padding(NoopMetrics.space6)
             }
             .frame(maxWidth: 560, maxHeight: 720)
         }

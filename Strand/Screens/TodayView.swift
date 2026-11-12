@@ -1302,7 +1302,7 @@ struct TodayView: View {
                 // they can change the day by swiping across or tapping here. fixedSize makes it claim its own
                 // width so a tight top bar never compresses it, and the trailing icon cluster keeps its room.
                 Text(dayNavHint ?? dayNavDateText)
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .font(StrandFont.number(13, weight: .semibold))
                     .foregroundStyle(dayNavHint != nil ? StrandPalette.accent : StrandPalette.textPrimary)
                     .lineLimit(1)
                     .fixedSize()
@@ -1345,7 +1345,7 @@ struct TodayView: View {
                         .overlay(alignment: .topTrailing) {
                             if updateStore.unreadCount > 0 {
                                 Text("\(min(updateStore.unreadCount, 99))")
-                                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                                    .font(StrandFont.number(9, weight: .bold))
                                     .monospacedDigit()
                                     .foregroundStyle(StrandPalette.goldDeepText)
                                     .padding(.horizontal, 3.5).padding(.vertical, 1)
@@ -1404,7 +1404,7 @@ struct TodayView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Done") { showSettings = false }.foregroundStyle(StrandPalette.accent)
+                        Button("Done") { showSettings = false }.foregroundStyle(StrandPalette.accentInk)
                     }
                 }
         }
@@ -1423,7 +1423,7 @@ struct TodayView: View {
                 .overlay(alignment: .topTrailing) {
                     if updateStore.unreadCount > 0 {
                         Text("\(min(updateStore.unreadCount, 99))")
-                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .font(StrandFont.number(9, weight: .bold))
                             .monospacedDigit()
                             .foregroundStyle(StrandPalette.goldDeepText)
                             // Fixed 14pt square + Circle() = a true CIRCLE on both platforms, kept INSIDE
@@ -2233,7 +2233,7 @@ struct TodayView: View {
             }
             #if os(iOS)
             // #697/#horizontal-swipe parity, see ScreenScaffold.
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
             .background(StrandPalette.surfaceBase.ignoresSafeArea())
             .navigationTitle("What shaped your Charge")
@@ -2244,12 +2244,12 @@ struct TodayView: View {
                 #if os(iOS)
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { showChargeBreakdown = false }
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                 }
                 #else
                 ToolbarItem {
                     Button("Done") { showChargeBreakdown = false }
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                 }
                 #endif
             }
@@ -2450,7 +2450,7 @@ struct TodayView: View {
                             .tracking(StrandFont.overlineTracking)
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                     .accessibilityLabel("Customise your cards")
                     .help("Choose which cards show and reorder them")
                 }
@@ -3700,7 +3700,7 @@ struct TodayView: View {
             if hrZoomDomain != nil {
                 Button("Reset") { resetHrZoom() }
                     .font(StrandFont.footnote)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                     .buttonStyle(.plain)
             }
         }
@@ -3818,7 +3818,7 @@ struct TodayView: View {
                         .font(StrandFont.footnote)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(StrandPalette.accent)
+                .foregroundStyle(StrandPalette.accentInk)
                 .accessibilityLabel("Edit Key Metrics")
                 .help("Choose which Key Metrics show and reorder them")
             }
@@ -3876,7 +3876,7 @@ struct TodayView: View {
                 Image(systemName: metricsExpanded ? "chevron.up" : "chevron.down")
                     .font(.system(size: 11, weight: .bold))
             }
-            .foregroundStyle(StrandPalette.accent)
+            .foregroundStyle(StrandPalette.accentInk)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .contentShape(Rectangle())

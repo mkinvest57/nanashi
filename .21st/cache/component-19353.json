@@ -1,0 +1,29 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"component\": {\"id\": 19353, \"componentId\": 9930, \"authorUserId\": \"user_registry_nexus-ui_1783492392202\", \"name\": \"Orbit Footer\", \"demoName\": \"Default\", \"description\": \"Compact dark footer with a brand name and inline developer links like docs and status.\", \"previewUrl\": \"https://cdn.21st.dev/nexus-ui/orbit-footer/default/preview.1783728529715.png\", \"installCommand\": \"npx shadcn@latest add \\\"https://21st.dev/r/nexus-ui/orbit-footer?api_key=$API_KEY_21ST\\\"\", \"componentCode\": \"export function OrbitFooter() {\\n  return (\\n    <footer className=\\\"rounded-3xl border border-white/10 bg-zinc-950 p-6 text-sm text-zinc-400\\\">\\n      <div className=\\\"flex flex-wrap items-center justify-between gap-4\\\">\\n        <p className=\\\"text-white\\\">Nexus-UI</p>\\n        <div className=\\\"flex gap-4\\\"><a href=\\\"#\\\">Docs</a><a href=\\\"#\\\">Status</a></div>\\n      </div>\\n    </footer>\\n  );\\n}\\n\\nexport default OrbitFooter;\\n\", \"demoCode\": \"import OrbitFooter from \\\"@/components/ui/orbit-footer\\\";\\n\\nexport default function Demo() {\\n  return (\\n    <div className=\\\"w-full max-w-2xl p-6\\\">\\n      <OrbitFooter />\\n    </div>\\n  );\\n}\\n\", \"registryDependencies\": {\"filesWithRegistry\": {}, \"npmDependencies\": {}}, \"isPublic\": true, \"registryTeamId\": null, \"registryUserId\": null}}"
+    }
+  ],
+  "structuredContent": {
+    "component": {
+      "id": 19353,
+      "componentId": 9930,
+      "authorUserId": "user_registry_nexus-ui_1783492392202",
+      "name": "Orbit Footer",
+      "demoName": "Default",
+      "description": "Compact dark footer with a brand name and inline developer links like docs and status.",
+      "previewUrl": "https://cdn.21st.dev/nexus-ui/orbit-footer/default/preview.1783728529715.png",
+      "installCommand": "npx shadcn@latest add \"https://21st.dev/r/nexus-ui/orbit-footer?api_key=$API_KEY_21ST\"",
+      "componentCode": "export function OrbitFooter() {\n  return (\n    <footer className=\"rounded-3xl border border-white/10 bg-zinc-950 p-6 text-sm text-zinc-400\">\n      <div className=\"flex flex-wrap items-center justify-between gap-4\">\n        <p className=\"text-white\">Nexus-UI</p>\n        <div className=\"flex gap-4\"><a href=\"#\">Docs</a><a href=\"#\">Status</a></div>\n      </div>\n    </footer>\n  );\n}\n\nexport default OrbitFooter;\n",
+      "demoCode": "import OrbitFooter from \"@/components/ui/orbit-footer\";\n\nexport default function Demo() {\n  return (\n    <div className=\"w-full max-w-2xl p-6\">\n      <OrbitFooter />\n    </div>\n  );\n}\n",
+      "registryDependencies": {
+        "filesWithRegistry": {},
+        "npmDependencies": {}
+      },
+      "isPublic": true,
+      "registryTeamId": null,
+      "registryUserId": null
+    }
+  }
+}

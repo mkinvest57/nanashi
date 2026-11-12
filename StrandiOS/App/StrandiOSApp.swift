@@ -37,6 +37,7 @@ struct StrandiOSApp: App {
     /// double-tap handler. See `LiftSessionController`.
     @StateObject private var liftSession: LiftSessionController
     @Environment(\.scenePhase) private var scenePhase
+    @State private var lastHandledScenePhase: ScenePhase?
     /// Appearance preference (System/Light/Dark). Default follows the OS; the Settings picker writes it.
     @AppStorage(AppearanceMode.storageKey) private var appearanceRaw = AppearanceMode.system.rawValue
     /// Chart data-colour style (Titanium / Classic throwback). Re-colours gauges + charts.
@@ -52,6 +53,27 @@ struct StrandiOSApp: App {
     @AppStorage(UnitPrefs.systemKey) private var unitSystemRaw = UnitSystem.metric.rawValue
 
     init() {
+        #if DEBUG
+        // A device-container copy cannot invalidate cfprefsd's cached domains. Apply an explicit,
+        // destination-bound local transfer through UserDefaults before any model or Health reader.
+        if ProcessInfo.processInfo.arguments.contains("--apply-nanashi-identity-transfer") {
+            do {
+                guard let bundleIdentifier = Bundle.main.bundleIdentifier else {
+                    preconditionFailure("Local identity transfer requires an application identifier.")
+                }
+                let documents = try FileManager.default.url(for: .documentDirectory,
+                                                            in: .userDomainMask,
+                                                            appropriateFor: nil,
+                                                            create: false)
+                _ = try LocalIdentityTransfer.apply(
+                    payloadURL: documents.appendingPathComponent("Nanashi-identity-transfer.plist"),
+                    expectedBundleIdentifier: bundleIdentifier,
+                    expectedAppGroupIdentifier: WidgetSnapshot.suiteName)
+            } catch {
+                preconditionFailure("Local identity transfer failed; startup stopped to protect stored data.")
+            }
+        }
+        #endif
         // #1008: pin the pre-change Overnight-only default for existing installs before
         // anything reads it. Idempotent; a no-op on fresh installs and after the first launch.
         PuffinExperiment.migrateContinuousHrvOvernightDefault()
@@ -85,6 +107,9 @@ struct StrandiOSApp: App {
         _router = StateObject(wrappedValue: router)
         NotificationPresenter.shared.onCoachBriefTapped = { [weak router] in router?.openCoach() }
         let model = AppModel()
+        #if DEBUG && targetEnvironment(simulator)
+        DemoCoachHarness.configureIfRequested(model.coach)
+        #endif
         _model = StateObject(wrappedValue: model)
         CoachBriefScheduler.register(generateBrief: { [weak coach = model.coach] in
             await coach?.generateBrief()
@@ -227,6 +252,7 @@ struct StrandiOSApp: App {
                 .environmentObject(model.behavior)
                 .environmentObject(model.intelligence)
                 .environmentObject(model.coach)
+                .environment(\.nanashiPresence, model.presence)
                 .environmentObject(health)
                 .environmentObject(router)
                 .environmentObject(UpdateStore.shared)
@@ -306,13 +332,13 @@ struct StrandiOSApp: App {
                     guard WidgetSnapshot.HRPublishThrottle.admit() else { return }
                     Task { await WidgetSnapshot.publishLive(from: model) }
                 }
-                .onChange(of: effortScaleRaw) { _, _ in
+                .onChangeCompat(of: effortScaleRaw) { _ in
                     guard scenePhase == .active else { return }
                     Task { await WidgetSnapshot.publish(from: model) }
                 }
                 // Apple Health is explicitly opt-in. Once any write type is authorized, keep one
                 // best-effort BGAppRefresh request armed; revoking all write access cancels it.
-                .onChange(of: health.auth) { _, auth in
+                .onChangeCompat(of: health.auth) { auth in
                     HealthWritebackBackgroundScheduler.updateSchedule(isAuthorized: auth == .authorized)
                 }
                 // #581: the `noop://import-health` deep link the iOS Shortcut opens after building the
@@ -333,6 +359,8 @@ struct StrandiOSApp: App {
                 // waiting for the next foreground. activate() is idempotent + a no-op where WC isn't
                 // supported, so this is safe on every device/simulator combination.
                 .task {
+                    // The scene's legacy onChange does not deliver an initial value on iOS 16.
+                    handleScenePhase(scenePhase)
                     watch.activate()
                     await watch.pushLatest(from: model)
                 }
@@ -345,72 +373,80 @@ struct StrandiOSApp: App {
         // access (it only reads write/share status, never prompts) so background syncs resume; and
         // HealthKitBridge.sync guards on `auth == .authorized`, so the scenePhase trigger stays a
         // safe no-op until the user opts in.
-        .onChange(of: scenePhase, initial: true) { _, phase in
-            if phase == .active {
-                CoachBriefScheduler.activateIfEnabled { await model.coach.generateBrief() }
-                model.drainPendingIntents(router: router)
-                // iOS starts a Lift Log banner only for an app on screen, so a banner lost while NOOP was in
-                // the background comes back now, whether or not the strap is sending anything.
-                pushLiftActivity()
-                // Only the foreground may start the live heart rate banner: offer it now.
-                liveActivity.appBecameActive()
-                // End a "Connecting…" sync island whose sync never came, rather than leave it greyed.
-                SyncLiveActivityController.shared.reconcile(live: model.live)
-                // Re-arm the strap's smart alarm on foreground: the firmware alarm is a single instant
-                // and iOS can't re-arm it while suspended, so it would otherwise fire once and stop.
-                model.applySmartAlarm()
-                // #267: pull a reasonably fresh sync on open rather than waiting for the 900s periodic
-                // timer or an incidental reconnect. Floored at 90s and never clock/empty-streak-suppressed
-                // (BackfillPolicy.shouldRun's .foreground case), so this is a safe no-op on rapid re-opens.
-                model.ble.requestSync(.foreground)
-                // #1538: settle a re-score an earlier background attempt could not finish, rather than
-                // waiting on the 15-minute idle tick now that there is a foreground with no suspension
-                // deadline. A no-op unless one is genuinely outstanding.
-                //
-                // Its OWN task, deliberately. This pass is minutes long on the installs that need it —
-                // that is the whole reason it was deferred — and the sequential block below owns Health
-                // sync, the widget snapshot and the watch push. Awaiting it there would leave the widget
-                // and the watch showing stale numbers for the entire re-score every time the app is
-                // opened, which is a worse regression than the bug being fixed. `analyzeRecent`
-                // serialises itself, so overlapping with the sync this foreground also kicks off is safe.
-                Task { await model.runDeferredRescoreIfOwed() }
-                Task {
-                    health.refreshAuthIfPreviouslyGranted()
-                    HealthWritebackBackgroundScheduler.updateSchedule(
-                        isAuthorized: health.auth == .authorized)
-                    await HealthSyncRefreshCoordinator.run(
-                        sync: { await health.sync() },
-                        refresh: {
-                            await model.refreshAfterAppleHealthSync(
-                                authorized: health.auth == .authorized)
-                        }
-                    )
-                    await WidgetSnapshot.publish(from: model)
-                    // Push the wrist on the SAME refresh as the Home-screen widget so the watch, the
-                    // widget and Today never disagree about which day they describe. Without this the
-                    // watch only ever holds placeholder data on a real device.
-                    await watch.pushLatest(from: model)
-                }
-            } else if phase == .background {
-                // Re-submit on every transition because iOS may discard an old best-effort request.
+        .onChange(of: scenePhase, perform: handleScenePhase)
+    }
+
+    private func handleScenePhase(_ phase: ScenePhase) {
+        // Launch and the first scene transition may arrive in either order; handle each phase once.
+        guard lastHandledScenePhase != phase else { return }
+        lastHandledScenePhase = phase
+        // The app owns this boundary even when Coach has replaced the page hosting a remark.
+        if phase != .active { model.presence.leaveForeground() }
+        if phase == .active {
+            model.coach.refreshPresenceAccess()
+            CoachBriefScheduler.activateIfEnabled { await model.coach.generateBrief() }
+            model.drainPendingIntents(router: router)
+            // iOS starts a Lift Log banner only for an app on screen, so a banner lost while NOOP was in
+            // the background comes back now, whether or not the strap is sending anything.
+            pushLiftActivity()
+            // Only the foreground may start the live heart rate banner: offer it now.
+            liveActivity.appBecameActive()
+            // End a "Connecting…" sync island whose sync never came, rather than leave it greyed.
+            SyncLiveActivityController.shared.reconcile(live: model.live)
+            // Re-arm the strap's smart alarm on foreground: the firmware alarm is a single instant
+            // and iOS can't re-arm it while suspended, so it would otherwise fire once and stop.
+            model.applySmartAlarm()
+            // #267: pull a reasonably fresh sync on open rather than waiting for the 900s periodic
+            // timer or an incidental reconnect. Floored at 90s and never clock/empty-streak-suppressed
+            // (BackfillPolicy.shouldRun's .foreground case), so this is a safe no-op on rapid re-opens.
+            model.ble.requestSync(.foreground)
+            // #1538: settle a re-score an earlier background attempt could not finish, rather than
+            // waiting on the 15-minute idle tick now that there is a foreground with no suspension
+            // deadline. A no-op unless one is genuinely outstanding.
+            //
+            // Its OWN task, deliberately. This pass is minutes long on the installs that need it —
+            // that is the whole reason it was deferred — and the sequential block below owns Health
+            // sync, the widget snapshot and the watch push. Awaiting it there would leave the widget
+            // and the watch showing stale numbers for the entire re-score every time the app is
+            // opened, which is a worse regression than the bug being fixed. `analyzeRecent`
+            // serialises itself, so overlapping with the sync this foreground also kicks off is safe.
+            Task { await model.runDeferredRescoreIfOwed() }
+            Task {
+                health.refreshAuthIfPreviouslyGranted()
                 HealthWritebackBackgroundScheduler.updateSchedule(
                     isAuthorized: health.auth == .authorized)
-                // #1538: same reasoning for the re-score continuation, plus one case of its own. A pass
-                // can be left owed with NOTHING scheduled — a foreground pass killed by a force-quit
-                // never runs the deferral path that submits the request, and iOS can discard a request
-                // that was submitted. Without this the work would wait for the next offload to defer it
-                // or the next launch to drain it. Re-submitting on the way out costs nothing when
-                // nothing is owed, because it is skipped entirely.
-                if RescoreBackgroundScheduler.isRescoreOwed { RescoreBackgroundScheduler.schedule() }
-                // #114: capture the LAST in-app live state on the way out so the Home widget matches what
-                // the user just saw — its battery/HR/score otherwise lag to the last FOREGROUND refreshSeq
-                // bump. One reload per app-exit is low-frequency and well within WidgetKit's daily budget.
-                Task { await WidgetSnapshot.publish(from: model) }
-                // #155: refresh the Documents/noop_sync.txt drop file the user's Siri Shortcut logs
-                // into Apple Health. Gated inside writeIfEnabled on the opt-in default (OFF) — a
-                // no-op until the user turns on Shortcuts Export.
-                Task { await ShortcutHealthExport.writeIfEnabled(repo: model.repo) }
+                await HealthSyncRefreshCoordinator.run(
+                    sync: { await health.sync() },
+                    refresh: {
+                        await model.refreshAfterAppleHealthSync(
+                            authorized: health.auth == .authorized)
+                    }
+                )
+                await WidgetSnapshot.publish(from: model)
+                // Push the wrist on the SAME refresh as the Home-screen widget so the watch, the
+                // widget and Today never disagree about which day they describe. Without this the
+                // watch only ever holds placeholder data on a real device.
+                await watch.pushLatest(from: model)
             }
+        } else if phase == .background {
+            // Re-submit on every transition because iOS may discard an old best-effort request.
+            HealthWritebackBackgroundScheduler.updateSchedule(
+                isAuthorized: health.auth == .authorized)
+            // #1538: same reasoning for the re-score continuation, plus one case of its own. A pass
+            // can be left owed with NOTHING scheduled — a foreground pass killed by a force-quit
+            // never runs the deferral path that submits the request, and iOS can discard a request
+            // that was submitted. Without this the work would wait for the next offload to defer it
+            // or the next launch to drain it. Re-submitting on the way out costs nothing when
+            // nothing is owed, because it is skipped entirely.
+            if RescoreBackgroundScheduler.isRescoreOwed { RescoreBackgroundScheduler.schedule() }
+            // #114: capture the LAST in-app live state on the way out so the Home widget matches what
+            // the user just saw — its battery/HR/score otherwise lag to the last FOREGROUND refreshSeq
+            // bump. One reload per app-exit is low-frequency and well within WidgetKit's daily budget.
+            Task { await WidgetSnapshot.publish(from: model) }
+            // #155: refresh the Documents/noop_sync.txt drop file the user's Siri Shortcut logs
+            // into Apple Health. Gated inside writeIfEnabled on the opt-in default (OFF) — a
+            // no-op until the user turns on Shortcuts Export.
+            Task { await ShortcutHealthExport.writeIfEnabled(repo: model.repo) }
         }
     }
 
@@ -466,18 +502,31 @@ private struct iOSRootView: View {
         // seeded simulator build can be screenshotted deterministically for verification + marketing.
         // No-op in Release (whole branch is #if DEBUG) and when the arg is absent.
         if let demo = DemoScreens.requested {
+            let styledDemo = demo
+                .font(StrandFont.body)
+                .toggleStyle(NoopToggleStyle())
+                .textFieldStyle(NoopTextFieldStyle())
+            // The tab shell and first-run gates own their chrome; another stack would add a second
+            // navigation context or an empty navigation bar to the screenshot.
+            if !DemoScreens.needsNavigationStack {
+                return AnyView(styledDemo.background(StrandPalette.surfaceBase.ignoresSafeArea()))
+            }
             // Inherit the app appearance (set via the Theme picker, or `-theme.appearance light|dark`
             // in the launch arguments) so demo/marketing shots can be taken in either scheme.
             return AnyView(
                 NavigationStack {
-                    demo
+                    styledDemo
                         .background(StrandPalette.surfaceBase.ignoresSafeArea())
                         .navigationBarTitleDisplayMode(.inline)
+                        .tabRouteDestinations()
                 }
             )
         }
         #endif
-        return AnyView(shell)
+        return AnyView(shell
+            .font(StrandFont.body)
+            .toggleStyle(NoopToggleStyle())
+            .textFieldStyle(NoopTextFieldStyle()))
     }
 
     private var shell: some View {
@@ -535,7 +584,7 @@ private struct iOSRootView: View {
                 UpdateWatch.runIfDue(currentVersion: UpdateWatch.installedVersion, sideloadHint: true)
             }
         }
-        .onChange(of: acceptedTerms) { _, _ in showWhatsNewIfDue() }
+        .onChangeCompat(of: acceptedTerms) { _ in showWhatsNewIfDue() }
     }
 
     /// DEBUG: launched with --demo-seed, skip the first-run gates (onboarding / terms / What's New) so the
@@ -567,12 +616,41 @@ private struct iOSRootView: View {
 #if DEBUG
 /// DEBUG-only screenshot harness. Maps `--demo-screen <name>` to a single screen so a seeded
 /// simulator build can be captured deterministically (verification + marketing). Stripped from Release.
+@MainActor
 enum DemoScreens {
-    /// The screen named by `--demo-screen <name>`, or nil if the arg is absent/unknown.
-    static var requested: AnyView? {
+    private static var requestedName: String? {
         let args = CommandLine.arguments
         guard let i = args.firstIndex(of: "--demo-screen"), i + 1 < args.count else { return nil }
-        switch args[i + 1].lowercased() {
+        return args[i + 1].lowercased()
+    }
+
+    static var needsNavigationStack: Bool {
+        !["shell", "shell-sleep", "shell-coach", "activity", "more", "onboarding", "terms"].contains(requestedName ?? "")
+    }
+
+    /// The screen named by `--demo-screen <name>`, or nil if the arg is absent/unknown.
+    static var requested: AnyView? {
+        guard let name = requestedName else { return nil }
+        switch name {
+        case "shell": return AnyView(RootTabView(homeScreenQuickActionsEnabled: false))
+        case "shell-sleep": return AnyView(RootTabView(homeScreenQuickActionsEnabled: false, initialTab: 2))
+        case "shell-coach": return AnyView(RootTabView(homeScreenQuickActionsEnabled: false, initialTab: 3))
+        case "activity": return AnyView(RootTabView(homeScreenQuickActionsEnabled: false, initialTab: 1))
+        case "more": return AnyView(RootTabView(homeScreenQuickActionsEnabled: false, initialTab: 4))
+        case "coach": return AnyView(CoachView())
+        case "onboarding": return AnyView(OnboardingWizard(onFinished: {}))
+        case "terms": return AnyView(TermsGateView(onAccept: {}))
+        // A real form with its existing validation, without persisting a QA entry on Save.
+        case "workoutform": return AnyView(ManualWorkoutSheet(onSave: { _, _ in }))
+        case "insightshub": return AnyView(InsightsHubView())
+        case "labbook": return AnyView(LabBookView())
+        case "applehealth": return AnyView(AppleHealthView())
+        case "datasources": return AnyView(DataSourcesView())
+        case "backup": return AnyView(BackupSyncView())
+        case "liftlog": return AnyView(LiftLogView())
+        case "breathe": return AnyView(BreathingView())
+        case "intervals": return AnyView(IntervalTimerView())
+        case "alarms": return AnyView(SmartAlarmView())
         case "today":    return AnyView(TodayView())
         // The DEFAULT iOS Today (`noop.liquidTodayEnabled` ships true), so it needs its own entry — plain
         // "today" renders the CLASSIC screen, which is exactly the screen whose behaviour Liquid was found
@@ -616,7 +694,7 @@ enum DemoScreens {
 #if DEBUG
 /// DEBUG-only host so `--demo-screen addwizard` can render the multi-step Add-a-device wizard.
 /// A SwiftUI View body is main-actor, so it can pull the injected LiveState and hand it to the
-/// wizard's `init(live:)` (the nonisolated DemoScreens switch can't construct a LiveState itself).
+/// wizard's `init(live:)` without creating a second LiveState for the demo.
 private struct AddWizardDemoHost: View {
     @EnvironmentObject var live: LiveState
     var body: some View { AddDeviceWizard(live: live, onClose: {}) }

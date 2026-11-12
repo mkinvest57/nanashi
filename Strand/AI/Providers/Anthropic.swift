@@ -31,12 +31,17 @@ struct AnthropicClient: AIProviderClient {
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let json = try await performRequest(req, session: session)
-        guard let content = json["content"] as? [[String: Any]],
-              let first = content.first,
-              let text = (first["text"] as? String)?
-                  .trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else {
-            throw emptyReplyError(json)   // #1074: surface the provider's real error if the 200 body has one
-        }
+        return try parseTextReply(json)
+    }
+
+    /// Reasoning models can lead with thinking/tool blocks. Only visible text belongs in the reply.
+    func parseTextReply(_ json: [String: Any]) throws -> String {
+        if json["error"] != nil { throw emptyReplyError(json) }
+        let text = (json["content"] as? [[String: Any]] ?? []).compactMap { block -> String? in
+            guard block["type"] as? String == "text" else { return nil }
+            return block["text"] as? String
+        }.joined().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { throw emptyReplyError(json) }
         return text
     }
 
@@ -77,19 +82,39 @@ struct AnthropicClient: AIProviderClient {
     }
 
     func fetchModels(key: String, session: URLSession) async throws -> [String] {
-        var req = URLRequest(url: AIProvider.anthropic.modelsEndpoint)
-        req.httpMethod = "GET"
-        req.setValue(key, forHTTPHeaderField: "x-api-key")
-        req.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-
-        return parseModels(try await performRequest(req, session: session))
+        var ids: [String] = []
+        var seenIDs = Set<String>()
+        var seenCursors = Set<String>()
+        var cursor: String?
+        // A failed or malformed later page must never become a successful partial catalogue.
+        for _ in 0..<64 {
+            try Task.checkCancellation()
+            var url = URLComponents(url: AIProvider.anthropic.modelsEndpoint, resolvingAgainstBaseURL: false)!
+            url.queryItems = [URLQueryItem(name: "limit", value: "1000")]
+            if let cursor { url.queryItems?.append(URLQueryItem(name: "after_id", value: cursor)) }
+            var req = URLRequest(url: url.url!)
+            req.httpMethod = "GET"
+            req.setValue(key, forHTTPHeaderField: "x-api-key")
+            req.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+            let page = try await performRequest(req, session: session)
+            guard page["data"] is [[String: Any]], let hasMore = page["has_more"] as? Bool else {
+                throw AICoachError.decode
+            }
+            ids.append(contentsOf: parseModels(page).filter { seenIDs.insert($0).inserted })
+            guard hasMore else { return ids }
+            guard let next = page["last_id"] as? String, !next.isEmpty,
+                  seenCursors.insert(next).inserted else { throw AICoachError.decode }
+            cursor = next
+        }
+        throw AICoachError.decode
     }
 
-    /// Pure: unwrap the `/models` body into ids (Anthropic keeps all non-empty). No network — unit-tested.
+    /// Pure: unwrap the catalogue, excluding models explicitly marked retired by the provider.
     func parseModels(_ json: [String: Any]) -> [String] {
         guard let list = json["data"] as? [[String: Any]] else { return [] }
         return list.compactMap { row in
-            guard let id = row["id"] as? String, !id.isEmpty else { return nil }
+            guard row["lifecycle"] as? String != "retired",
+                  let id = row["id"] as? String, !id.isEmpty else { return nil }
             return id
         }
     }

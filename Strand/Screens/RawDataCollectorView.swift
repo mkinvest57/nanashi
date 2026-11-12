@@ -95,7 +95,7 @@ struct RawDataCollectorView: View {
                     .foregroundStyle(StrandPalette.textSecondary)
                 if let active = store.active {
                     Text("Realtime IMU: session active since \(Self.time(active.startedAtMs))")
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                 }
             }
             .font(StrandFont.subhead)
@@ -176,7 +176,7 @@ struct RawDataCollectorView: View {
                     get: { store.sessions.first(where: { $0.id == session.id })?.comment ?? session.comment },
                     set: { store.setComment($0, sessionId: session.id) }
                 ), axis: .vertical)
-                    .textFieldStyle(.roundedBorder).lineLimit(2...4)
+                    .textFieldStyle(NoopTextFieldStyle()).lineLimit(2...4)
                 NoopButton("Add marker", systemImage: "mappin.and.ellipse", kind: .secondary,
                            fullWidth: true) { editMarker(nil, in: session) }
                 let markers = session.events.filter { $0.kind == "marker" }.sorted { $0.atMs < $1.atMs }

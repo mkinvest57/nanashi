@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Orbit Rotation  [id: 18010]\nby karthikmudunuri\nAn animated component that rotates customizable tech/brand icons in concentric dotted orbits around a center icon.\npreview: https://cdn.21st.dev/eldoraui/orbit-rotation/default/preview.1783569872737.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/karthikmudunuri/orbit-rotation?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 18010 })\n\n### [component] Integrations Orbit Section  [id: 18964]\nby meschacirung\nA marketing integrations section arranging brand logos in animated concentric orbit rings around a central logo, with a heading and call-to-action button.\npreview: https://cdn.21st.dev/user_2tUYFzCDCVfrMrVC3TfB9DUBAyx/integrations-5/default/preview.1787662665133.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/meschacirung/integrations-5?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 18964 })\n\n### [component] Orbit Sweep  [id: 33521]\nby abushaidislam7\nPure CSS gradient background in the Orbit Sweep style, made with the 21st.dev Gradient Builder. 3-color palette (#2B0A3D, #7B4BA8, #E6D6F5). Features: film grain, vignette. A drop-in, zero-dependency React component for hero sections, cards, and page backgrounds.\npreview: https://cdn.21st.dev/abushaidislam7/orbit-sweep/default/preview.1790679332617-ec20db29-8789-445b-858c-14e0bfba403f.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/abushaidislam7/orbit-sweep?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 33521 })\n\n### [component] Orbit Sweep gradient  [id: 26854]\nby shixuanaa11\nPure CSS gradient background in the Orbit Sweep style, made with the 21st.dev Gradient Builder. 5-color palette (#E9EEF5, #8FA3C0, #3B4A66, #8FA3C0, #E9EEF5). Features: vignette. A drop-in, zero-dependency React component for hero sections, cards, and page backgrounds.\npreview: https://cdn.21st.dev/shixuanaa11/orbit-sweep-gradient/default/preview.1788927934637-d784b695-6153-4e1b-9dee-2fe8649a0192.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/shixuanaa11/orbit-sweep-gradient?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 26854 })\n\n### [component] Hover Brand Logo  [id: 12197]\nby makviesainte\nAn interactive horizontal banner that animates the displayed brand name as you hover over its icon.\npreview: https://cdn.21st.dev/user_34NFsS8hd1hg1HU1ITd2sd7GyQW/hover-brand-logo/default/preview.1787322575469.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/makviesainte/hover-brand-logo?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 12197 })\n\n### [component] Orbit Ring  [id: 19932]\nby loading-ui\nA circular loading spinner with an orbiting arc that rotates outside the base ring to indicate ongoing activity.\npreview: https://cdn.21st.dev/loading-ui/orbit-ring/default/preview.1784374545580-54e1c1d6-e866-4640-ae02-253a2e7552df.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/loading-ui/orbit-ring?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 19932 })\n\n### [component] Orbit Footer  [id: 19353]\nby nexus-ui\nCompact dark footer with a brand name and inline developer links like docs and status.\npreview: https://cdn.21st.dev/nexus-ui/orbit-footer/default/preview.1783728529715.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/nexus-ui/orbit-footer?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 19353 })\n\n### [component] Gradient Orb  [id: 18486]\nby uicapsule\nAn animated glowing gradient orb rendered on the GPU with a WebGL shader, featuring noise-based color mixing, hue rotation, and a breathing pulse.\npreview: https://cdn.21st.dev/uicapsule/gradient-orb/default/preview.1783580138147.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/uicapsule/gradient-orb?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 18486 })\n\n### [component] Orbital Letters  [id: 19169]\nby arihantcodes_1f7b8c4d\nAnimated text where each letter drifts and orbits on spring physics before settling into place, with a hover replay.\npreview: https://cdn.21st.dev/arihantcodes_1f7b8c4d/orbital-letters/default/preview.1783709850261.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/arihantcodes_1f7b8c4d/orbital-letters?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 19169 })\n\n### [component] Logo Cloud 3  [id: 9320]\nby efferd\npreview: https://cdn.21st.dev/sshahaider/logo-cloud-3/default/preview.1761239948685.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/efferd/logo-cloud-3?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 9320 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 18010,
+        "name": "Orbit Rotation",
+        "description": "An animated component that rotates customizable tech/brand icons in concentric dotted orbits around a center icon.",
+        "previewUrl": "https://cdn.21st.dev/eldoraui/orbit-rotation/default/preview.1783569872737.png",
+        "videoUrl": "https://cdn.21st.dev/eldoraui/orbit-rotation/default/video.1783569872737.mp4",
+        "author": "karthikmudunuri",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_32yXHZ3OcANWxXA3nUJYzVVt4a0/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/karthikmudunuri/orbit-rotation?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@karthikmudunuri/components/orbit-rotation"
+      },
+      {
+        "type": "component",
+        "id": 18964,
+        "name": "Integrations Orbit Section",
+        "description": "A marketing integrations section arranging brand logos in animated concentric orbit rings around a central logo, with a heading and call-to-action button.",
+        "previewUrl": "https://cdn.21st.dev/user_2tUYFzCDCVfrMrVC3TfB9DUBAyx/integrations-5/default/preview.1787662665133.png",
+        "videoUrl": "https://cdn.21st.dev/user_2tUYFzCDCVfrMrVC3TfB9DUBAyx/integrations-5/default/video.1787662690419.mp4",
+        "author": "meschacirung",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2tUYFzCDCVfrMrVC3TfB9DUBAyx/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/meschacirung/integrations-5?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@meschacirung/components/integrations-5"
+      },
+      {
+        "type": "component",
+        "id": 33521,
+        "name": "Orbit Sweep",
+        "description": "Pure CSS gradient background in the Orbit Sweep style, made with the 21st.dev Gradient Builder. 3-color palette (#2B0A3D, #7B4BA8, #E6D6F5). Features: film grain, vignette. A drop-in, zero-dependency React component for hero sections, cards, and page backgrounds.",
+        "previewUrl": "https://cdn.21st.dev/abushaidislam7/orbit-sweep/default/preview.1790679332617-ec20db29-8789-445b-858c-14e0bfba403f.webp",
+        "videoUrl": null,
+        "author": "abushaidislam7",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yemJyc05aelk1S1JieGhOMlJUcHZWU2JsVEQifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/abushaidislam7/orbit-sweep?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@abushaidislam7/components/orbit-sweep"
+      },
+      {
+        "type": "component",
+        "id": 26854,
+        "name": "Orbit Sweep gradient",
+        "description": "Pure CSS gradient background in the Orbit Sweep style, made with the 21st.dev Gradient Builder. 5-color palette (#E9EEF5, #8FA3C0, #3B4A66, #8FA3C0, #E9EEF5). Features: vignette. A drop-in, zero-dependency React component for hero sections, cards, and page backgrounds.",
+        "previewUrl": "https://cdn.21st.dev/shixuanaa11/orbit-sweep-gradient/default/preview.1788927934637-d784b695-6153-4e1b-9dee-2fe8649a0192.webp",
+        "videoUrl": null,
+        "author": "shixuanaa11",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18zSjRaZk50N09uelh0S2xYTFU0RHRySU1sbzQifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shixuanaa11/orbit-sweep-gradient?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shixuanaa11/components/orbit-sweep-gradient"
+      },
+      {
+        "type": "component",
+        "id": 12197,
+        "name": "Hover Brand Logo",
+        "description": "An interactive horizontal banner that animates the displayed brand name as you hover over its icon.",
+        "previewUrl": "https://cdn.21st.dev/user_34NFsS8hd1hg1HU1ITd2sd7GyQW/hover-brand-logo/default/preview.1787322575469.png",
+        "videoUrl": "https://cdn.21st.dev/user_34NFsS8hd1hg1HU1ITd2sd7GyQW/hover-brand-logo/default/video.1787322590262.mp4",
+        "author": "makviesainte",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_34NFsS8hd1hg1HU1ITd2sd7GyQW/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/makviesainte/hover-brand-logo?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@makviesainte/components/hover-brand-logo"
+      },
+      {
+        "type": "component",
+        "id": 19932,
+        "name": "Orbit Ring",
+        "description": "A circular loading spinner with an orbiting arc that rotates outside the base ring to indicate ongoing activity.",
+        "previewUrl": "https://cdn.21st.dev/loading-ui/orbit-ring/default/preview.1784374545580-54e1c1d6-e866-4640-ae02-253a2e7552df.png",
+        "videoUrl": "https://cdn.21st.dev/user_registry_loading-ui_1783512156858/orbit-ring/default/video.1785302356528.mp4",
+        "author": "loading-ui",
+        "authorImage": "https://www.google.com/s2/favicons?domain=loading-ui.com&sz=128",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/loading-ui/orbit-ring?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@loading-ui/components/orbit-ring"
+      },
+      {
+        "type": "component",
+        "id": 19353,
+        "name": "Orbit Footer",
+        "description": "Compact dark footer with a brand name and inline developer links like docs and status.",
+        "previewUrl": "https://cdn.21st.dev/nexus-ui/orbit-footer/default/preview.1783728529715.png",
+        "videoUrl": null,
+        "author": "nexus-ui",
+        "authorImage": "https://www.google.com/s2/favicons?domain=nexus-ui.com&sz=128",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/nexus-ui/orbit-footer?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@nexus-ui/components/orbit-footer"
+      },
+      {
+        "type": "component",
+        "id": 18486,
+        "name": "Gradient Orb",
+        "description": "An animated glowing gradient orb rendered on the GPU with a WebGL shader, featuring noise-based color mixing, hue rotation, and a breathing pulse.",
+        "previewUrl": "https://cdn.21st.dev/uicapsule/gradient-orb/default/preview.1783580138147.png",
+        "videoUrl": "https://cdn.21st.dev/uicapsule/gradient-orb/default/video.1783580138147.mp4",
+        "author": "uicapsule",
+        "authorImage": "https://github.com/kyh.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/uicapsule/gradient-orb?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@uicapsule/components/gradient-orb"
+      },
+      {
+        "type": "component",
+        "id": 19169,
+        "name": "Orbital Letters",
+        "description": "Animated text where each letter drifts and orbits on spring physics before settling into place, with a hover replay.",
+        "previewUrl": "https://cdn.21st.dev/arihantcodes_1f7b8c4d/orbital-letters/default/preview.1783709850261.png",
+        "videoUrl": "https://cdn.21st.dev/arihantcodes_1f7b8c4d/orbital-letters/default/video.1783709850261.mp4",
+        "author": "arihantcodes_1f7b8c4d",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18yeG1JVU5OMFdtUE1yYWxOWW12VzdUVHY5ZmUifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/arihantcodes_1f7b8c4d/orbital-letters?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@arihantcodes_1f7b8c4d/components/orbital-letters"
+      },
+      {
+        "type": "component",
+        "id": 9320,
+        "name": "Logo Cloud 3",
+        "description": "",
+        "previewUrl": "https://cdn.21st.dev/sshahaider/logo-cloud-3/default/preview.1761239948685.png",
+        "videoUrl": "https://cdn.21st.dev/user_2tWTE0rCrloVAVylFPYfp10xU92/logo-cloud-3/default/video.1761368612272.mp4",
+        "author": "efferd",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2tWTE0rCrloVAVylFPYfp10xU92/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/efferd/logo-cloud-3?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@efferd/components/logo-cloud-3"
+      }
+    ]
+  }
+}

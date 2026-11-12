@@ -1,0 +1,24 @@
+{
+  "id": 28213,
+  "componentId": 14629,
+  "authorUserId": "user_38qAOtph5HovpSn2yjNYXjbTOm2",
+  "name": "Weekly Fitness Card",
+  "demoName": "Default",
+  "description": "A card that visualizes daily calorie/workout load for the past week as a row of bar-chart bars.",
+  "previewUrl": "https://cdn.21st.dev/shadcnspace/card-12/default/preview.1789956990342-f83e8db6-67e9-401c-aa94-8ac9ae0e1839.png",
+  "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcnspace/card-12?api_key=$API_KEY_21ST\"",
+  "componentCode": "\"use client\";\nimport {\n  Card,\n  CardHeader,\n  CardTitle,\n  CardDescription,\n  CardContent,\n} from \"@/components/ui/card\";\n\nconst data = [\n  { day: \"M\", value: 84 },\n  { day: \"T\", value: 52 },\n  { day: \"W\", value: 73 },\n  { day: \"T\", value: 66 },\n  { day: \"F\", value: 91 },\n  { day: \"S\", value: 48 },\n  { day: \"S\", value: 61 },\n];\n\nconst WeeklyCard = () => {\n  return (\n    <div className=\"max-w-sm mx-auto px-4 w-full\">\n      <Card className=\"w-full max-w-md\">\n        <CardHeader>\n          <CardTitle>Weekly Fitness Summary</CardTitle>\n          <CardDescription>Calories and workout load by day</CardDescription>\n        </CardHeader>\n\n        <CardContent>\n          <div className=\"grid grid-cols-7 gap-1.5\">\n            {data.map((item, index) => (\n              <div\n                key={index}\n                className=\"rounded-md p-1.5 text-center ring-1 ring-border\"\n              >\n                <div className=\"text-sm text-muted-foreground\">{item.day}</div>\n\n                <div className=\"relative mt-1 h-16 overflow-hidden rounded-sm bg-muted\">\n                  <div\n                    className=\"absolute inset-x-0 bottom-0 rounded-sm bg-chart-3\"\n                    style={{ height: `${item.value}%` }}\n                  />\n                </div>\n              </div>\n            ))}\n          </div>\n        </CardContent>\n      </Card>\n    </div>\n  );\n};\n\nexport default WeeklyCard;\n",
+  "demoCode": "import WeeklyCard from \"@/components/ui/card-12\";\n\nexport default function Demo() {\n  return <WeeklyCard />;\n}\n",
+  "registryDependencies": {
+    "filesWithRegistry": {
+      "/components/ui/card.tsx": {
+        "code": "import * as React from \"react\"\n\nimport { cn } from \"@/lib/utils\"\n\nconst Card = React.forwardRef<\n  HTMLDivElement,\n  React.HTMLAttributes<HTMLDivElement>\n>(({ className, ...props }, ref) => (\n  <div\n    ref={ref}\n    className={cn(\n      \"rounded-lg border bg-card text-card-foreground shadow-sm\",\n      className,\n    )}\n    {...props}\n  />\n))\nCard.displayName = \"Card\"\n\nconst CardHeader = React.forwardRef<\n  HTMLDivElement,\n  React.HTMLAttributes<HTMLDivElement>\n>(({ className, ...props }, ref) => (\n  <div\n    ref={ref}\n    className={cn(\"flex flex-col space-y-1.5 p-6\", className)}\n    {...props}\n  />\n))\nCardHeader.displayName = \"CardHeader\"\n\nconst CardTitle = React.forwardRef<\n  HTMLParagraphElement,\n  React.HTMLAttributes<HTMLHeadingElement>\n>(({ className, ...props }, ref) => (\n  <h3\n    ref={ref}\n    className={cn(\n      \"text-2xl font-semibold leading-none tracking-tight\",\n      className,\n    )}\n    {...props}\n  />\n))\nCardTitle.displayName = \"CardTitle\"\n\nconst CardDescription = React.forwardRef<\n  HTMLParagraphElement,\n  React.HTMLAttributes<HTMLParagraphElement>\n>(({ className, ...props }, ref) => (\n  <p\n    ref={ref}\n    className={cn(\"text-sm text-muted-foreground\", className)}\n    {...props}\n  />\n))\nCardDescription.displayName = \"CardDescription\"\n\nconst CardContent = React.forwardRef<\n  HTMLDivElement,\n  React.HTMLAttributes<HTMLDivElement>\n>(({ className, ...props }, ref) => (\n  <div ref={ref} className={cn(\"p-6 pt-0\", className)} {...props} />\n))\nCardContent.displayName = \"CardContent\"\n\nconst CardFooter = React.forwardRef<\n  HTMLDivElement,\n  React.HTMLAttributes<HTMLDivElement>\n>(({ className, ...props }, ref) => (\n  <div\n    ref={ref}\n    className={cn(\"flex items-center p-6 pt-0\", className)}\n    {...props}\n  />\n))\nCardFooter.displayName = \"CardFooter\"\n\nexport { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }\n",
+        "registry": "ui"
+      }
+    },
+    "npmDependencies": {}
+  },
+  "isPublic": true,
+  "registryTeamId": null,
+  "registryUserId": "user_38qAOtph5HovpSn2yjNYXjbTOm2"
+}

@@ -418,7 +418,7 @@ struct LabBookView: View {
             Button("Read the full note") { showingDisclaimer = true }
                 .buttonStyle(.plain)
                 .font(StrandFont.footnote)
-                .foregroundStyle(StrandPalette.accent)
+                .foregroundStyle(StrandPalette.accentInk)
                 .accessibilityLabel("Read the full Lab Book note")
         }
     }
@@ -762,7 +762,7 @@ private struct MarkerDetailView: View {
                 Text(signal?.title ?? "Choose a signal")
                     .font(StrandFont.subhead)
             }
-            .foregroundStyle(StrandPalette.accent)
+            .foregroundStyle(StrandPalette.accentInk)
         }
         .menuStyle(.borderlessButton)
         .fixedSize()

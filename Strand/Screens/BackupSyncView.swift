@@ -73,7 +73,7 @@ struct BackupSyncView: View {
                     .font(StrandFont.footnote).foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
                 Text("Tip: choose a folder in iCloud Drive and your backups sync to all your Apple devices automatically, no account setup needed.")
-                    .font(StrandFont.caption).foregroundStyle(StrandPalette.accent)
+                    .font(StrandFont.caption).foregroundStyle(StrandPalette.accentInk)
                     .fixedSize(horizontal: false, vertical: true)
                 // #644: these .noopbak snapshots are a plain, unencrypted ZIP — pointing this folder at
                 // a cloud sync app (per the tip above) also uploads that readable file there. Say so
@@ -116,7 +116,7 @@ struct BackupSyncView: View {
                     }
                     Spacer(minLength: 0)
                     Toggle("Daily auto-backup", isOn: $auto)
-                        .labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+                        .labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                         .disabled(folderLabel == nil)
                         .onChangeCompat(of: auto) { on in FolderBackup.autoEnabled = on }
                 }

@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "product": "NOOP native SwiftUI",
+  "direction": "Amber Editorial",
+  "scope": "Complete native app visual system, iPhone shell, daily dashboard, secondary screens, forms, onboarding, empty states and widgets; preserve iOS 16 and product behavior.",
+  "palette": {
+    "sourceTheme": "94e6d897-3245-4a19-b22b-00eac7e02295",
+    "light": {
+      "canvas": "#F9FAFB",
+      "surface": "#FFFFFF",
+      "text": "#262626",
+      "muted": "#6B7280",
+      "border": "#E5E7EB",
+      "accent": "#F59E0B",
+      "onAccent": "#000000"
+    },
+    "dark": {
+      "canvas": "#171717",
+      "surface": "#262626",
+      "text": "#E5E5E5",
+      "muted": "#A3A3A3",
+      "border": "#404040",
+      "accent": "#F59E0B",
+      "onAccent": "#000000"
+    }
+  },
+  "type": {
+    "display": "Native SF sans, bold with tight spacing; large tabular score numerals.",
+    "body": "Native SF sans with Dynamic Type; mono small data labels.",
+    "adaptation": "System typography substitutes for source Inter/JetBrains Mono to preserve native scalability and offline installation."
+  },
+  "geometry": {
+    "cards": "24 pt outer corners, 16 pt internal controls; clean borders and shallow shadow.",
+    "controls": "44 pt minimum hit target; tactile face and compressed press shadow.",
+    "layout": "Asymmetric score hierarchy, compact secondary stat cards, quiet settings rows.",
+    "dock": "Intrinsic-width graphite capsule, amber active pill, 21 pt glyphs, 44 x 48 pt silent items, bounded to 343 pt; icons-only fallback for large text."
+  },
+  "signatures": [
+    "Accent primary score panel with restrained diagonal line motif from Stats Bento.",
+    "Flat thick circular score tracks adapted from Circular Progress Card, no liquid vessels.",
+    "Sliding selected-tab substrate and source-derived tactile controls."
+  ],
+  "motion": {
+    "navigation": "short selected-pill spring",
+    "press": "subtle face depression",
+    "data": "Immediate truthful numeric readouts; finite track-fill animation with a static reduced-motion final state.",
+    "decorative": "No continuously animated sky or liquid shader in the main dashboard."
+  },
+  "sources": [
+    25311,
+    7716,
+    28213,
+    26923,
+    30553,
+    34577,
+    35007,
+    1435,
+    8476,
+    19177
+  ],
+  "coverage": [
+    "shared tokens and typography",
+    "cards/buttons/switches/fields/segments",
+    "Today and score details",
+    "tab shell/More",
+    "secondary analytics/activities/device screens",
+    "settings and forms",
+    "onboarding and legal gates",
+    "empty/loading/error feedback",
+    "widgets"
+  ],
+  "preserve": [
+    "real metrics and stored data",
+    "route and tab identity",
+    "all existing controls and validation",
+    "health/BLE permissions",
+    "offline behavior",
+    "semantic metric colors and confidence"
+  ],
+  "previewEvidence": {
+    "catalogPages": "Attempted; page failed to render.",
+    "catalogMedia": "Public preview URLs returned HTTP 403.",
+    "source": "Actual code and demos retrieved and inspected; native screenshots will provide implementation QA."
+  },
+  "rejected": [
+    {
+      "name": "Modern Minimal theme",
+      "reason": "Blue primary too close to inherited dashboard identity."
+    },
+    {
+      "name": "Liquid WebGL CTA and glossy skeuomorphic switch",
+      "reason": "Too costly and visually close to the liquid interface being replaced."
+    },
+    {
+      "name": "Dock v1 equal-width five labeled cells",
+      "reason": "French labels were cramped and the surrounding frame too heavy at 375 pt."
+    }
+  ],
+  "status": "implemented; targeted native QA passed; installed and launched on iPhone 13",
+  "validation": {
+    "iOS16Typecheck": "passed",
+    "StrandDesignTests": {
+      "count": 134,
+      "failures": 0,
+      "status": "passed on final v3 sources after rebuilding test bundle",
+      "processLocale": "en; process-only override",
+      "log": "build/amber-design-tests-v3.log"
+    },
+    "iOSBuild": {
+      "status": "passed",
+      "log": "build/amber-iphone13-build-v3.log",
+      "device": "iPhone 13, iOS 27.0",
+      "minimumDeploymentTarget": "16.0",
+      "signature": "codesign --verify --deep --strict passed",
+      "install": "devicectl install succeeded without uninstall",
+      "launch": "normal app launch succeeded after user-approved developer profile; no demo data on phone"
+    },
+    "i18nGate": "passed against HEAD",
+    "sourceHygiene": "passed",
+    "macOSBuild": {
+      "status": "passed",
+      "log": "build/amber-macos-build-v3.log"
+    },
+    "simulatorBuild": {
+      "status": "passed",
+      "log": "build/amber-simulator-build-v3.log"
+    },
+    "nativeQA": {
+      "runtime": "iOS 27.0 Simulator",
+      "viewports": [
+        [
+          375,
+          812
+        ],
+        [
+          375,
+          667
+        ]
+      ],
+      "locale": "fr_FR",
+      "screenFamilies": 9,
+      "routes": 18,
+      "evidence": "build/amber-qa/evidence.json",
+      "visualScope": "Actual captured viewports in light/dark, plus representative accessibility-medium text; targeted defects re-captured after fixes. Historical images retain their original findings.",
+      "interactions": [
+        "Dock Today → Trends → More taps and selected labels",
+        "Full destination accessibility labels remain unique in large-text fallback",
+        "First-run welcome → promises → expectations transitions",
+        "Manual workout field editing, keyboard return dismissal and disabled-to-enabled validation",
+        "Legal attestations begin independently false; acceptance was observed disabled with zero and one checked statements."
+      ],
+      "codeReviewed": [
+        "Coach-off literal tags and navigation paths",
+        "Tab reselect and path-pop routing",
+        "Scroll-direction minimization and reduced-motion gates"
+      ],
+      "limits": [
+        "Scroll and final-row reach were reviewed in code; native coordinate scrolling was unavailable in DeviceHub",
+        "No physical strap/BLE behavior tested",
+        "Widgets compiled and code-reviewed; their runtime layout not captured",
+        "The iOS 16 deployment target was compiled/typechecked; the final device is iPhone 13 on iOS 27"
+      ]
+    },
+    "physicalVisualPresence": "Normal NOOP UI observed on iPhone 13 in Test Centre after user navigation; no app input or strap commands were sent by the agent."
+  },
+  "acceptedUserPreferences": [
+    {
+      "scope": "iPhone bottom navigation",
+      "preference": "Substantial dock refinement requested; compact floating capsule with only the active localized label."
+    }
+  ]
+}

@@ -1,0 +1,1319 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "type": "component",
+      "id": 30553,
+      "name": "Preferences Card",
+      "author": "ssychui",
+      "url": "https://21st.dev/@ssychui/components/preferences-card",
+      "cache": ".21st/cache/component-30553.json",
+      "roles": [
+        "More navigation",
+        "settings and form rows",
+        "night comparison selectors and factual rows"
+      ],
+      "status": "active",
+      "adaptation": "Quiet grouped preference rows with icon tiles, clear label/hint hierarchy and permanent touch chevron. Real routes, validation and callbacks replace demo panels. Native fields/search retain focus and keyboard semantics.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "historicalNativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Grouped More/settings/form rows",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      },
+      "registryUrl": "https://21st.dev/r/ssychui/preferences-card",
+      "destinationFiles": [
+        "StrandiOS/App/RootTabView.swift",
+        "Strand/Screens/SettingsView.swift",
+        "Strand/Onboarding/OnboardingWizard.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/Components.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopLiquidGlassSearchField.swift",
+        "Strand/Screens/SleepComparisonView.swift"
+      ],
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "fluencyAdaptation": "Preference rows collapse model and advanced options. One direct remark control replaces the stacked initial setup surface; existing explicit sharing disclosure retained."
+    },
+    {
+      "type": "component",
+      "id": 7716,
+      "name": "Circular Progress Card",
+      "author": "kavikatiyar",
+      "url": "https://21st.dev/@kavikatiyar/components/circular-progress-card",
+      "cache": ".21st/cache/component-7716.json",
+      "roles": [
+        "score gauges",
+        "score details"
+      ],
+      "status": "active",
+      "adaptation": "SwiftUI flat circular tracks with round caps and finite fill motion; actual score fractions, absence, units, source and confidence remain unchanged. Compatibility type names remain; no liquid simulation in these rendered views. Numeric centers show the actual target immediately so score-band words and visible values agree while the progress track fills.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "historicalNativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Secondary Effort/Rest gauges",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      },
+      "registryUrl": "https://21st.dev/r/kavikatiyar/circular-progress-card",
+      "destinationFiles": [
+        "Strand/Liquid/LiquidPrimitives.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/BevelGauge.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/GlowRing.swift",
+        "StrandiOSWidgets/NOOPWidget.swift"
+      ],
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json."
+    },
+    {
+      "type": "component",
+      "id": 34577,
+      "name": "Tactile 3D Button",
+      "author": "bidyut10",
+      "url": "https://21st.dev/@bidyut10/components/three-d-button",
+      "cache": ".21st/cache/component-34577.json",
+      "roles": [
+        "primary secondary ghost buttons"
+      ],
+      "status": "superseded",
+      "adaptation": "SwiftUI shared button face with solid fill, inner highlight, shallow compressed press shadow and minimum 44 pt touch target. All legacy primary/secondary/ghost styles use this face. Reduced Motion removes movement; existing enabled state stays intact.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "historicalNativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Native action buttons in shell, forms, empty states and onboarding",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Pending native app build and visual/interaction review; historical QA is not evidence for this revision."
+      },
+      "registryUrl": "https://21st.dev/r/bidyut10/three-d-button",
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NoopButton.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/Components.swift",
+        "Strand/App/TermsGateView.swift",
+        "Strand/Onboarding/OnboardingWizard.swift"
+      ],
+      "implementation": "Historical Obsidian source, replaced in the Cold Glass demo; source cache retained.",
+      "supersededBy": 4922
+    },
+    {
+      "type": "component",
+      "id": 25311,
+      "name": "Stats Bento",
+      "author": "uilayout.contact",
+      "url": "https://21st.dev/@uilayout.contact/components/stats-bento",
+      "cache": ".21st/cache/component-25311.json",
+      "roles": [
+        "Today hero",
+        "asymmetric dashboard hierarchy"
+      ],
+      "status": "active",
+      "adaptation": "Native compact Stats Bento hierarchy: current score and direct actions on Today; sleep duration and bed/wake times occupy the primary slot while Rest becomes a secondary instrument. Existing measured values replace demo statistics; Glass Card (28259) supplies the material.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "historicalNativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Asymmetric daily score hierarchy",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      },
+      "registryUrl": "https://21st.dev/r/uilayout.contact/stats-bento",
+      "destinationFiles": [
+        "Strand/Liquid/LiquidTodayView.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopVisualStyle.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/SceneHeroBackground.swift",
+        "Strand/Screens/SleepView.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopColdGlassMetrics.swift"
+      ],
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json."
+    },
+    {
+      "type": "component",
+      "id": 1435,
+      "name": "Empty State",
+      "author": "serafimcloud",
+      "url": "https://21st.dev/@serafimcloud/components/empty-state",
+      "cache": ".21st/cache/component-1435.json",
+      "roles": [
+        "empty and pending data states"
+      ],
+      "status": "active",
+      "adaptation": "Dashed outlined neutral surface, centered functional icon tile, title and honest data-pending copy. No invented actions or readings.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "historicalNativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Earlier empty primitive remains compiled; current notices re-rendered",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      },
+      "registryUrl": "https://21st.dev/r/serafimcloud/empty-state",
+      "destinationFiles": [
+        "Strand/Screens/ScreenScaffold.swift"
+      ],
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json."
+    },
+    {
+      "type": "component",
+      "id": 35007,
+      "name": "Switch",
+      "author": "kuratlielia",
+      "url": "https://21st.dev/@kuratlielia/components/switch",
+      "cache": ".21st/cache/component-35007.json",
+      "roles": [
+        "settings switches"
+      ],
+      "status": "active",
+      "adaptation": "Native Toggle semantics and accessibility representation; 42 x 24 track, 18 pt thumb, finite critically damped transition and short press stretch. Full labels remain native; disabled state and 44 pt hit target preserved.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "historicalNativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Appearance switches in light/dark captures",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      },
+      "registryUrl": "https://21st.dev/r/kuratlielia/switch",
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/Components.swift",
+        "StrandiOS/App/StrandiOSApp.swift"
+      ],
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json."
+    },
+    {
+      "type": "theme",
+      "id": "88cbde1f-7527-430c-b4d5-49bb3b9e621d",
+      "name": "Modern Minimal",
+      "author": "serafimcloud",
+      "url": "https://21st.dev/community/themes/modern-minimal",
+      "cache": ".21st/cache/theme-88cbde1f-7527-430c-b4d5-49bb3b9e621d.json",
+      "roles": [
+        "global color tokens"
+      ],
+      "status": "considered",
+      "adaptation": "Native SwiftUI translation; keep real content and callbacks, no React runtime or network dependencies.",
+      "evidence": {
+        "source": true,
+        "demo": null,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "nativeQA": "pending",
+        "currentColdGlassQA": "Pending native app build and visual/interaction review; historical QA is not evidence for this revision."
+      }
+    },
+    {
+      "type": "theme",
+      "id": "94e6d897-3245-4a19-b22b-00eac7e02295",
+      "name": "Amber Minimal",
+      "author": "serafimcloud",
+      "url": "https://21st.dev/community/themes/amber-minimal",
+      "cache": ".21st/cache/theme-94e6d897-3245-4a19-b22b-00eac7e02295.json",
+      "roles": [
+        "global color tokens"
+      ],
+      "status": "superseded",
+      "adaptation": "Actual light/dark theme CSS becomes native color roles. Accent foreground provides readable text on neutral surfaces; primary fills keep amber with contrast-aware ink. Native SF replaces web font files for offline Dynamic Type. Existing stored preference identifiers are kept; the former Mint display name becomes Amber.",
+      "evidence": {
+        "source": true,
+        "demo": null,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "nativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "currentColdGlassQA": "Pending native app build and visual/interaction review; historical QA is not evidence for this revision."
+      },
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NoopVisualStyle.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/Palette.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/Typography.swift"
+      ],
+      "supersededBy": "3b298f77-ef2a-4e1b-88a4-b5cca4ed5939"
+    },
+    {
+      "type": "component",
+      "id": 26923,
+      "name": "Segmented Tabs",
+      "author": "micka_design",
+      "url": "https://21st.dev/@micka_design/components/tabs-base",
+      "cache": ".21st/cache/component-26923.json",
+      "roles": [
+        "segmented controls"
+      ],
+      "status": "active",
+      "adaptation": "Matched geometry keeps the selected substrate slide. The equal-width tab dock v1 is superseded by sources 8476 and 19177 after user feedback. Native containers, tags, reselect behavior, Coach visibility and scroll minimization remain unchanged; iOS 16 keeps always-visible navigation.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "historicalNativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Workout range segments",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      },
+      "registryUrl": "https://21st.dev/r/micka_design/tabs-base",
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/Components.swift"
+      ],
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json."
+    },
+    {
+      "type": "component",
+      "id": 28213,
+      "name": "Weekly Fitness Card",
+      "author": "shadcnspace",
+      "url": "https://21st.dev/@shadcnspace/components/card-12",
+      "cache": ".21st/cache/component-28213.json",
+      "roles": [
+        "history chart styling"
+      ],
+      "status": "superseded",
+      "adaptation": "Small outlined columns from source day cells style real windowed metric history. No demo measurements or invented weekday labels are introduced.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "historicalNativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "nativeQA": "pending current Nanashi build",
+        "currentColdGlassQA": "Pending native app build and visual/interaction review; historical QA is not evidence for this revision."
+      },
+      "registryUrl": "https://21st.dev/r/shadcnspace/card-12",
+      "destinationFiles": [
+        "Strand/Liquid/LiquidTodayView.swift"
+      ],
+      "implementation": "retained unused helper; replaced by Stats Card 7841 in the rendered metric tiles"
+    },
+    {
+      "type": "component",
+      "id": 8476,
+      "name": "Floating Dock Navigation",
+      "author": "erikvalencia1",
+      "url": "https://21st.dev/@erikvalencia1/components/floating-dock-navigation",
+      "cache": ".21st/cache/component-8476.json",
+      "roles": [
+        "iPhone floating dock v2"
+      ],
+      "status": "superseded",
+      "adaptation": "Native SwiftUI capsule preserves the source floating group and 48 pt items. Amber Minimal graphite replaces the translucent web surface; a bottom scrim supports content separation without intercepting touch. Hover expansion becomes an active inline label on touch.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "historicalNativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Floating dock geometry in shell/More captures",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Pending native app build and visual/interaction review; historical QA is not evidence for this revision."
+      },
+      "destinationFiles": [
+        "StrandiOS/App/RootTabView.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopVisualStyle.swift"
+      ],
+      "implementation": "Historical Obsidian source, replaced in the Cold Glass demo; source cache retained.",
+      "supersededBy": 7878
+    },
+    {
+      "type": "component",
+      "id": 19177,
+      "name": "Dock Nav",
+      "author": "soralabs",
+      "url": "https://21st.dev/@soralabs/components/dock-nav",
+      "cache": ".21st/cache/component-19177.json",
+      "roles": [
+        "icon-led navigation structure"
+      ],
+      "status": "active",
+      "adaptation": "Retained icon-led destination structure; the new glass rail and selection come from Pill Morph Tabs (7878). Destination labels remain visible; no hover magnification is required on touchscreens.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "unavailable: CDN403 / catalog render error",
+        "historicalNativeQA": "Targeted native visual review in iOS 27 Simulator at 375 x 812 / 375 x 667, light and dark. See .21st/design.json for interaction scope and compile-only widget limits.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Selected inline label and large-text icons fallback in shell/More captures",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      },
+      "destinationFiles": [
+        "StrandiOS/App/RootTabView.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopVisualStyle.swift"
+      ],
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json."
+    },
+    {
+      "type": "component",
+      "id": 26854,
+      "name": "Orbit Sweep gradient",
+      "author": "shixuanaa11",
+      "url": "https://21st.dev/@shixuanaa11/components/orbit-sweep-gradient",
+      "cache": ".21st/cache/component-26854.json",
+      "roles": [
+        "conic primary panel"
+      ],
+      "destinationFiles": [
+        "Strand/Liquid/NanashiDashboardVisuals.swift"
+      ],
+      "status": "superseded",
+      "implementation": "Historical Obsidian source, replaced in the Cold Glass demo; source cache retained.",
+      "adaptation": "Static angular gradient keeps source159degreeorigin and46/55center; color stops map to retrieved Obsidian surface roles; no shader.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "Inspected rendered catalog composition on2026-10-14.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Primary panel angular gradient in shell captures",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Pending native app build and visual/interaction review; historical QA is not evidence for this revision."
+      },
+      "supersededBy": 28259
+    },
+    {
+      "type": "component",
+      "id": 29885,
+      "name": "Focus Frame Border",
+      "author": "shadcnspace",
+      "url": "https://21st.dev/@shadcnspace/components/shine-border-06",
+      "cache": ".21st/cache/component-29885.json",
+      "roles": [
+        "primary score focus corners"
+      ],
+      "destinationFiles": [
+        "Strand/Liquid/NanashiDashboardVisuals.swift"
+      ],
+      "status": "superseded",
+      "implementation": "Historical Obsidian source, replaced in the Cold Glass demo; source cache retained.",
+      "adaptation": "Four separate rounded brackets; pulsing/glow is replaced by a steady native pose for health readability.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Primary panel focus corners in shell captures",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Pending native app build and visual/interaction review; historical QA is not evidence for this revision."
+      },
+      "supersededBy": 28259
+    },
+    {
+      "type": "component",
+      "id": 28963,
+      "name": "Radial Chart",
+      "author": "arihantcodes_1f7b8c4d",
+      "url": "https://21st.dev/@arihantcodes_1f7b8c4d/components/radial-chart",
+      "cache": ".21st/cache/component-28963.json",
+      "roles": [
+        "concentric Charge Effort Rest tracks"
+      ],
+      "destinationFiles": [
+        "Strand/Liquid/NanashiDashboardVisuals.swift",
+        "Strand/Screens/SleepView.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopCompactMetricRing.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "SwiftUI concentric round-capped tracks preserve fullcircle geometry; the existing resolved metric fractions replace browser shares. No Recharts or hover engine.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Concentric metric tracks in shell captures",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      }
+    },
+    {
+      "type": "component",
+      "id": 7841,
+      "name": "Stats Card",
+      "author": "kavikatiyar",
+      "url": "https://21st.dev/@kavikatiyar/components/stats-card-1",
+      "cache": ".21st/cache/component-7841.json",
+      "roles": [
+        "detailed metric tiles and bars",
+        "paired recorded-night metric comparison"
+      ],
+      "destinationFiles": [
+        "Strand/Liquid/LiquidTodayView.swift",
+        "Strand/Liquid/NanashiDashboardVisuals.swift",
+        "Strand/Screens/SleepComparisonView.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Compact metric heading/detail affordance, immediate value and mini chart emphasize the last real bar. No count-up numbers or invented samples.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "source_and_compile_review",
+          "scope": "Compiled and source-reviewed; detailed below-fold or interacted state was not natively captured in this turn",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      }
+    },
+    {
+      "type": "component",
+      "id": 8617,
+      "name": "Health Stat Card",
+      "author": "ruixen.ui",
+      "url": "https://21st.dev/@ruixen.ui/components/health-stat-card",
+      "cache": ".21st/cache/component-8617.json",
+      "roles": [
+        "three recovery vital columns"
+      ],
+      "destinationFiles": [
+        "Strand/Liquid/LiquidTodayView.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Stat grid with native detail links, true units and the same per-field carry; large text stacks columns. Omit comparative demo percentages and 3D hover.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "source_and_compile_review",
+          "scope": "Compiled and source-reviewed; detailed below-fold or interacted state was not natively captured in this turn",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 1375,
+      "name": "Activity Card",
+      "author": "kokonutd",
+      "url": "https://21st.dev/@kokonutd/components/activity-card",
+      "cache": ".21st/cache/component-1375.json",
+      "roles": [
+        "latest activity card",
+        "Day direct-action row"
+      ],
+      "destinationFiles": [
+        "Strand/Liquid/LiquidTodayView.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Icon header and three ring readouts show real duration, heart rate and Effort. Only Effort has an existing normalized target; other rings are outlines. Distance/energy preserved in conditional footer; demo goals omitted.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "source_and_compile_review",
+          "scope": "Compiled and source-reviewed; detailed below-fold or interacted state was not natively captured in this turn",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      }
+    },
+    {
+      "type": "component",
+      "id": 18010,
+      "name": "Orbit Rotation",
+      "author": "karthikmudunuri",
+      "url": "https://21st.dev/@karthikmudunuri/components/orbit-rotation",
+      "cache": ".21st/cache/component-18010.json",
+      "roles": [
+        "Nanashi native identity",
+        "iOS primary and Navy alternate icon geometry"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/BrandMark.swift",
+        ".21st/render-icon.swift",
+        "StrandiOS/Resources/Assets.xcassets/AppIcon.appiconset/icon_1024.png",
+        "StrandiOS/Resources/Assets.xcassets/AppIcon-Navy.appiconset/icon_1024.png",
+        "StrandiOS/Resources/AltIcons/NavyTitanium@2x.png",
+        "StrandiOS/Resources/AltIcons/NavyTitanium@3x.png"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Orbit Rotation composition reduced to one static open arc around the existing product N. The N is enlarged and thickened; dotted rings, orbiting symbols and small satellites are removed. Cold illumination uses Harbor Blue roles. The CoreGraphics exporter parses the native NanashiIdentity constants so both use the same vector proportions; no vendor logo is copied.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Welcome orbits and exported icon",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime.",
+        "iconPreview": "build/nanashi-coldglass/icon-primary-48.png"
+      }
+    },
+    {
+      "type": "component",
+      "id": 19169,
+      "name": "Orbital Letters",
+      "author": "arihantcodes_1f7b8c4d",
+      "url": "https://21st.dev/@arihantcodes_1f7b8c4d/components/orbital-letters",
+      "cache": ".21st/cache/component-19169.json",
+      "roles": [
+        "Nanashi wordmark"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NanashiIdentityViews.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Finite native spring settles each letter. The catalog OrbitalChar helper was not included in MCP dependencies; SwiftUI replaces its DOM motion engine, with immediate complete reduced-motion text.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Wordmark in shell/welcome captures; settled pose only",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 19143,
+      "name": "Onboarding Stepper Progress",
+      "author": "shadcnspace",
+      "url": "https://21st.dev/@shadcnspace/components/progress-02",
+      "cache": ".21st/cache/component-19143.json",
+      "roles": [
+        "onboarding step progress"
+      ],
+      "destinationFiles": [
+        "Strand/Onboarding/OnboardingWizard.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Existing12step journey drives real current/total and thin capsuleprogress. Zero initial progress and gated finite native movement; no demo4step workflow.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "Inspected rendered catalog composition on2026-10-14.",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Initial onboarding progress; subsequent transitions source-reviewed",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 29486,
+      "name": "Onboarding Timeline",
+      "author": "ephraimduncan",
+      "url": "https://21st.dev/@ephraimduncan/components/onboarding-06",
+      "cache": ".21st/cache/component-29486.json",
+      "roles": [
+        "onboarding promises timeline"
+      ],
+      "destinationFiles": [
+        "Strand/Onboarding/OnboardingWizard.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Connected verticalspine/iconnodes with readable explanations; product promises replace deployment tasks, without fictitious completion states.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "source_and_compile_review",
+          "scope": "Compiled and source-reviewed; detailed below-fold or interacted state was not natively captured in this turn",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 23565,
+      "name": "Floating Label",
+      "author": "ddoemonn",
+      "url": "https://21st.dev/@ddoemonn/components/floating-label",
+      "cache": ".21st/cache/component-23565.json",
+      "roles": [
+        "focused workout and marker fields"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NanashiControls.swift",
+        "Strand/Screens/ManualWorkoutSheet.swift",
+        "Strand/Screens/MarkerEditorView.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Reserved label slot, focus/filled transitions, hint and invalidstate wrap actual nativefields/bindings/keyboard/validation.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Unfocused empty workout fields, unit labels and pinned footer; focus/keyboard states source-reviewed",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 35040,
+      "name": "Slider",
+      "author": "kuratlielia",
+      "url": "https://21st.dev/@kuratlielia/components/slider",
+      "cache": ".21st/cache/component-35040.json",
+      "roles": [
+        "appearance and coefficient sliders"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NanashiControls.swift",
+        "Strand/Screens/SettingsView.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Thin track, white thumb, value bubble and marks adapt source CSS. NativeSlider owns focus/keyboard/gesture and original commit callbacks. UpstreamCSS +MITnoticecached.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "source_and_compile_review",
+          "scope": "Compiled and source-reviewed; detailed below-fold or interacted state was not natively captured in this turn",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 17933,
+      "name": "Reshaped Radio",
+      "author": "reshaped",
+      "url": "https://21st.dev/@reshaped/components/reshaped-radio",
+      "cache": ".21st/cache/component-17933.json",
+      "roles": [
+        "exclusive appearance and unit choices"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NanashiControls.swift",
+        "Strand/Screens/SettingsView.swift",
+        "Strand/Onboarding/OnboardingWizard.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Native exclusive bindings retain realchoices; visible circle/dot and accessible selectedstate. Large text uses stacked choices.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Appearance preset radios in light/dark captures",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 19366,
+      "name": "Notice Alert",
+      "author": "corr",
+      "url": "https://21st.dev/@corr/components/notice-alert",
+      "cache": ".21st/cache/component-19366.json",
+      "roles": [
+        "truthful loaded-empty notices"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NanashiControls.swift",
+        "Strand/Screens/WorkoutsView.swift",
+        "Strand/Screens/TrendsView.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Icon/title/message with tinted outline; loaded-empty and loading states now have distinct honest copy, retaining import/add routes.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Completed-empty workout/history notices on a fresh unseeded simulator",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 19146,
+      "name": "Sync Status Toast",
+      "author": "shadcnspace",
+      "url": "https://21st.dev/@shadcnspace/components/sonner-05",
+      "cache": ".21st/cache/component-19146.json",
+      "roles": [
+        "source connection and sync card"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NanashiControls.swift",
+        "Strand/Liquid/LiquidTodayView.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Actual LiveState connection/backfilling replaces Git repository status. Existing battery and sync rows retained; no fabricated total progress or timestamps. Whole-card navigation replaces two demo actions.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "Catalog initial trigger button inspected; toast interior assessed from actual source code.",
+        "nativeQA": {
+          "status": "source_and_compile_review",
+          "scope": "Compiled and source-reviewed; detailed below-fold or interacted state was not natively captured in this turn",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 31360,
+      "name": "Drawer",
+      "author": "wensity",
+      "url": "https://21st.dev/@wensity/components/drawer",
+      "cache": ".21st/cache/component-31360.json",
+      "roles": [
+        "native mobile sheet presentation",
+        "full-width native date-selection sheet"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NanashiControls.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopVisualStyle.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopDayPicker.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Bottom sheet handle/corner/backdrop use native presentation and dismiss gestures, preserving existing sheets. APIs newer than16 are guarded. The day picker now uses this native drawer treatment on iOS, with an explicit viewport-width graphical calendar, scrollable content and Cancel action. Desktop keeps a sized popover. This removes a forced compact popover that collapsed the calendar width; native date/offset semantics and platform calendar controls are retained.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Workout form native handle/spacing; actual sheet gestures/presentation source-reviewed",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision.",
+        "calendarRevision": {
+          "status": "implemented; simulator build, viewport review and date-selection interaction passed",
+          "source": "Existing retrieved component and demo read on 2026-10-27",
+          "scope": "LiquidTodayView and shared DayNavBar; selection commits through existing logical-day binding, cancellation only dismisses.",
+          "visualEvidence": "build/nanashi-interaction/captures/calendar-iphone13.png and calendar-small-light-large.png: seven readable columns on the dark iPhone 13 simulator and 375x667 light simulator with large text; Cancel retained the selected day.",
+          "interactionEvidence": "After restoring the simulator input relay, selecting 24 October dismissed the sheet and displayed Saturday 24 October. Capture: build/nanashi-interaction/captures/calendar-selection-final.png.",
+          "buildEvidence": "build/nanashi-interaction/ios-sim-keyboard-final.log passed; TodayDayNavClampTests passed within the 99-test macOS run in mac-tests-delivery.log.",
+          "limits": "Calendar interaction evidence is from the simulator; no physical-device calendar review is claimed. Final physical Release build passed; SideStore import is open and installation confirmation remains pending."
+        }
+      }
+    },
+    {
+      "type": "component",
+      "id": 35717,
+      "name": "Expandable Card",
+      "author": "kuratlielia",
+      "url": "https://21st.dev/@kuratlielia/components/expandable-card",
+      "cache": ".21st/cache/component-35717.json",
+      "roles": [
+        "expandable advanced settings"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NanashiControls.swift",
+        "Strand/Screens/SettingsView.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Capsuleheader/subtitle/chevron expands to details. Preserve AppStorage state and original controls. SourceCSS retrieved upstream, finite native animation and spoken expanded/collapsed.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "source_and_compile_review",
+          "scope": "Compiled and source-reviewed; detailed below-fold or interacted state was not natively captured in this turn",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 27378,
+      "name": "Command Menu with Global Search",
+      "author": "ephraimduncan",
+      "url": "https://21st.dev/@ephraimduncan/components/command-menu-04",
+      "cache": ".21st/cache/component-27378.json",
+      "roles": [
+        "local search across27More routes"
+      ],
+      "destinationFiles": [
+        "StrandiOS/App/RootTabView.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Search/filterpills/grouped results and highlighting adapt the command dialog into an embedded nativeindex. No fabricated recents, no stored-section changes.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "More search field, category chips and grouped results; query helpers tested",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      }
+    },
+    {
+      "type": "component",
+      "id": 23173,
+      "name": "Command Menu",
+      "author": "serafimcloud",
+      "url": "https://21st.dev/@serafimcloud/components/command-menu",
+      "cache": ".21st/cache/component-23173.json",
+      "roles": [
+        "expandable quick-actions pill"
+      ],
+      "destinationFiles": [
+        "StrandiOS/App/RootTabView.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Tap opens pill into actual2x2 actiongrid, keyboardshortcut and selectedsubstrate. Real existing actions replace personal site sections; no rotatingfake status.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "targeted_viewport_review",
+          "scope": "Collapsed quick-actions pill; expanded actions source-reviewed",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "component",
+      "id": 30542,
+      "name": "Heat Calendar",
+      "author": "ssychui",
+      "url": "https://21st.dev/@ssychui/components/heat-calendar",
+      "cache": ".21st/cache/component-30542.json",
+      "roles": [
+        "pinned mobile calendar week"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/YearHeatStrip.swift"
+      ],
+      "status": "active",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "adaptation": "Week-column pin/unpin, faint plate and persistent exact day readout. Keep actual dates/missing data and semantic recoverycolors; never sum recovery scores as transaction counts.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "inspected public catalog composition",
+        "nativeQA": {
+          "status": "source_and_compile_review",
+          "scope": "Compiled and source-reviewed; detailed below-fold or interacted state was not natively captured in this turn",
+          "gallery": "build/nanashi-qa/index.html",
+          "limitations": "See .21st/design.json for exact native interaction and runtime limits."
+        },
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      }
+    },
+    {
+      "type": "theme",
+      "id": "3b298f77-ef2a-4e1b-88a4-b5cca4ed5939",
+      "name": "Violet Bloom",
+      "author": "serafimcloud",
+      "url": "https://21st.dev/community/themes/violet-bloom",
+      "cache": ".21st/cache/theme-3b298f77-ef2a-4e1b-88a4-b5cca4ed5939.json",
+      "status": "superseded",
+      "roles": [
+        "light/dark surface and primary roles"
+      ],
+      "adaptation": "Violet Bloom was implemented and then rejected by the user for its colors.",
+      "evidence": {
+        "sourceCss": true,
+        "retrievedAt": "2026-10-14",
+        "catalogPreview": "Live Violet Bloom dashboard, tokens and type preview inspected on2026-10-14.",
+        "currentColdGlassQA": "Pending native app build and visual/interaction review; historical QA is not evidence for this revision."
+      },
+      "supersededBy": "2df6613a-a2d6-4271-81d3-c3086d3807d2"
+    },
+    {
+      "type": "theme",
+      "id": "2df6613a-a2d6-4271-81d3-c3086d3807d2",
+      "name": "Graphite Mono",
+      "author": "serafimcloud",
+      "url": "https://21st.dev/@serafimcloud/themes/graphite-mono",
+      "cache": ".21st/cache/theme-2df6613a-a2d6-4271-81d3-c3086d3807d2.json",
+      "status": "superseded",
+      "roles": [
+        "obsidian/off-white/silver visual system"
+      ],
+      "adaptation": "Exact achromatic OKLCH-to-sRGB source roles; fixed inverted selection pair for dock/mark; retain native geometry/type and semantic health indicators.",
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NoopVisualStyle.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/Appearance.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/Palette.swift"
+      ],
+      "evidence": {
+        "source": true,
+        "catalogPreview": "Light and dark public catalog preview inspected 2026-10-14.",
+        "nativeQA": "14 actual Obsidian viewport captures reviewed; see .21st/design.json for scope.",
+        "currentColdGlassQA": "Pending native app build and visual/interaction review; historical QA is not evidence for this revision."
+      },
+      "implementation": "Historical Obsidian source, replaced in the Cold Glass demo; source cache retained.",
+      "supersededBy": "c6cd78bb-c040-494f-a826-daebf3d48870"
+    },
+    {
+      "type": "component",
+      "id": 28259,
+      "name": "Glass Card",
+      "author": "educalvolpz",
+      "url": "https://21st.dev/@educalvolpz/components/glass-card",
+      "cache": ".21st/cache/component-28259.json",
+      "status": "active",
+      "roles": [
+        "shared card material",
+        "hero and dock substrates",
+        "static screen illumination"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NoopVisualStyle.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/SceneHeroBackground.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/StrandCard.swift",
+        "Strand/Screens/SleepView.swift"
+      ],
+      "adaptation": "Native SwiftUI material replaces web SVG displacement. The frosted face, opposing directional highlights, polished inset edge and drop shadow are retained. The demo gradient is recolored with Harbor Blue and made static. No physical spatial refraction or pointer-tracked specular is claimed.",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "license": {
+        "status": "No explicit license notice present in retrieved component source; no license invented. Existing source/author attribution retained."
+      },
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "Catalog-rendered preview inspected by root on 2026-10-26.",
+        "nativeQA": {
+          "status": "representative_simulator_review",
+          "decisionRecord": ".21st/design.json",
+          "limits": "Synthetic data; no physical-device installation. See validation.runtime for exact exercised paths."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      }
+    },
+    {
+      "type": "component",
+      "id": 4922,
+      "name": "Glass Button",
+      "author": "jahed",
+      "url": "https://21st.dev/@jahed/components/glass-button",
+      "cache": ".21st/cache/component-4922.json",
+      "status": "active",
+      "roles": [
+        "primary and secondary buttons",
+        "search and form field material",
+        "choice and segmented-control glass surface"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NoopButton.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopVisualStyle.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopLiquidGlassSearchField.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NanashiControls.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/Components.swift"
+      ],
+      "adaptation": "Native adaptation retains pill silhouette, diagonal reflected band, opposing rim highlights and finite press feedback. Existing field and choice semantics remain native; no CSS/WebView runtime or pointer hover requirement.",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "license": {
+        "status": "No explicit license notice present in retrieved component source; no license invented. Existing source/author attribution retained."
+      },
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "Actual component and demo inspected; selected from source. Native visual verification pending.",
+        "nativeQA": {
+          "status": "representative_simulator_review",
+          "decisionRecord": ".21st/design.json",
+          "limits": "Synthetic data; no physical-device installation. See validation.runtime for exact exercised paths."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      }
+    },
+    {
+      "type": "component",
+      "id": 7878,
+      "name": "Pill Morph Tabs",
+      "author": "ruixen.ui",
+      "url": "https://21st.dev/@ruixen.ui/components/pill-morph-tabs",
+      "cache": ".21st/cache/component-7878.json",
+      "status": "active",
+      "roles": [
+        "iPhone dock selection and glass rail",
+        "Activity section switcher"
+      ],
+      "destinationFiles": [
+        "StrandiOS/App/RootTabView.swift",
+        "StrandiOS/App/NanashiActivityView.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/NoopColdGlassMetrics.swift"
+      ],
+      "adaptation": "Native matched selection and finite spring adapt the source morphing pill. Touch navigation uses stable destination bounds and persistent labels, rather than desktop hover behavior. Existing route identifiers remain the product contract.",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "license": {
+        "status": "No explicit license notice present in retrieved component source; no license invented. Existing source/author attribution retained."
+      },
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "Catalog-rendered preview inspected by root on 2026-10-27.",
+        "nativeQA": {
+          "status": "representative_simulator_review",
+          "decisionRecord": ".21st/design.json",
+          "limits": "Synthetic data; no physical-device installation. See validation.runtime for exact exercised paths."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      },
+      "fluencyAdaptation": "Single persistent native dock outside tab roots; only selection plate animates. Whole-page animation and competing press scaling removed to keep interaction cost local."
+    },
+    {
+      "type": "component",
+      "id": 38323,
+      "name": "Assistant Composer",
+      "author": "konsstepnov",
+      "url": "https://21st.dev/@konsstepnov/components/assistant-composer",
+      "cache": ".21st/cache/component-38323.json",
+      "status": "active",
+      "roles": [
+        "Coach growing message field",
+        "Coach send/stop controls and conversation layout"
+      ],
+      "destinationFiles": [
+        "Strand/Screens/CoachView.swift"
+      ],
+      "adaptation": "Native SwiftUI growing text input, bottom action row and send/stop state adapt the source. Product-specific speech and retry controls remain connected to the existing Coach; no demo API or AI SDK runtime is embedded.",
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json.",
+      "license": {
+        "status": "No explicit license notice present in retrieved component source; no license invented. Existing source/author attribution retained."
+      },
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "Catalog preview and actual component/demo inspected by Coach implementation agent on 2026-10-27.",
+        "nativeQA": {
+          "status": "representative_simulator_review",
+          "decisionRecord": ".21st/design.json",
+          "limits": "Synthetic data; no physical-device installation. See validation.runtime for exact exercised paths."
+        },
+        "currentColdGlassQA": "Native app compiled; relevant core screen/interaction or identity reviewed. Exact simulator cases and limits: .21st/design.json validation.runtime."
+      },
+      "interaction445": "Native compact floating adaptation: one-row input, microphone and send/stop; expands to four lines; measured transcript clearance, no opaque full-width footer."
+    },
+    {
+      "type": "theme",
+      "id": "c6cd78bb-c040-494f-a826-daebf3d48870",
+      "name": "Harbor Blue",
+      "author": "serafimcloud",
+      "url": "https://21st.dev/community/themes/harbor-blue",
+      "cache": ".21st/cache/theme-harbor-blue.json",
+      "status": "active",
+      "roles": [
+        "light and dark chrome",
+        "surface and text roles",
+        "cold glass highlights"
+      ],
+      "destinationFiles": [
+        "Packages/StrandDesign/Sources/StrandDesign/NoopVisualStyle.swift",
+        "Packages/StrandDesign/Sources/StrandDesign/Palette.swift"
+      ],
+      "adaptation": "Exact source hex roles. Light background uses the source muted #F1F5F9, dark chrome accent uses chart-5 #BFDBFE for readable selection, paired with source background #0F172A. Semantic physiological colors and custom accent preferences are preserved. Native SF typography replaces Inter for Dynamic Type.",
+      "evidence": {
+        "sourceCSS": true,
+        "nativeQA": "Pending current app verification",
+        "currentColdGlassQA": "Shared-material compile coverage; prior source adaptation retained. No claim that every retained flow was rerun in this revision."
+      },
+      "implementation": "Native SwiftUI source adaptation; current build and limited simulator evidence in .21st/design.json."
+    },
+    {
+      "type": "component",
+      "id": 3206,
+      "name": "Liquid Glass Card",
+      "author": "designali-in",
+      "url": "https://21st.dev/@designali-in/components/liquid-glass-card",
+      "cache": ".21st/cache/component-3206.json",
+      "status": "considered",
+      "roles": [],
+      "decision": "Preview inspected; warmer subscription-card composition not selected.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "nativeQA": "Not applicable: candidate not integrated."
+      }
+    },
+    {
+      "type": "component",
+      "id": 40333,
+      "name": "Liquid Glass",
+      "author": "manuarora700",
+      "url": "https://21st.dev/@manuarora700/components/liquid-glass",
+      "cache": ".21st/cache/component-40333.json",
+      "status": "considered",
+      "roles": [],
+      "decision": "Source and demo inspected; SVG displacement is not embedded in the native app.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "nativeQA": "Not applicable: candidate not integrated."
+      }
+    },
+    {
+      "type": "component",
+      "id": 4567,
+      "name": "Liquid Weather glass",
+      "author": "uilayout.contact",
+      "url": "https://21st.dev/@uilayout.contact/components/liquid-weather-glass",
+      "cache": ".21st/cache/component-4567.json",
+      "status": "considered",
+      "roles": [],
+      "decision": "Preview/source inspected; data-density comparison only, no weather UI or external image embedded.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "nativeQA": "Not applicable: candidate not integrated."
+      }
+    },
+    {
+      "type": "component",
+      "id": 23625,
+      "name": "Announcement Banner",
+      "author": "cnippet-dev",
+      "url": "https://21st.dev/@cnippet-dev/components/announcement-banner",
+      "cache": ".21st/cache/component-23625.json",
+      "roles": [
+        "inline Nanashi observations",
+        "dismissible foreground coaching"
+      ],
+      "status": "active",
+      "adaptation": "Native SwiftUI adaptation of the retrieved icon/title/description/dismissal structure. Uses the shared Cold Glass panel and typography; no fixed corner overlay. Provider output, explicit opt-in, timestamps and local demo labels replace promotional content.",
+      "evidence": {
+        "source": true,
+        "demo": true,
+        "catalogPreview": "Retrieved and inspected successfully; build/nanashi-coldglass/announcement-reference.png",
+        "nativeQA": "Reviewed in the iPhone 13 simulator on Activity, Trends, Explorer, Sleep and Settings; dismissal and ephemeral opt-in exercised. Local labelled fixtures only; no real-provider output validated. See docs/NANASHI_PRESENCE.md."
+      },
+      "destinationFiles": [
+        "Strand/Screens/NanashiPresenceView.swift"
+      ],
+      "implementation": "Native SwiftUI source adaptation, no web runtime.",
+      "interaction445": "Preserve dismissible inline announcement with contextual CTA; native action prepares a follow-up in Coach without submitting it. Dated cached analyses remain labelled after new readings."
+    }
+  ],
+  "brandAssets": {
+    "identity": "Existing product N enlarged and simplified to one open arc, adapted from Orbit Rotation (18010). No dotted or satellite decorations. Harbor Blue cold light; functional SF Symbols remain platform assets.",
+    "exporter": ".21st/render-icon.swift",
+    "geometrySource": "Packages/StrandDesign/Sources/StrandDesign/BrandMark.swift — NanashiIdentity constants parsed by exporter",
+    "scope": "Native shared mark and iOS primary/Navy alternate icons only. No macOS/watch PNG or app identity changes.",
+    "verification": "Primary icon inspected at 1024 and 48px; alternate brightness-only variant rendered from the same geometry."
+  },
+  "verification": {
+    "decisionRecord": ".21st/design.json",
+    "currentScope": "Cold Glass simulator demo only. No iPhone installation or approval claimed.",
+    "currentStatus": "Implemented and simulator-reviewed; final build/test evidence recorded in .21st/design.json. User visual review pending.",
+    "historicalObsidianEvidence": ".21st/history/obsidian-before-coldglass-2026-10-26.json",
+    "components": {
+      "totalActive": 29,
+      "newThisRevision": 4,
+      "themesExcluded": true,
+      "interpretation": "Provenance count, not a claim that every native system control is copied from a catalog."
+    }
+  }
+}

@@ -1,6 +1,9 @@
 import SwiftUI
 import Foundation
 import StrandDesign
+#if os(iOS)
+import UIKit
+#endif
 
 /// Silent haptic HIIT interval timer.
 ///
@@ -122,14 +125,7 @@ struct IntervalTimerView: View {
         #if os(iOS)
         // iPhone haptics: one modifier emits a different feel per cue, re-firing on every
         // token bump. Fires regardless of strap bond so the timer is fully usable unstrapped.
-        .sensoryFeedback(trigger: hapticTick) { _, _ in
-            switch lastHaptic {
-            case .work: return .impact(weight: .heavy)      // strong cue into WORK
-            case .rest: return .impact(weight: .light)      // soft cue into REST
-            case .tick: return .selection                   // 3-2-1 countdown tick
-            case .done: return .success                     // session complete
-            }
-        }
+        .modifier(IntervalHapticFeedback(trigger: hapticTick, cue: lastHaptic))
         #endif
     }
 
@@ -479,6 +475,34 @@ struct IntervalTimerView: View {
     }
 
     #if os(iOS)
+    private struct IntervalHapticFeedback: ViewModifier {
+        let trigger: Int
+        let cue: HapticCue
+
+        @ViewBuilder
+        func body(content: Content) -> some View {
+            if #available(iOS 17.0, *) {
+                content.sensoryFeedback(trigger: trigger) { _, _ in
+                    switch cue {
+                    case .work: return .impact(weight: .heavy)
+                    case .rest: return .impact(weight: .light)
+                    case .tick: return .selection
+                    case .done: return .success
+                    }
+                }
+            } else {
+                content.onChangeCompat(of: trigger) { _ in
+                    switch cue {
+                    case .work: UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                    case .rest: UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    case .tick: UISelectionFeedbackGenerator().selectionChanged()
+                    case .done: UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    }
+                }
+            }
+        }
+    }
+
     /// Fire an iPhone haptic cue. Additive to `buzz` and unguarded by bond state, so the
     /// timer gives tactile feedback even with no strap. Bumping the token re-triggers
     /// `.sensoryFeedback` even when the same cue repeats.

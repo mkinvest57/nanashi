@@ -35,7 +35,7 @@ struct WhatsNewView: View {
             // #697/#horizontal-swipe parity: every other screen (ScreenScaffold, Liquid Today) already
             // stops a vertical scroll from drifting/bouncing the screen left-right. This sheet runs its
             // own ScrollView and had never gotten the fix.
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
             Divider().overlay(StrandPalette.hairline)
             footer
@@ -86,7 +86,7 @@ struct WhatsNewView: View {
                 ForEach(AppChangelog.expectations) { e in
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: e.icon)
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                             .frame(width: 22)
                             .padding(.top, 2)
                         VStack(alignment: .leading, spacing: 3) {

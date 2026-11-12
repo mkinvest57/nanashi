@@ -123,7 +123,7 @@ struct SmartAlarmView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(countdown)
                                 .font(StrandFont.number(22))
-                                .foregroundStyle(StrandPalette.accent)
+                                .foregroundStyle(StrandPalette.accentInk)
                                 .fixedSize(horizontal: false, vertical: true)
                             // The absolute companion, the way a phone's clock app pairs them: the
                             // countdown is the glance, the stamp is what you check when it matters. It
@@ -218,7 +218,7 @@ struct SmartAlarmView: View {
                     Text("Morning").strandOverline()
                     HStack(spacing: 10) {
                         Image(systemName: "alarm.fill")
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                             .accessibilityHidden(true)
                         Text("Strap wake-alarm")
                             .font(StrandFont.title2)
@@ -238,7 +238,7 @@ struct SmartAlarmView: View {
                     }
                     Spacer()
                     Toggle("", isOn: $behavior.smartAlarmEnabled)
-                        .labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+                        .labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                         .accessibilityLabel("Wake me with a strap buzz")
                 }
                 .frame(minHeight: 42)
@@ -354,7 +354,7 @@ struct SmartAlarmView: View {
                     }
                     Spacer()
                     Toggle("", isOn: $windDownOn)
-                        .labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+                        .labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                         .accessibilityLabel("Remind me to wind down")
                         .onChangeCompat(of: windDownOn) { on in
                             WindDownNudge.setEnabled(on) { outcome in
@@ -433,7 +433,7 @@ struct SmartAlarmView: View {
             }
             Spacer()
             Toggle("", isOn: $perDayOn)
-                .labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+                .labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                 .accessibilityLabel("Different wake time per day")
                 .onChangeCompat(of: perDayOn) { on in
                     // Turning the section OFF clears every override (so the nudge reverts to the single time);

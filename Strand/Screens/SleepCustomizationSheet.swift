@@ -23,12 +23,8 @@ struct SleepCustomizationSheet: View {
         _sectionOrderRaw = sectionOrderRaw
         _hiddenSectionsRaw = hiddenSectionsRaw
 
-        let fullOrder = SleepLayoutPrefs.decodeOrder(sectionOrderRaw.wrappedValue)
-        let hiddenSet = Set(SleepLayoutPrefs.decodeHidden(hiddenSectionsRaw.wrappedValue))
-        let d = EditableLayoutDraft(
-            visible: fullOrder.filter { !hiddenSet.contains($0) },
-            hidden: fullOrder.filter { hiddenSet.contains($0) }
-        )
+        let d = SleepHistoryPresentation.layoutDraft(orderRaw: sectionOrderRaw.wrappedValue,
+                                                    hiddenRaw: hiddenSectionsRaw.wrappedValue)
         initialDraft = d
         _draft = State(initialValue: d)
     }
@@ -46,10 +42,7 @@ struct SleepCustomizationSheet: View {
                 configurationLabel: { _ in nil },
                 onConfigure: { _ in },
                 onReset: {
-                    draft = EditableLayoutDraft(
-                        visible: SleepSection.defaultOrder,
-                        allItems: SleepSection.defaultOrder
-                    )
+                    draft = SleepHistoryPresentation.layoutDraft(orderRaw: "", hiddenRaw: "")
                 }
             ) {
                 EmptyView()

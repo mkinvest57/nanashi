@@ -80,7 +80,7 @@ struct WorkoutSelectionScreen: View {
             }
             #if os(iOS)
             // #697/#horizontal-swipe parity, see ScreenScaffold.
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
             .scrollDismissesKeyboard(.interactively)
             .background {
@@ -355,9 +355,16 @@ private extension View {
                 .buttonStyle(LiquidPressStyle())
                 .background {
                     if capsule {
-                        Capsule().fill(.ultraThinMaterial)
+                        Capsule().fill(StrandPalette.surfaceRaised)
                     } else {
-                        Circle().fill(.ultraThinMaterial)
+                        Circle().fill(StrandPalette.surfaceRaised)
+                    }
+                }
+                .overlay {
+                    if capsule {
+                        Capsule().strokeBorder(StrandPalette.hairline, lineWidth: NoopMetrics.lineWidth)
+                    } else {
+                        Circle().strokeBorder(StrandPalette.hairline, lineWidth: NoopMetrics.lineWidth)
                     }
                 }
         }

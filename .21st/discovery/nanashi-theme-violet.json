@@ -1,0 +1,112 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [theme] Violet Bloom  [id: 3b298f77-ef2a-4e1b-88a4-b5cca4ed5939]\nby serafimcloud\n→ open: https://21st.dev/community/themes/violet-bloom\n\n### [theme] Violet Dusk  [id: 4fb4410f-4c8a-47c4-a51f-aaf61d8845fa]\nby serafimcloud\n→ open: https://21st.dev/community/themes/violet-dusk\n\n### [theme] Violet Disco  [id: 15e68a81-16ed-4ea8-9562-943ecfd15457]\nby serafimcloud\n→ open: https://21st.dev/community/themes/violet-disco\n\n### [theme] Violet Dusk Linen  [id: f43e4808-e17a-48e6-9abb-493a26e48608]\nby serafimcloud\n→ open: https://21st.dev/community/themes/violet-dusk-linen\n\n### [theme] Violet Pulse  [id: 0d018910-d7af-405b-9f65-4d0db2609218]\nby serafimcloud\n→ open: https://21st.dev/community/themes/violet-pulse\n\n### [theme] Catppuccin Violet  [id: 63f65cfd-4a02-41b0-bbc1-3e47abace81b]\nby serafimcloud\n→ open: https://21st.dev/community/themes/catppuccin-violet\n\n### [theme] Violet Loft  [id: a15a2103-c890-4628-a2e2-b19759570369]\nby serafimcloud\n→ open: https://21st.dev/community/themes/violet-loft\n\n### [theme] Violet Halo  [id: 435100ee-0e77-424f-8010-4b0fb4ba0334]\nby serafimcloud\n→ open: https://21st.dev/community/themes/violet-halo\n\n### [theme] Violet Bloom remix  [id: d4e39d66-e009-44cb-9bb0-b0302987fc88]\nby pjy464297\n→ open: https://21st.dev/community/themes/violet-bloom-remix-1784103853858\n\n### [theme] Violet Dusk remix  [id: 6b327876-ffbb-4675-9fb1-cc2a4c98d958]\nby operdrix\n→ open: https://21st.dev/community/themes/violet-dusk-remix-1783977689866"
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "theme",
+        "id": "3b298f77-ef2a-4e1b-88a4-b5cca4ed5939",
+        "name": "Violet Bloom",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/violet-bloom"
+      },
+      {
+        "type": "theme",
+        "id": "4fb4410f-4c8a-47c4-a51f-aaf61d8845fa",
+        "name": "Violet Dusk",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/violet-dusk"
+      },
+      {
+        "type": "theme",
+        "id": "15e68a81-16ed-4ea8-9562-943ecfd15457",
+        "name": "Violet Disco",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/violet-disco"
+      },
+      {
+        "type": "theme",
+        "id": "f43e4808-e17a-48e6-9abb-493a26e48608",
+        "name": "Violet Dusk Linen",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/violet-dusk-linen"
+      },
+      {
+        "type": "theme",
+        "id": "0d018910-d7af-405b-9f65-4d0db2609218",
+        "name": "Violet Pulse",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/violet-pulse"
+      },
+      {
+        "type": "theme",
+        "id": "63f65cfd-4a02-41b0-bbc1-3e47abace81b",
+        "name": "Catppuccin Violet",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/catppuccin-violet"
+      },
+      {
+        "type": "theme",
+        "id": "a15a2103-c890-4628-a2e2-b19759570369",
+        "name": "Violet Loft",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/violet-loft"
+      },
+      {
+        "type": "theme",
+        "id": "435100ee-0e77-424f-8010-4b0fb4ba0334",
+        "name": "Violet Halo",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/violet-halo"
+      },
+      {
+        "type": "theme",
+        "id": "d4e39d66-e009-44cb-9bb0-b0302987fc88",
+        "name": "Violet Bloom remix",
+        "description": null,
+        "previewUrl": null,
+        "author": "pjy464297",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zRXBWUlNzcVpDZ3l5WWZiSzczZUlRZGgwdGIifQ",
+        "url": "https://21st.dev/community/themes/violet-bloom-remix-1784103853858"
+      },
+      {
+        "type": "theme",
+        "id": "6b327876-ffbb-4675-9fb1-cc2a4c98d958",
+        "name": "Violet Dusk remix",
+        "description": null,
+        "previewUrl": null,
+        "author": "operdrix",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18zR1N1ejJNRFBkMlNQWTBEN1FpWERRT3JIVWEifQ",
+        "url": "https://21st.dev/community/themes/violet-dusk-remix-1783977689866"
+      }
+    ]
+  }
+}

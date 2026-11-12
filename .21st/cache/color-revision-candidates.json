@@ -1,0 +1,382 @@
+{
+  "status": "Source CSS retrieved and inspected; no app palette changes or native visual verification.",
+  "neutralSearch": "DefaultGraysNeutral was not returned by public searches for default, neutral, or gray.",
+  "conversion": "sRGB equivalents for zero-chroma OKLCH tokens are calculated from L cubed and the standard sRGB transfer function; hex source values are unchanged.",
+  "candidates": [
+    {
+      "id": "2df6613a-a2d6-4271-81d3-c3086d3807d2",
+      "name": "Graphite Mono",
+      "author": "serafimcloud",
+      "url": "https://21st.dev/community/themes/graphite-mono",
+      "cacheFile": ".21st/cache/theme-2df6613a-a2d6-4271-81d3-c3086d3807d2.json",
+      "roles": {
+        "light": {
+          "background": {
+            "css": "oklch(1 0 0)",
+            "sRGB": "#FFFFFF"
+          },
+          "foreground": {
+            "css": "oklch(0.145 0 0)",
+            "sRGB": "#0A0A0A"
+          },
+          "card": {
+            "css": "oklch(0.995 0 0)",
+            "sRGB": "#FDFDFD"
+          },
+          "primary": {
+            "css": "oklch(0.205 0 0)",
+            "sRGB": "#171717"
+          },
+          "primary-foreground": {
+            "css": "oklch(0.985 0 0)",
+            "sRGB": "#FAFAFA"
+          },
+          "secondary": {
+            "css": "oklch(0.87 0 0)",
+            "sRGB": "#D4D4D4"
+          },
+          "secondary-foreground": {
+            "css": "oklch(0.145 0 0)",
+            "sRGB": "#0A0A0A"
+          },
+          "muted": {
+            "css": "oklch(0.95 0 0)",
+            "sRGB": "#EEEEEE"
+          },
+          "muted-foreground": {
+            "css": "oklch(0.556 0 0)",
+            "sRGB": "#737373"
+          },
+          "accent": {
+            "css": "oklch(0.95 0 0)",
+            "sRGB": "#EEEEEE"
+          },
+          "accent-foreground": {
+            "css": "oklch(0.205 0 0)",
+            "sRGB": "#171717"
+          },
+          "border": {
+            "css": "oklch(0.95 0 0)",
+            "sRGB": "#EEEEEE"
+          },
+          "input": {
+            "css": "oklch(0.97 0 0)",
+            "sRGB": "#F5F5F5"
+          },
+          "ring": {
+            "css": "oklch(0.708 0 0)",
+            "sRGB": "#A1A1A1"
+          }
+        },
+        "dark": {
+          "background": {
+            "css": "oklch(0.205 0 0)",
+            "sRGB": "#171717"
+          },
+          "foreground": {
+            "css": "oklch(0.985 0 0)",
+            "sRGB": "#FAFAFA"
+          },
+          "card": {
+            "css": "oklch(0.165 0 0)",
+            "sRGB": "#0E0E0E"
+          },
+          "primary": {
+            "css": "oklch(0.922 0 0)",
+            "sRGB": "#E5E5E5"
+          },
+          "primary-foreground": {
+            "css": "oklch(0.205 0 0)",
+            "sRGB": "#171717"
+          },
+          "secondary": {
+            "css": "oklch(0.269 0 0)",
+            "sRGB": "#262626"
+          },
+          "secondary-foreground": {
+            "css": "oklch(0.985 0 0)",
+            "sRGB": "#FAFAFA"
+          },
+          "muted": {
+            "css": "oklch(0.269 0 0)",
+            "sRGB": "#262626"
+          },
+          "muted-foreground": {
+            "css": "oklch(0.708 0 0)",
+            "sRGB": "#A1A1A1"
+          },
+          "accent": {
+            "css": "oklch(0.371 0 0)",
+            "sRGB": "#404040"
+          },
+          "accent-foreground": {
+            "css": "oklch(0.985 0 0)",
+            "sRGB": "#FAFAFA"
+          },
+          "border": {
+            "css": "oklch(0.269 0 0)",
+            "sRGB": "#262626"
+          },
+          "input": {
+            "css": "oklch(0.269 0 0)",
+            "sRGB": "#262626"
+          },
+          "ring": {
+            "css": "oklch(0.556 0 0)",
+            "sRGB": "#737373"
+          }
+        }
+      }
+    },
+    {
+      "id": "5d0ae3b0-72a9-445c-8f74-d3863352f302",
+      "name": "Copper Clay",
+      "author": "serafimcloud",
+      "url": "https://21st.dev/community/themes/copper-clay",
+      "cacheFile": ".21st/cache/theme-5d0ae3b0-72a9-445c-8f74-d3863352f302.json",
+      "roles": {
+        "light": {
+          "background": {
+            "css": "#faf8f6",
+            "sRGB": "#FAF8F6"
+          },
+          "foreground": {
+            "css": "#1c1412",
+            "sRGB": "#1C1412"
+          },
+          "card": {
+            "css": "#ffffff",
+            "sRGB": "#FFFFFF"
+          },
+          "primary": {
+            "css": "#92400e",
+            "sRGB": "#92400E"
+          },
+          "primary-foreground": {
+            "css": "#ffffff",
+            "sRGB": "#FFFFFF"
+          },
+          "secondary": {
+            "css": "#fdf4ef",
+            "sRGB": "#FDF4EF"
+          },
+          "secondary-foreground": {
+            "css": "#6b3a1f",
+            "sRGB": "#6B3A1F"
+          },
+          "muted": {
+            "css": "#f2eee9",
+            "sRGB": "#F2EEE9"
+          },
+          "muted-foreground": {
+            "css": "#7a706a",
+            "sRGB": "#7A706A"
+          },
+          "accent": {
+            "css": "#f5dcc8",
+            "sRGB": "#F5DCC8"
+          },
+          "accent-foreground": {
+            "css": "#6b3a1f",
+            "sRGB": "#6B3A1F"
+          },
+          "border": {
+            "css": "#e3dbd4",
+            "sRGB": "#E3DBD4"
+          },
+          "input": {
+            "css": "#e3dbd4",
+            "sRGB": "#E3DBD4"
+          },
+          "ring": {
+            "css": "#92400e",
+            "sRGB": "#92400E"
+          }
+        },
+        "dark": {
+          "background": {
+            "css": "#0c0908",
+            "sRGB": "#0C0908"
+          },
+          "foreground": {
+            "css": "#e3dad4",
+            "sRGB": "#E3DAD4"
+          },
+          "card": {
+            "css": "#141110",
+            "sRGB": "#141110"
+          },
+          "primary": {
+            "css": "#c2956a",
+            "sRGB": "#C2956A"
+          },
+          "primary-foreground": {
+            "css": "#1a0e04",
+            "sRGB": "#1A0E04"
+          },
+          "secondary": {
+            "css": "#1c1614",
+            "sRGB": "#1C1614"
+          },
+          "secondary-foreground": {
+            "css": "#a39890",
+            "sRGB": "#A39890"
+          },
+          "muted": {
+            "css": "#1e1816",
+            "sRGB": "#1E1816"
+          },
+          "muted-foreground": {
+            "css": "#7a706a",
+            "sRGB": "#7A706A"
+          },
+          "accent": {
+            "css": "#2a1e14",
+            "sRGB": "#2A1E14"
+          },
+          "accent-foreground": {
+            "css": "#d4a574",
+            "sRGB": "#D4A574"
+          },
+          "border": {
+            "css": "#28211c",
+            "sRGB": "#28211C"
+          },
+          "input": {
+            "css": "#2a231d",
+            "sRGB": "#2A231D"
+          },
+          "ring": {
+            "css": "#c2956a",
+            "sRGB": "#C2956A"
+          }
+        }
+      }
+    },
+    {
+      "id": "61282495-dc44-41d5-95da-9a9d89f392a8",
+      "name": "Cyan Dawn",
+      "author": "serafimcloud",
+      "url": "https://21st.dev/community/themes/cyan-dawn",
+      "cacheFile": ".21st/cache/theme-61282495-dc44-41d5-95da-9a9d89f392a8.json",
+      "roles": {
+        "light": {
+          "background": {
+            "css": "#ffffff",
+            "sRGB": "#FFFFFF"
+          },
+          "foreground": {
+            "css": "#000000",
+            "sRGB": "#000000"
+          },
+          "card": {
+            "css": "#f7f8f8",
+            "sRGB": "#F7F8F8"
+          },
+          "primary": {
+            "css": "#58D3DB",
+            "sRGB": "#58D3DB"
+          },
+          "primary-foreground": {
+            "css": "#000000",
+            "sRGB": "#000000"
+          },
+          "secondary": {
+            "css": "#202020",
+            "sRGB": "#202020"
+          },
+          "secondary-foreground": {
+            "css": "#ffffff",
+            "sRGB": "#FFFFFF"
+          },
+          "muted": {
+            "css": "#f1f5f9",
+            "sRGB": "#F1F5F9"
+          },
+          "muted-foreground": {
+            "css": "#323232",
+            "sRGB": "#323232"
+          },
+          "accent": {
+            "css": "#E3ECF6",
+            "sRGB": "#E3ECF6"
+          },
+          "accent-foreground": {
+            "css": "#323232",
+            "sRGB": "#323232"
+          },
+          "border": {
+            "css": "#e1eaef",
+            "sRGB": "#E1EAEF"
+          },
+          "input": {
+            "css": "#f7f9fa",
+            "sRGB": "#F7F9FA"
+          },
+          "ring": {
+            "css": "#58D3DB",
+            "sRGB": "#58D3DB"
+          }
+        },
+        "dark": {
+          "background": {
+            "css": "#121212",
+            "sRGB": "#121212"
+          },
+          "foreground": {
+            "css": "#e7e9ea",
+            "sRGB": "#E7E9EA"
+          },
+          "card": {
+            "css": "#17181c",
+            "sRGB": "#17181C"
+          },
+          "primary": {
+            "css": "#58D3DB",
+            "sRGB": "#58D3DB"
+          },
+          "primary-foreground": {
+            "css": "#000000",
+            "sRGB": "#000000"
+          },
+          "secondary": {
+            "css": "#e7e9ea",
+            "sRGB": "#E7E9EA"
+          },
+          "secondary-foreground": {
+            "css": "#202020",
+            "sRGB": "#202020"
+          },
+          "muted": {
+            "css": "#1a1d1e",
+            "sRGB": "#1A1D1E"
+          },
+          "muted-foreground": {
+            "css": "#8b98a5",
+            "sRGB": "#8B98A5"
+          },
+          "accent": {
+            "css": "#12383b",
+            "sRGB": "#12383B"
+          },
+          "accent-foreground": {
+            "css": "#e7e9ea",
+            "sRGB": "#E7E9EA"
+          },
+          "border": {
+            "css": "#2f3336",
+            "sRGB": "#2F3336"
+          },
+          "input": {
+            "css": "#16181c",
+            "sRGB": "#16181C"
+          },
+          "ring": {
+            "css": "#58D3DB",
+            "sRGB": "#58D3DB"
+          }
+        }
+      }
+    }
+  ]
+}

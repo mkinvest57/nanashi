@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Health Stat Card  [id: 8619]\nby ruhith369\nThe HealthStatCard component is a beautifully designed, interactive, and reusable UI card built using Shadcn UI and Framer Motion. It is perfect for displaying health, fitness, or performance-related statistics in a visually engaging way. The card features smooth animations, rounded “bubble-style” bars with 3D hover effects, and an optional tooltip that provides detailed information about each data point. You can configure the title, icon, stats, graph data, legend visibility, and even customize tooltip descriptions for each bar. This makes it ideal for use in dashboards, wellness apps, or analytics pages where users can easily visualize and interpret progress trends at a glance.\npreview: https://cdn.21st.dev/user_33LHNNIPQiQVKFS4DOnW7PJZfwP/health-stat-card/default/preview.1787924136256.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ruhith369/health-stat-card?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 8619 })\n\n### [component] Health Stat Card  [id: 8617]\nby ruixen.ui\nThe HealthStatCard component is a modern, reusable, and fully customizable Shadcn UI–based card designed for displaying health and performance metrics in an engaging, data-driven way. Built with Framer Motion for smooth, spring-based animations and Shadcn tooltips for contextual insights, it features bubble-style bars that animate in 3D on hover to make data visualization more interactive and appealing. Each bar can display a tooltip with a short description and value, making it perfect for dashboards that track metrics such as sleep quality, hydration, fitness, nutrition, or productivity. With flexible props for configuring icons, statistics, colors, legends, and animations, this component provides a clean, professional, and visually rich way to represent health-related data across any Next.js application.\npreview: https://cdn.21st.dev/ruixen.ui/health-stat-card/default/preview.1760023289997.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/health-stat-card?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 8617 })\n\n### [component] Weekly Fitness Card  [id: 28213]\nby shadcnspace\nA card that visualizes daily calorie/workout load for the past week as a row of bar-chart bars.\npreview: https://cdn.21st.dev/shadcnspace/card-12/default/preview.1789956990342-f83e8db6-67e9-401c-aa94-8ac9ae0e1839.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcnspace/card-12?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 28213 })\n\n### [component] Advanced Stats  [id: 19070]\nby uilayout.contact\nAnalytics dashboard stats section with an animated area chart, KPI cards, and scroll-triggered timeline reveals.\npreview: https://cdn.21st.dev/uilayout.contact/advanced-stats/default/preview.1783677974362.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/uilayout.contact/advanced-stats?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 19070 })\n\n### [component] Card  [id: 7634]\nby lavikatiyar\nAnimated Stats Card\nThis component provides a visually appealing card to display a key statistic, such as \"Fitness Age,\" against a benchmark. It features a smooth, count-up animation that triggers when the component enters the viewport, and it's fully theme-adaptive using shadcn variables.\npreview: https://cdn.21st.dev/lavikatiyar/card-4/default/preview.1758070260156.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/lavikatiyar/card-4?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 7634 })\n\n### [component] Stats Card  [id: 7841]\nby kavikatiyar\nStats Card\nThis is a reusable card component designed to display a key metric, a descriptive summary, and a mini bar chart for trend visualization. It features animations that trigger when the component enters the view.\npreview: https://cdn.21st.dev/kavikatiyar/stats-card-1/default/preview.1758356287705.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/kavikatiyar/stats-card-1?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 7841 })\n\n### [component] Stats cards with links  [id: 4403]\nby ephraimduncan\nHere is Stats cards with links\npreview: https://cdn.21st.dev/larsen66/stats-cards-with-links/stats-card-with-area-chart/preview.1753307424371.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ephraimduncan/stats-cards-with-links?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 4403 })\n\n### [component] Card  [id: 31495]\nby wensity\nContent cards for stats, KPIs with sparklines, media, features and interactive surfaces. Header, content and footer slots make it easy to build dashboards and pricing grids.\npreview: https://cdn.21st.dev/wensity/card/default/preview.1790306694484-386fd538-a301-4292-86ce-3cf1a3f2a57e.jpg\ninstall: npx shadcn@latest add \"https://21st.dev/r/wensity/card?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 31495 })\n\n### [component] Stats Card  [id: 7870]\nby ravikatiyar162\nFreelancer Stats Card\nA comprehensive card component for displaying key statistics, rankings, and availability. It features a clean layout, theme-adaptive styling, and a subtle animation for the availability chart to draw user attention to their capacity.\npreview: https://cdn.21st.dev/ravikatiyar162/stats-card/default/preview.1758440507102.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ravikatiyar162/stats-card?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 7870 })\n\n### [component] Activity Card  [id: 1375]\nby kokonutd\nA versatile card component for displaying fitness and activity tracking data with interactive goals and metrics visualization.\n\nFeatures\n\n- Metric Rings\n  - Circular progress indicators\n  - Percentage-based visualization\n  - Hover animations\n  - Color-coded categories\n  - Value and unit display\n\n- Daily Goals\n  - Interactive checkboxes\n  - Completion status\n  - Add new goals functionality\n  - Visual feedback for completed items\n  - Hover states\n\n- Visual Elements\n  - Category icon\n  - Progress rings\n  - Gradient dividers\n  - Interactive buttons\n  - Status indicators\npreview: https://cdn.21st.dev/user_2rQ1QHrJyxpmWMHhqhANzWMc64n/activity-card/default/preview.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/kokonutd/activity-card?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 1375 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 8619,
+        "name": "Health Stat Card",
+        "description": "The HealthStatCard component is a beautifully designed, interactive, and reusable UI card built using Shadcn UI and Framer Motion. It is perfect for displaying health, fitness, or performance-related statistics in a visually engaging way. The card features smooth animations, rounded “bubble-style” bars with 3D hover effects, and an optional tooltip that provides detailed information about each data point. You can configure the title, icon, stats, graph data, legend visibility, and even customize tooltip descriptions for each bar. This makes it ideal for use in dashboards, wellness apps, or analytics pages where users can easily visualize and interpret progress trends at a glance.",
+        "previewUrl": "https://cdn.21st.dev/user_33LHNNIPQiQVKFS4DOnW7PJZfwP/health-stat-card/default/preview.1787924136256.png",
+        "videoUrl": null,
+        "author": "ruhith369",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zM0xITlBpWExEbVM2YUJGSnR3SURocVdDb04ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ruhith369/health-stat-card?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ruhith369/components/health-stat-card"
+      },
+      {
+        "type": "component",
+        "id": 8617,
+        "name": "Health Stat Card",
+        "description": "The HealthStatCard component is a modern, reusable, and fully customizable Shadcn UI–based card designed for displaying health and performance metrics in an engaging, data-driven way. Built with Framer Motion for smooth, spring-based animations and Shadcn tooltips for contextual insights, it features bubble-style bars that animate in 3D on hover to make data visualization more interactive and appealing. Each bar can display a tooltip with a short description and value, making it perfect for dashboards that track metrics such as sleep quality, hydration, fitness, nutrition, or productivity. With flexible props for configuring icons, statistics, colors, legends, and animations, this component provides a clean, professional, and visually rich way to represent health-related data across any Next.js application.",
+        "previewUrl": "https://cdn.21st.dev/ruixen.ui/health-stat-card/default/preview.1760023289997.png",
+        "videoUrl": "https://cdn.21st.dev/ruixen.ui/health-stat-card/default/video.1760023289997.mp4",
+        "author": "ruixen.ui",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2y5Wd5l713ZIFYjX19aZXSyXd6b/avatar.svg+xml",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ruixen.ui/health-stat-card?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ruixen.ui/components/health-stat-card"
+      },
+      {
+        "type": "component",
+        "id": 28213,
+        "name": "Weekly Fitness Card",
+        "description": "A card that visualizes daily calorie/workout load for the past week as a row of bar-chart bars.",
+        "previewUrl": "https://cdn.21st.dev/shadcnspace/card-12/default/preview.1789956990342-f83e8db6-67e9-401c-aa94-8ac9ae0e1839.png",
+        "videoUrl": null,
+        "author": "shadcnspace",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zOHFBT3VLQWpSb3c5SjlUdGttSGhYZnBiZ28ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcnspace/card-12?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcnspace/components/card-12"
+      },
+      {
+        "type": "component",
+        "id": 19070,
+        "name": "Advanced Stats",
+        "description": "Analytics dashboard stats section with an animated area chart, KPI cards, and scroll-triggered timeline reveals.",
+        "previewUrl": "https://cdn.21st.dev/uilayout.contact/advanced-stats/default/preview.1783677974362.png",
+        "videoUrl": "https://cdn.21st.dev/uilayout.contact/advanced-stats/default/video.1783677974362.mp4",
+        "author": "uilayout.contact",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yekFzdlBhQVN2bFB2ZVp5UmZ3dWhlaHFtZmoifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/uilayout.contact/advanced-stats?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@uilayout.contact/components/advanced-stats"
+      },
+      {
+        "type": "component",
+        "id": 7634,
+        "name": "Card",
+        "description": "Animated Stats Card\nThis component provides a visually appealing card to display a key statistic, such as \"Fitness Age,\" against a benchmark. It features a smooth, count-up animation that triggers when the component enters the viewport, and it's fully theme-adaptive using shadcn variables.",
+        "previewUrl": "https://cdn.21st.dev/lavikatiyar/card-4/default/preview.1758070260156.png",
+        "videoUrl": "https://cdn.21st.dev/lavikatiyar/card-4/default/video.1758070260156.mp4",
+        "author": "lavikatiyar",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18zMmpLc3RWclVqVjg4ZjFISXBzMjVhS1RGeloifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/lavikatiyar/card-4?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@lavikatiyar/components/card-4"
+      },
+      {
+        "type": "component",
+        "id": 7841,
+        "name": "Stats Card",
+        "description": "Stats Card\nThis is a reusable card component designed to display a key metric, a descriptive summary, and a mini bar chart for trend visualization. It features animations that trigger when the component enters the view.",
+        "previewUrl": "https://cdn.21st.dev/kavikatiyar/stats-card-1/default/preview.1758356287705.png",
+        "videoUrl": "https://cdn.21st.dev/kavikatiyar/stats-card-1/default/video.1758356287706.mp4",
+        "author": "kavikatiyar",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_32hbh6QoSVv3IJTJfaQWBLHRl6N/avatar.jpeg",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/kavikatiyar/stats-card-1?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@kavikatiyar/components/stats-card-1"
+      },
+      {
+        "type": "component",
+        "id": 4403,
+        "name": "Stats cards with links",
+        "description": "Here is Stats cards with links",
+        "previewUrl": "https://cdn.21st.dev/larsen66/stats-cards-with-links/stats-card-with-area-chart/preview.1753307424371.png",
+        "videoUrl": null,
+        "author": "ephraimduncan",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ydlpleGRQN3BiSlVlSnp3R3FmbzdZbTJMT04ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ephraimduncan/stats-cards-with-links?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ephraimduncan/components/stats-cards-with-links"
+      },
+      {
+        "type": "component",
+        "id": 31495,
+        "name": "Card",
+        "description": "Content cards for stats, KPIs with sparklines, media, features and interactive surfaces. Header, content and footer slots make it easy to build dashboards and pricing grids.",
+        "previewUrl": "https://cdn.21st.dev/wensity/card/default/preview.1790306694484-386fd538-a301-4292-86ce-3cf1a3f2a57e.jpg",
+        "videoUrl": null,
+        "author": "wensity",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_3JFJF7Mbb5ImA8DO9hE1FECx2fT/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/wensity/card?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@wensity/components/card"
+      },
+      {
+        "type": "component",
+        "id": 7870,
+        "name": "Stats Card",
+        "description": "Freelancer Stats Card\nA comprehensive card component for displaying key statistics, rankings, and availability. It features a clean layout, theme-adaptive styling, and a subtle animation for the availability chart to draw user attention to their capacity.",
+        "previewUrl": "https://cdn.21st.dev/ravikatiyar162/stats-card/default/preview.1758440507102.png",
+        "videoUrl": "https://cdn.21st.dev/ravikatiyar162/stats-card/default/video.1758440507102.mp4",
+        "author": "ravikatiyar162",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2zMtrqo9RMaaIn4f8F2z3oeY497/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ravikatiyar162/stats-card?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ravikatiyar162/components/stats-card"
+      },
+      {
+        "type": "component",
+        "id": 1375,
+        "name": "Activity Card",
+        "description": "A versatile card component for displaying fitness and activity tracking data with interactive goals and metrics visualization.\n\nFeatures\n\n- Metric Rings\n  - Circular progress indicators\n  - Percentage-based visualization\n  - Hover animations\n  - Color-coded categories\n  - Value and unit display\n\n- Daily Goals\n  - Interactive checkboxes\n  - Completion status\n  - Add new goals functionality\n  - Visual feedback for completed items\n  - Hover states\n\n- Visual Elements\n  - Category icon\n  - Progress rings\n  - Gradient dividers\n  - Interactive buttons\n  - Status indicators",
+        "previewUrl": "https://cdn.21st.dev/user_2rQ1QHrJyxpmWMHhqhANzWMc64n/activity-card/default/preview.png",
+        "videoUrl": "https://cdn.21st.dev/user_2rQ1QHrJyxpmWMHhqhANzWMc64n/activity-card/default/video.mp4",
+        "author": "kokonutd",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2rQ1QHrJyxpmWMHhqhANzWMc64n/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/kokonutd/activity-card?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@kokonutd/components/activity-card"
+      }
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "2 result(s) across 21st.dev (metadata only).\n\n### [theme] Nature  [id: c6901196-0747-4a56-a129-6c42f8524870]\nby serafimcloud\n→ open: https://21st.dev/community/themes/nature\n\n### [theme] Nature remix  [id: 07159dac-48be-4198-9b06-9adcf9ba4a76]\nby romaltaraz\n→ open: https://21st.dev/community/themes/nature-remix-1782640315606"
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "theme",
+        "id": "c6901196-0747-4a56-a129-6c42f8524870",
+        "name": "Nature",
+        "description": null,
+        "previewUrl": null,
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "url": "https://21st.dev/community/themes/nature"
+      },
+      {
+        "type": "theme",
+        "id": "07159dac-48be-4198-9b06-9adcf9ba4a76",
+        "name": "Nature remix",
+        "description": null,
+        "previewUrl": null,
+        "author": "romaltaraz",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zRXpGaHN3WjUzeXNVT08wMVBhTE1KWnlKQmgifQ",
+        "url": "https://21st.dev/community/themes/nature-remix-1782640315606"
+      }
+    ]
+  }
+}

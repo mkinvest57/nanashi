@@ -143,22 +143,43 @@ struct GeminiClient: AIProviderClient {
         }
     }
 
-    func fetchModels(key: String, session: URLSession) async throws -> [String] {        var req = URLRequest(url: AIProvider.gemini.modelsEndpoint)
-        req.httpMethod = "GET"
-        req.setValue(key, forHTTPHeaderField: "x-goog-api-key")
-
-        return parseModels(try await performRequest(req, session: session))
+    func fetchModels(key: String, session: URLSession) async throws -> [String] {
+        var ids: [String] = []
+        var seenIDs = Set<String>()
+        var seenTokens = Set<String>()
+        var token: String?
+        for _ in 0..<64 {
+            try Task.checkCancellation()
+            var url = URLComponents(url: AIProvider.gemini.modelsEndpoint, resolvingAgainstBaseURL: false)!
+            url.queryItems = [URLQueryItem(name: "pageSize", value: "1000")]
+            if let token { url.queryItems?.append(URLQueryItem(name: "pageToken", value: token)) }
+            var req = URLRequest(url: url.url!)
+            req.httpMethod = "GET"
+            req.setValue(key, forHTTPHeaderField: "x-goog-api-key")
+            let page = try await performRequest(req, session: session)
+            guard page["models"] is [[String: Any]] else { throw AICoachError.decode }
+            ids.append(contentsOf: parseModels(page).filter { seenIDs.insert($0).inserted })
+            guard let rawToken = page["nextPageToken"] else { return ids }
+            guard let next = rawToken as? String else { throw AICoachError.decode }
+            guard !next.isEmpty else { return ids }
+            guard seenTokens.insert(next).inserted else { throw AICoachError.decode }
+            token = next
+        }
+        throw AICoachError.decode
     }
 
-    /// Pure: unwrap Gemini's `{"models":[{"name":"models/…"}]}` — strip the prefix, keep chat-capable
-    /// gemini-* only (drop embeddings/AQA). No network — unit-tested.
+    /// Text coaching needs generateContent, not live/audio/image generation. Capability metadata
+    /// takes precedence; older catalogue rows without it retain the conservative family fallback.
     func parseModels(_ json: [String: Any]) -> [String] {
         guard let list = json["models"] as? [[String: Any]] else { return [] }
         return list.compactMap { row in
             guard let name = row["name"] as? String, !name.isEmpty else { return nil }
             let id = name.hasPrefix("models/") ? String(name.dropFirst("models/".count)) : name
-            guard id.hasPrefix("gemini"),
-                  !id.contains("embedding"), !id.contains("aqa") else { return nil }
+            guard id.hasPrefix("gemini-") else { return nil }
+            if let methods = row["supportedGenerationMethods"] as? [String],
+               !methods.contains("generateContent") { return nil }
+            let specialized = ["embedding", "aqa", "audio", "tts", "live", "image", "transcribe", "omni", "banana"]
+            guard !specialized.contains(where: { id.split(separator: "-").contains(Substring($0)) }) else { return nil }
             return id
         }
     }

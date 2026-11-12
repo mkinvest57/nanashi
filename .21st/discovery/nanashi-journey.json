@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Onboarding Stepper Progress  [id: 19143]\nby shadcnspace\nAn onboarding progress tracker with a step counter, percentage completion bar, and back/next navigation buttons.\npreview: https://cdn.21st.dev/shadcnspace/progress-02/default/preview.1783694619073.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcnspace/progress-02?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 19143 })\n\n### [component] Onboarding Timeline  [id: 29486]\nby ephraimduncan\nA vertical timeline component that shows deployment/onboarding steps with done, in-progress, and upcoming states.\npreview: https://cdn.21st.dev/user_2vZexZytBe3Vo4fbfmzWgvCugbB/onboarding-06/default/preview.1790088891048.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ephraimduncan/onboarding-06?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 29486 })\n\n### [component] Stepper  [id: 28565]\nby corr\nA horizontal or vertical step indicator that shows progress through install, publish, or multi-step form flows.\npreview: https://cdn.21st.dev/corr/stepper/default/preview.1789988654749-0893ec09-b0ac-420d-be3a-3b7111baa958.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/corr/stepper?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 28565 })\n\n### [component] Step Onboarding Wizard  [id: 29526]\nby ziegfiroyt\nA multi-step onboarding wizard with square numbered step indicators and a content card that walks users through product setup or feature introductions.\npreview: https://cdn.21st.dev/ziegfiroyt/onboarding9/default/preview.1790087072613-3599e25e-3014-41fb-b679-21c39786bbd0.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ziegfiroyt/onboarding9?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 29526 })\n\n### [component] Stepper  [id: 3734]\nby sean0205\nA step-by-step process for users to navigate through a series of steps.\npreview: https://cdn.21st.dev/user_2wpPk1CyWKAxM46S7k5UoCQhmqF/stepper/vertical/preview.1786987108676.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/sean0205/stepper?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 3734 })\n\n### [component] Basic Stepper  [id: 29925]\nby sean0205\nA horizontal multi-step progress indicator with numbered circle indicators and separators, used to guide users through a sequence of steps like a checkout or onboarding flow.\npreview: https://cdn.21st.dev/sean0205/c-stepper-1/default/preview.1790140579944-e8d24f3b-9e74-4eb7-b83a-9271009b1b68.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/sean0205/c-stepper-1?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 29925 })\n\n### [component] Vertical Titled Stepper  [id: 29815]\nby sean0205\nA vertical multi-step progress stepper that shows numbered steps with titles, a connecting line, and a check/loading indicator for completed or active steps.\npreview: https://cdn.21st.dev/sean0205/c-stepper-15/default/preview.1790123323203-6cdc11c5-9929-4a80-81c7-8bc17d3c1a9e.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/sean0205/c-stepper-15?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 29815 })\n\n### [component] Stepper  [id: 35237]\nby kevingirelli\nAn accessible multi-step progress indicator for flows like checkout or onboarding, showing which steps are complete, current, or upcoming, with optional clickable triggers.\npreview: https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/stepper/default/preview.1791206206769.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/kevingirelli/stepper?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 35237 })\n\n### [component] Onboarding Steps with Progress  [id: 29458]\nby ephraimduncan\nA clickable step-by-step onboarding checklist with a progress bar for guiding users through setup tasks like creating a store or launching a product.\npreview: https://cdn.21st.dev/ephraimduncan/onboarding-03/default/preview.1790080272307-b19a26d4-f7a6-4ae7-a17c-49a0dd48924c.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/ephraimduncan/onboarding-03?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 29458 })\n\n### [component] Stepper with Square Badges  [id: 28546]\nby shadcnspace\nA multi-step form indicator with animated progress line, checkmarks for completed steps, and back/next/reset controls for guiding users through account setup or onboarding flows.\npreview: https://cdn.21st.dev/shadcnspace/stepper-01/default/preview.1789986786825-6fc7c015-c74b-4e1a-b38a-085d3cdd6380.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcnspace/stepper-01?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 28546 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 19143,
+        "name": "Onboarding Stepper Progress",
+        "description": "An onboarding progress tracker with a step counter, percentage completion bar, and back/next navigation buttons.",
+        "previewUrl": "https://cdn.21st.dev/shadcnspace/progress-02/default/preview.1783694619073.png",
+        "videoUrl": "https://cdn.21st.dev/shadcnspace/progress-02/default/video.1783694619073.mp4",
+        "author": "shadcnspace",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zOHFBT3VLQWpSb3c5SjlUdGttSGhYZnBiZ28ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcnspace/progress-02?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcnspace/components/progress-02"
+      },
+      {
+        "type": "component",
+        "id": 29486,
+        "name": "Onboarding Timeline",
+        "description": "A vertical timeline component that shows deployment/onboarding steps with done, in-progress, and upcoming states.",
+        "previewUrl": "https://cdn.21st.dev/user_2vZexZytBe3Vo4fbfmzWgvCugbB/onboarding-06/default/preview.1790088891048.png",
+        "videoUrl": null,
+        "author": "ephraimduncan",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ydlpleGRQN3BiSlVlSnp3R3FmbzdZbTJMT04ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ephraimduncan/onboarding-06?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ephraimduncan/components/onboarding-06"
+      },
+      {
+        "type": "component",
+        "id": 28565,
+        "name": "Stepper",
+        "description": "A horizontal or vertical step indicator that shows progress through install, publish, or multi-step form flows.",
+        "previewUrl": "https://cdn.21st.dev/corr/stepper/default/preview.1789988654749-0893ec09-b0ac-420d-be3a-3b7111baa958.png",
+        "videoUrl": null,
+        "author": "corr",
+        "authorImage": "https://github.com/lcorrigan704.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/corr/stepper?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@corr/components/stepper"
+      },
+      {
+        "type": "component",
+        "id": 29526,
+        "name": "Step Onboarding Wizard",
+        "description": "A multi-step onboarding wizard with square numbered step indicators and a content card that walks users through product setup or feature introductions.",
+        "previewUrl": "https://cdn.21st.dev/ziegfiroyt/onboarding9/default/preview.1790087072613-3599e25e-3014-41fb-b679-21c39786bbd0.png",
+        "videoUrl": "https://cdn.21st.dev/ziegfiroyt/onboarding9/default/video.1790087072613-3599e25e-3014-41fb-b679-21c39786bbd0.mp4",
+        "author": "ziegfiroyt",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2tM2DgTFCMuiirMNpU5lhkvxwez/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ziegfiroyt/onboarding9?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ziegfiroyt/components/onboarding9"
+      },
+      {
+        "type": "component",
+        "id": 3734,
+        "name": "Stepper",
+        "description": "A step-by-step process for users to navigate through a series of steps.",
+        "previewUrl": "https://cdn.21st.dev/user_2wpPk1CyWKAxM46S7k5UoCQhmqF/stepper/vertical/preview.1786987108676.webp",
+        "videoUrl": "https://cdn.21st.dev/user_2wpPk1CyWKAxM46S7k5UoCQhmqF/stepper/vertical/video.1786987095553.mp4",
+        "author": "sean0205",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2wpPk1CyWKAxM46S7k5UoCQhmqF/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/sean0205/stepper?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@sean0205/components/stepper"
+      },
+      {
+        "type": "component",
+        "id": 29925,
+        "name": "Basic Stepper",
+        "description": "A horizontal multi-step progress indicator with numbered circle indicators and separators, used to guide users through a sequence of steps like a checkout or onboarding flow.",
+        "previewUrl": "https://cdn.21st.dev/sean0205/c-stepper-1/default/preview.1790140579944-e8d24f3b-9e74-4eb7-b83a-9271009b1b68.png",
+        "videoUrl": "https://cdn.21st.dev/sean0205/c-stepper-1/default/video.1790140579944-e8d24f3b-9e74-4eb7-b83a-9271009b1b68.mp4",
+        "author": "sean0205",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2wpPk1CyWKAxM46S7k5UoCQhmqF/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/sean0205/c-stepper-1?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@sean0205/components/c-stepper-1"
+      },
+      {
+        "type": "component",
+        "id": 29815,
+        "name": "Vertical Titled Stepper",
+        "description": "A vertical multi-step progress stepper that shows numbered steps with titles, a connecting line, and a check/loading indicator for completed or active steps.",
+        "previewUrl": "https://cdn.21st.dev/sean0205/c-stepper-15/default/preview.1790123323203-6cdc11c5-9929-4a80-81c7-8bc17d3c1a9e.png",
+        "videoUrl": "https://cdn.21st.dev/sean0205/c-stepper-15/default/video.1790123323203-6cdc11c5-9929-4a80-81c7-8bc17d3c1a9e.mp4",
+        "author": "sean0205",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2wpPk1CyWKAxM46S7k5UoCQhmqF/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/sean0205/c-stepper-15?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@sean0205/components/c-stepper-15"
+      },
+      {
+        "type": "component",
+        "id": 35237,
+        "name": "Stepper",
+        "description": "An accessible multi-step progress indicator for flows like checkout or onboarding, showing which steps are complete, current, or upcoming, with optional clickable triggers.",
+        "previewUrl": "https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/stepper/default/preview.1791206206769.webp",
+        "videoUrl": "https://cdn.21st.dev/user_registry_kevingirelli_1790903224160/stepper/default/video.1791206166605.mp4",
+        "author": "kevingirelli",
+        "authorImage": "https://avatars.githubusercontent.com/u/131497909?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/kevingirelli/stepper?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@kevingirelli/components/stepper"
+      },
+      {
+        "type": "component",
+        "id": 29458,
+        "name": "Onboarding Steps with Progress",
+        "description": "A clickable step-by-step onboarding checklist with a progress bar for guiding users through setup tasks like creating a store or launching a product.",
+        "previewUrl": "https://cdn.21st.dev/ephraimduncan/onboarding-03/default/preview.1790080272307-b19a26d4-f7a6-4ae7-a17c-49a0dd48924c.png",
+        "videoUrl": "https://cdn.21st.dev/ephraimduncan/onboarding-03/default/video.1790080272307-b19a26d4-f7a6-4ae7-a17c-49a0dd48924c.mp4",
+        "author": "ephraimduncan",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ydlpleGRQN3BiSlVlSnp3R3FmbzdZbTJMT04ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ephraimduncan/onboarding-03?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@ephraimduncan/components/onboarding-03"
+      },
+      {
+        "type": "component",
+        "id": 28546,
+        "name": "Stepper with Square Badges",
+        "description": "A multi-step form indicator with animated progress line, checkmarks for completed steps, and back/next/reset controls for guiding users through account setup or onboarding flows.",
+        "previewUrl": "https://cdn.21st.dev/shadcnspace/stepper-01/default/preview.1789986786825-6fc7c015-c74b-4e1a-b38a-085d3cdd6380.png",
+        "videoUrl": "https://cdn.21st.dev/shadcnspace/stepper-01/default/video.1789986786825-6fc7c015-c74b-4e1a-b38a-085d3cdd6380.mp4",
+        "author": "shadcnspace",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zOHFBT3VLQWpSb3c5SjlUdGttSGhYZnBiZ28ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcnspace/stepper-01?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcnspace/components/stepper-01"
+      }
+    ]
+  }
+}

@@ -731,9 +731,8 @@ private struct StressHeroGauge: View {
                     value: score,
                     format: { StressTrace.formatLevel($0) },
                     font: StrandFont.rounded(34, weight: .bold),
-                    color: .white
+                    color: StrandPalette.textPrimary
                 )
-                .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
                 Text("of 3")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textSecondary)

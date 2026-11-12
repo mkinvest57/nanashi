@@ -469,7 +469,7 @@ struct CycleTrackerView: View {
             }
             #if os(iOS)
             // #697/#horizontal-swipe parity, see ScreenScaffold.
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
             .background(StrandPalette.surfaceBase)
             .navigationTitle("Cycle tracker")

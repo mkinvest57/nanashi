@@ -271,35 +271,51 @@ private struct BreathingContent: View {
     // MARK: - Status row
 
     private var statusRow: some View {
-        HStack(spacing: 10) {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: NoopMetrics.space3) {
+                sessionStatusPills
+                Spacer(minLength: NoopMetrics.space3)
+                sessionStatusNumbers
+            }
+            VStack(alignment: .leading, spacing: NoopMetrics.space3) {
+                sessionStatusPills
+                sessionStatusNumbers
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var sessionStatusPills: some View {
+        HStack(spacing: NoopMetrics.space2) {
             StatePill(running ? "Session live" : "Ready",
                       tone: running ? .accent : .neutral,
                       pulsing: running)
-
             if live.bonded {
                 StatePill("Haptics on", tone: .positive, showsDot: true)
             } else {
                 StatePill("Visual only", tone: .warning, showsDot: true)
             }
-
-            Spacer()
-
-            HStack(spacing: 6) {
-                if let target = sessionLength.targetSeconds {
-                    Text("\(timeString(sessionSeconds)) / \(timeString(target))")
-                        .font(StrandFont.number(15))
-                        .foregroundStyle(StrandPalette.textPrimary)
-                } else {
-                    Text(timeString(sessionSeconds))
-                        .font(StrandFont.number(15))
-                        .foregroundStyle(StrandPalette.textPrimary)
-                }
-                Text("·").foregroundStyle(StrandPalette.textTertiary)
-                Text("\(breathCount) breaths")
-                    .font(StrandFont.captionNumber)
-                    .foregroundStyle(StrandPalette.textSecondary)
-            }
         }
+        .fixedSize(horizontal: true, vertical: false)
+    }
+
+    private var sessionStatusNumbers: some View {
+        HStack(spacing: NoopMetrics.space2) {
+            if let target = sessionLength.targetSeconds {
+                Text("\(timeString(sessionSeconds)) / \(timeString(target))")
+                    .font(StrandFont.captionNumber)
+                    .foregroundStyle(StrandPalette.textPrimary)
+            } else {
+                Text(timeString(sessionSeconds))
+                    .font(StrandFont.captionNumber)
+                    .foregroundStyle(StrandPalette.textPrimary)
+            }
+            Text("·").foregroundStyle(StrandPalette.textTertiary)
+            Text("\(breathCount) breaths")
+                .font(StrandFont.captionNumber)
+                .foregroundStyle(StrandPalette.textSecondary)
+        }
+        .fixedSize(horizontal: true, vertical: false)
     }
 
     // MARK: - The orb
@@ -372,7 +388,7 @@ private struct BreathingContent: View {
             }
             Spacer(minLength: 8)
             Toggle("", isOn: $audioCues)
-                .labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+                .labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                 .accessibilityLabel("Audio cues")
         }
     }
@@ -458,7 +474,7 @@ private struct BreathingContent: View {
             // guard. `.basedOnSize` permits horizontal bounce only when content genuinely overflows
             // the width, so nothing that is meant to scroll sideways is affected. (#1532 follow-up)
             #if os(iOS)
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
             .navigationTitle(String(localized: "About this pace"))
             #if os(iOS)
@@ -505,7 +521,6 @@ private struct BreathingContent: View {
                         .tracking(0.8)
                         .foregroundStyle(StrandPalette.textTertiary)
                 }
-                .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
                 .allowsHitTesting(false)   // taps fall through to the vessel → splash
             }
             .frame(width: geo.size.width, height: geo.size.height)

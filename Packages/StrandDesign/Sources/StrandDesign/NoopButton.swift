@@ -1,9 +1,8 @@
 import SwiftUI
 
-// MARK: - NoopButton — the unified button system (Design Reset, 2026-06-22)
+// MARK: - NoopButton — native adaptation of 21st Glass Button (4922, jahed)
 //
-// One button, four kinds, no glow. Beauty comes from a crisp filled accent, honest
-// surface fills, restrained spacing and a subtle press — never neon, bloom or a halo.
+// One button, four kinds: a frosted face catches diagonal light and compresses on press.
 // Every colour is a token from `StrandPalette`; every dimension reads off `NoopMetrics`.
 //
 // Two front doors:
@@ -11,13 +10,13 @@ import SwiftUI
 //   • `Button("Save") { … }.buttonStyle(NoopButtonStyle(.primary))`  — adopt on an
 //     existing Button (e.g. a Menu/role button) without rewriting it.
 //
-// Labels are sentence-case (never ALL CAPS), single line, optical-centred with the
-// optional leading icon as one unit, and degrade gracefully under Reduce Motion (the
+// Labels are sentence-case and wrap to their native Dynamic Type height. The
+// optional leading icon stays with the label, and Reduce Motion keeps the
 // press scale drops; only the dim remains).
 
 /// The four button roles. Colour + emphasis differ; geometry is identical across all four.
 public enum NoopButtonKind: Sendable {
-    /// Filled accent (blue), white label — the one primary action on a screen.
+    /// Filled accent with its contrast-aware label — the primary action on a screen.
     case primary
     /// Raised-surface fill, primary-text label, hairline edge — secondary actions.
     case secondary
@@ -34,20 +33,22 @@ public enum NoopButtonKind: Sendable {
 public enum NoopButtonMetrics {
     /// Standard control height (48) — also the source for the min hit target floor.
     public static let height: CGFloat = NoopMetrics.controlHeight
-    /// Corner radius (14) — softer than a card, not a pill.
-    public static let cornerRadius: CGFloat = 14
+    /// The source's pill silhouette, kept rounded when Dynamic Type adds a second line.
+    public static let cornerRadius: CGFloat = NoopMetrics.controlHeight / 2
     /// Horizontal label inset.
     public static let hPadding: CGFloat = 18
+    /// Vertical inset for labels that wrap or grow with Dynamic Type.
+    public static let vPadding: CGFloat = NoopMetrics.space3
     /// Spacing between a leading icon and the label.
     public static let iconSpacing: CGFloat = 8
     /// Label tracking — a hair of openness on the semibold face.
-    public static let tracking: CGFloat = 0.2
+    public static let tracking: CGFloat = 0
     /// Apple's minimum touch target. The button never reports a hit area below this.
     public static let minHitTarget: CGFloat = 44
     /// Pressed scale (spec: subtle 0.97). Reduce-Motion collapses this to 1 (dim only).
-    public static let pressedScale: CGFloat = 0.97
+    public static let pressedScale: CGFloat = 0.99
     /// Pressed dim — a slight opacity drop, applied in BOTH motion modes.
-    public static let pressedOpacity: Double = 0.82
+    public static let pressedOpacity: Double = 0.96
     /// Disabled dim, shared so call sites don't invent their own.
     public static let disabledOpacity: Double = 0.4
 }
@@ -64,8 +65,8 @@ struct NoopButtonAppearance {
         switch kind {
         case .primary:
             fill = StrandPalette.accent
-            label = StrandPalette.goldDeepText   // designated crisp white for text on accent fills
-            border = nil
+            label = StrandPalette.onAccent
+            border = StrandPalette.accent.opacity(0.55)
             usesPanelSurface = false
         case .secondary:
             fill = nil
@@ -74,38 +75,56 @@ struct NoopButtonAppearance {
             usesPanelSurface = true
         case .tertiary:
             fill = nil
-            label = StrandPalette.accent
+            label = StrandPalette.accentInk
             border = nil
             usesPanelSurface = false
         case .destructive:
             fill = StrandPalette.statusCritical
-            label = StrandPalette.goldDeepText   // crisp white on the critical fill
+            label = NoopVisualStyle.onDestructive
             border = nil
             usesPanelSurface = false
         }
     }
 }
 
-// MARK: - The crisp background (no glow, ever)
+// MARK: - Tactile face
 
-/// The flat, glow-free button background: a filled (or unfilled) rounded rect with an
-/// optional hairline edge. No shadow, no blur halo, no additive bloom — restraint only.
+/// Source-derived top light and shallow lift, compressed when held down.
 private struct NoopButtonBackground: View {
     let appearance: NoopButtonAppearance
+    let pressed: Bool
+    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: NoopButtonMetrics.cornerRadius, style: .continuous)
         ZStack {
             if appearance.usesPanelSurface {
-                NoopPanelSurface(cornerRadius: NoopButtonMetrics.cornerRadius)
+                NoopGlassControlSurface(cornerRadius: NoopButtonMetrics.cornerRadius)
             }
             if let fill = appearance.fill {
                 shape.fill(fill)
+                    .overlay(shape.fill(LinearGradient(stops: [
+                        .init(color: .clear, location: 0.2),
+                        .init(color: NoopVisualStyle.controlHighlight.opacity(scheme == .dark ? 0.32 : 0.16), location: 0.43),
+                        .init(color: .clear, location: 0.60)
+                    ], startPoint: .topLeading, endPoint: .bottomTrailing)))
+                    .overlay(shape.strokeBorder(
+                        LinearGradient(
+                            colors: [NoopVisualStyle.controlHighlight.opacity(0.65), .clear,
+                                     NoopVisualStyle.controlHighlight.opacity(0.18)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        ), lineWidth: NoopMetrics.lineWidth
+                    ))
             }
             if let border = appearance.border {
-                shape.strokeBorder(border, lineWidth: 1)
+                shape.strokeBorder(border, lineWidth: NoopMetrics.lineWidth)
             }
         }
+        .shadow(
+            color: NoopVisualStyle.shadow.opacity(appearance.fill == nil && !appearance.usesPanelSurface ? 0 : (scheme == .dark ? 0.24 : 0.08)),
+            radius: pressed ? NoopMetrics.lineWidth : NoopGlassMetrics.controlShadowRadius,
+            x: 0, y: pressed ? 0 : NoopGlassMetrics.controlShadowOffset
+        )
     }
 }
 
@@ -117,8 +136,6 @@ private struct NoopButtonBackground: View {
 public struct NoopButtonStyle: ButtonStyle {
     private let kind: NoopButtonKind
     private let fullWidth: Bool
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.isEnabled) private var isEnabled
 
     public init(_ kind: NoopButtonKind = .primary, fullWidth: Bool = false) {
         self.kind = kind
@@ -126,37 +143,52 @@ public struct NoopButtonStyle: ButtonStyle {
     }
 
     public func makeBody(configuration: Configuration) -> some View {
+        NoopButtonFace(label: configuration.label, kind: kind,
+                       fullWidth: fullWidth, pressed: configuration.isPressed)
+    }
+}
+
+/// Resolve environment in a View so both public and legacy styles inherit disabled and motion state.
+private struct NoopButtonFace<Label: View>: View {
+    let label: Label
+    let kind: NoopButtonKind
+    let fullWidth: Bool
+    let pressed: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isEnabled) private var isEnabled
+
+    var body: some View {
         let appearance = NoopButtonAppearance(kind)
-        let pressed = configuration.isPressed
         // Reduce Motion: no scale, dim only. Otherwise subtle scale + dim.
         let scale: CGFloat = (pressed && !reduceMotion) ? NoopButtonMetrics.pressedScale : 1
         let opacity: Double = pressed ? NoopButtonMetrics.pressedOpacity : 1
 
-        configuration.label
+        label
             .labelStyle(.titleAndIcon)
-            .font(StrandFont.headline.weight(.semibold))
+            .font(StrandFont.body.weight(.semibold))
             .tracking(NoopButtonMetrics.tracking)
-            .lineLimit(1)
-            .minimumScaleFactor(0.9)
+            .lineLimit(nil)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
             .foregroundStyle(appearance.label)
             .frame(maxWidth: fullWidth ? .infinity : nil)
             .padding(.horizontal, NoopButtonMetrics.hPadding)
-            .frame(height: NoopButtonMetrics.height)
-            .frame(minHeight: NoopButtonMetrics.minHitTarget)
+            .padding(.vertical, NoopButtonMetrics.vPadding)
+            .frame(minHeight: NoopButtonMetrics.height)
             .contentShape(Rectangle())
-            .background(NoopButtonBackground(appearance: appearance))
-            .clipShape(RoundedRectangle(cornerRadius: NoopButtonMetrics.cornerRadius, style: .continuous))
+            .background(NoopButtonBackground(appearance: appearance, pressed: pressed))
             .opacity(isEnabled ? opacity : NoopButtonMetrics.disabledOpacity)
             .scaleEffect(scale)
-            .animation(reduceMotion ? nil : StrandMotion.interactive, value: pressed)
+            .offset(y: pressed && !reduceMotion ? 1 : 0)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: pressed)
     }
 }
 
 // MARK: - NoopButton (the convenience view)
 
 /// The unified button. A title (sentence-case `LocalizedStringKey`), an optional leading
-/// SF Symbol, a `NoopButtonKind`, an optional `fullWidth`, and an action. Crisp, flat,
-/// glow-free; subtle press; 44pt hit floor; Reduce-Motion aware.
+/// SF Symbol, a `NoopButtonKind`, an optional `fullWidth`, and an action. Glass face,
+/// directional rim, subtle press, 44pt hit floor and Reduce-Motion support.
 ///
 /// ```swift
 /// NoopButton("Save changes", systemImage: "checkmark", kind: .primary, fullWidth: true) {
@@ -193,8 +225,10 @@ public struct NoopButton: View {
                 if let systemImage {
                     Image(systemName: systemImage)
                         .imageScale(.medium)  // optically centres to the cap height of the label
+                        .fixedSize()
                 }
                 Text(title)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .buttonStyle(NoopButtonStyle(kind, fullWidth: fullWidth))

@@ -8,6 +8,7 @@ import StrandDesign
 /// Shows what the app's own Today sync control shows: that a sync is running, how many chunks it has
 /// pulled, how long it has been going, and the strap's connect-time backlog when it reported one. No
 /// progress bar, because there is no total to draw one against (see `SyncActivityAttributes`).
+@available(iOS 16.1, *)
 struct SyncLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: SyncActivityAttributes.self) { context in
@@ -19,7 +20,7 @@ struct SyncLiveActivity: Widget {
                     Text(context.attributes.title)
                         .font(.caption).foregroundStyle(StrandPalette.textSecondary)
                     Text(context.state.status)
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(StrandFont.number(20, weight: .bold))
                         .foregroundStyle(StrandPalette.textPrimary)
                     if let detail = context.state.detail {
                         Text(detail).font(.caption2).foregroundStyle(StrandPalette.textSecondary)
@@ -28,7 +29,7 @@ struct SyncLiveActivity: Widget {
                 Spacer()
                 if isActive(context.state.phase) {
                     elapsed(since: context.state.startedAt)
-                        .font(.system(.headline, design: .rounded).monospacedDigit())
+                        .font(StrandFont.bodyNumber.weight(.semibold))
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
             }
@@ -49,7 +50,7 @@ struct SyncLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.trailing) {
                     if isActive(context.state.phase) {
                         elapsed(since: context.state.startedAt)
-                            .font(.system(.subheadline, design: .rounded).monospacedDigit())
+                            .font(StrandFont.captionNumber)
                     }
                 }
             } compactLeading: {

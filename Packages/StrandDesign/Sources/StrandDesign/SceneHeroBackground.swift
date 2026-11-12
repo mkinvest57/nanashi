@@ -1,21 +1,10 @@
 import SwiftUI
 
-// MARK: - Scene Hero Background — the day-cycle illustration behind the hero rings
+// MARK: - Static cold-glass background
 //
-// A premium atmospheric wash that fades from the top down behind the top hero cards, picked from
-// ten hand-painted day-cycle illustrations by the CURRENT local hour. It REPLACES the procedural
-// `TimeOfDayBackground` on the HERO only — the scene IS the atmosphere there now — while the rest of
-// the screen stays on the flat canvas.
-//
-// HARD RULES honoured here (standing):
-//  - NO GLOW / no bloom / no blur halos. The scene is a flat image masked by a linear gradient.
-//  - SUBTLE: the image caps at ~0.42 opacity so it reads as an atmospheric wash, never a literal photo.
-//    A faint bottom-up dark scrim under the ring content keeps the white ring numbers + labels crisp
-//    even over a bright midday scene.
-//  - TOKENS first: the dark scrim is built from `StrandPalette.surfaceBase`, the canvas token.
-//  - Each scene asset is PORTRAIT (~0.71 ratio), sky at the top — so we scale to FILL the width and
-//    TOP-align, showing the sky and cropping the overflow, then clip to the hero's rounded-rect bounds.
-//  - The scene is chosen on appear (cheap); it recomputes when the hour changes.
+// The gradient substrate comes from the 21st Glass Card (28259) demo, recolored with Harbor Blue.
+// Broad illumination gives native translucent panes something to sample without a rendering clock.
+// DayCycleScene remains available for existing asset callers and its pure hour mapping.
 
 // MARK: - Hour → scene
 
@@ -54,80 +43,71 @@ public enum DayCycleScene {
     }
 }
 
-// MARK: - Scene hero background view
+// MARK: - Glass backdrop
 
-/// A full-width day-cycle scene placed at the TOP of the hero region, aspect-filled and top-aligned so
-/// the sky shows, masked by a top-down fade to fully transparent by ~70% down, capped at ~0.42 opacity,
-/// over a faint bottom-up dark scrim that protects the ring content's contrast. Clipped to the hero's
-/// rounded-rect bounds. Drop it behind the hero via `.sceneHeroBackground()`.
+/// Theme-aware glass substrate. It contains only static gradients, with no particle or frame clock.
+public struct NoopGlassBackground: View {
+    @Environment(\.colorScheme) private var scheme
+
+    public init() {}
+
+    public var body: some View {
+        NoopEditorialBackdrop(dark: scheme == .dark)
+    }
+}
+
+/// Source-compatible background retaining the fixed-dark contract of detail-screen readouts.
+/// Glass Card's warm demo gradient becomes directional Harbor Blue light; no image is embedded.
+public struct NoopEditorialBackdrop: View {
+    public var dark: Bool
+    public var patterned: Bool
+    public var tint: Color?
+
+    public init(dark: Bool = true, patterned: Bool = true, tint: Color? = nil) {
+        self.dark = dark
+        self.patterned = patterned
+        self.tint = tint
+    }
+
+    public var body: some View {
+        ZStack {
+            dark ? NoopVisualStyle.brandGraphite : StrandPalette.surfaceBase
+            if patterned {
+                RadialGradient(
+                    colors: [NoopVisualStyle.glassMidtone.opacity(dark ? 0.23 : 0.20), .clear],
+                    center: .topTrailing, startRadius: 0,
+                    endRadius: NoopGlassMetrics.backdropRadius
+                )
+                LinearGradient(stops: [
+                    .init(color: NoopVisualStyle.glassLight.opacity(dark ? 0.065 : 0.24), location: 0),
+                    .init(color: .clear, location: 0.44),
+                    .init(color: NoopVisualStyle.glassMidtone.opacity(dark ? 0.035 : 0.08), location: 1)
+                ], startPoint: .topLeading, endPoint: .bottomTrailing)
+            }
+            if let tint { tint.opacity(0.035) }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Source-compatible hero backdrop. The hour parameter remains accepted for existing callers.
 public struct SceneHeroBackground: View {
-
-    /// The local hour driving which scene shows (0...23). Defaults to the current clock hour.
     private let hour: Int
 
     public init(hour: Int = Calendar.current.component(.hour, from: Date())) {
         self.hour = hour
     }
 
-    /// Overall image opacity ceiling — atmospheric wash, never a literal photo.
-    private let imageOpacityCap: Double = 0.42
-    /// The hero's rounded-rect corner radius (matches the card the scene sits behind).
-    private let corner: CGFloat = NoopMetrics.cardRadius
-
     public var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
-            ZStack {
-                // The day-cycle scene: aspect-FILL the width, TOP-aligned so the sky shows; overflow is
-                // cropped by the clip below. A flat image — no blur, no glow.
-                Image(DayCycleScene.assetName(hour: hour))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: w, alignment: .top)
-                    .frame(width: w, height: h, alignment: .top)
-                    .clipped()
-                    // TOP-DOWN FADE: fully visible at the very top, fading to fully transparent by ~70%
-                    // down the hero, so it never crowds the rings/numbers lower in the card.
-                    .mask(
-                        LinearGradient(
-                            stops: [
-                                .init(color: .white, location: 0.0),
-                                .init(color: .white.opacity(0.85), location: 0.30),
-                                .init(color: .white.opacity(0.35), location: 0.55),
-                                .init(color: .clear, location: 0.72),
-                            ],
-                            startPoint: .top, endPoint: .bottom
-                        )
-                    )
-                    .opacity(imageOpacityCap)
-
-                // A faint bottom-up dark scrim built from the canvas token, so white ring numbers + labels
-                // stay crisp even over a bright midday sky. Firmer for bright scenes, lighter otherwise.
-                LinearGradient(
-                    colors: [.clear, StrandPalette.surfaceBase.opacity(DayCycleScene.isBright(hour: hour) ? 0.55 : 0.32)],
-                    startPoint: .center, endPoint: .bottom
-                )
-            }
-            .frame(width: w, height: h)
-            .clipShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
-        }
-        .ignoresSafeArea(edges: [])      // confined to the hero region, not full-bleed
-        .allowsHitTesting(false)          // pure backdrop — never steals touches
-        .accessibilityHidden(true)        // decorative; invisible to VoiceOver
+        NoopEditorialBackdrop()
+            .clipShape(RoundedRectangle(cornerRadius: NoopMetrics.cardRadius, style: .continuous))
     }
 }
 
-// MARK: - Scene SCREEN background — the scene as the PAGE backdrop (cards float OVER it)
-
-/// The day-cycle scene anchored to the TOP of the SCREEN, behind the header + hero card — so it "forms
-/// part of the background" and the cards sit OVER it (the design direction). Aspect-filled to the full width,
-/// top-aligned (sky shows), fading into the canvas over its lower portion so it dissolves before the
-/// dashboard cards. A faint dark scrim under the very top keeps white header text legible on a bright sky.
-/// Place it edge-to-edge as a top-anchored screen background (the caller ignores safe area). No glow.
+/// Full-width glass substrate fading into the theme canvas below the hero content.
 public struct SceneScreenBackground: View {
     private let hour: Int
-    /// How far down the screen the scene reaches before it has fully faded into the canvas.
     public var height: CGFloat
 
     public init(hour: Int = Calendar.current.component(.hour, from: Date()), height: CGFloat = 600) {
@@ -135,39 +115,15 @@ public struct SceneScreenBackground: View {
         self.height = height
     }
 
-    /// Backdrop opacity, near-full so the scene reads VIVIDLY (by design). The dark hero CARD floating over it
-    /// is what keeps the rings/data legible, so the scene itself doesn't need to be muted.
-    private let imageOpacityCap: Double = 0.95
-
     public var body: some View {
-        Image(DayCycleScene.assetName(hour: hour))
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(maxWidth: .infinity)
-            .frame(height: height, alignment: .top)
-            .clipped()
-            // Fade into the canvas over the lower portion so it dissolves before the dashboard cards.
-            .mask(
-                LinearGradient(
-                    stops: [
-                        .init(color: .white, location: 0.0),
-                        .init(color: .white.opacity(0.9), location: 0.34),
-                        .init(color: .white.opacity(0.4), location: 0.62),
-                        .init(color: .clear, location: 0.92),
-                    ],
-                    startPoint: .top, endPoint: .bottom
-                )
-            )
-            .opacity(imageOpacityCap)
-            // A whisper of dark under the very top for header legibility — kept light so the scene reads at
-            // near-full vividness (the design calls for ~95%, not muted).
-            .overlay(
-                LinearGradient(
-                    colors: [StrandPalette.surfaceBase.opacity(0.12), .clear],
-                    startPoint: .top, endPoint: UnitPoint(x: 0.5, y: 0.22)
-                )
-            )
-            .frame(maxHeight: .infinity, alignment: .top)
+        NoopEditorialBackdrop()
+            .overlay(LinearGradient(stops: [
+                .init(color: .clear, location: 0),
+                .init(color: .clear, location: 0.82),
+                .init(color: StrandPalette.surfaceBase, location: 1)
+            ], startPoint: .top, endPoint: .bottom))
+            .frame(height: height)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
     }
@@ -176,8 +132,7 @@ public struct SceneScreenBackground: View {
 // MARK: - Modifier + convenience
 
 public extension View {
-    /// Place the day-cycle `SceneHeroBackground` behind this content (the hero region). Defaults to the
-    /// current clock hour; the scene recomputes when the hour changes (cheap, on appear is fine).
+    /// Place the static editorial backdrop behind the hero, preserving existing hour-based call sites.
     ///
     ///     heroSection.sceneHeroBackground()            // current hour
     ///     heroSection.sceneHeroBackground(hour: 20)    // pinned hour (previews)

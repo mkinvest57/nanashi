@@ -52,7 +52,7 @@ struct CaffeineLogCard: View {
                     // Optional amount — leave blank if you don't know it. We never invent a number.
                     HStack {
                         TextField("Amount in mg (optional)", text: $mgDraft)
-                            .textFieldStyle(.roundedBorder)
+                            .textFieldStyle(NoopTextFieldStyle())
                         #if os(iOS)
                             .keyboardType(.numberPad)
                         #endif
@@ -105,7 +105,7 @@ struct CaffeineLogCard: View {
                 }
                 Spacer(minLength: 8)
                 Toggle("", isOn: $cutoffEnabled)
-                    .labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+                    .labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                     .accessibilityLabel("Warn me about caffeine close to bedtime")
             }
             if cutoffEnabled {

@@ -471,7 +471,7 @@ private struct NoopMotionDemo: View {
                             score = Double(Int.random(in: 12...99))
                         }
                     }
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                 }
 
                 Divider().overlay(StrandPalette.hairline)
@@ -494,7 +494,7 @@ private struct NoopMotionDemo: View {
                     }
                     .id(revealKey)
                     Button("Replay reveal") { revealKey += 1 }
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                 }
 
                 Divider().overlay(StrandPalette.hairline)
@@ -521,7 +521,7 @@ private struct NoopMotionDemo: View {
                             withAnimation(NoopMotion.card) { if !cards.isEmpty { cards.removeLast() } }
                         }
                     }
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                 }
             }
             .padding(28)

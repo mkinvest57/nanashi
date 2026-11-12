@@ -8,6 +8,36 @@ import UIKit
 /// while the strap measures it, the dash while it does not. It follows the strap from process start (`follow`).
 @MainActor
 final class LiveActivityController {
+    static let staleAfter: TimeInterval = 30
+    private let implementation: (any LiveActivityDriving)?
+
+    init() {
+        if #available(iOS 16.2, *) {
+            implementation = SupportedLiveActivityController()
+        } else {
+            implementation = nil
+        }
+    }
+
+    func follow(_ model: AppModel, standsAside: @escaping () -> Bool) {
+        implementation?.follow(model, standsAside: standsAside)
+    }
+
+    func appBecameActive() {
+        implementation?.appBecameActive()
+    }
+}
+
+@MainActor
+private protocol LiveActivityDriving: AnyObject {
+    func follow(_ model: AppModel, standsAside: @escaping () -> Bool)
+    func appBecameActive()
+}
+
+/// Keeps ActivityKit state and its stale-date lifecycle behind the iOS 16.2 boundary.
+@available(iOS 16.2, *)
+@MainActor
+private final class SupportedLiveActivityController: LiveActivityDriving {
     private var activity: Activity<NOOPActivityAttributes>?
     /// What the banner reads — the live heart rate, the link, the day's recovery and effort — set once by `follow`.
     private weak var model: AppModel?
@@ -43,7 +73,7 @@ final class LiveActivityController {
     /// suspends NOOP, so no timer of NOOP's can clear the number: iOS's own stale date is what does it, in at most
     /// this long (a tester's log, 23 Sep 2026). A steady number is re-pushed once half of this has passed
     /// (`LiveHRBannerPushPolicy`), so a banner fed by a worn strap never goes stale.
-    static let staleAfter: TimeInterval = 30
+    static let staleAfter = LiveActivityController.staleAfter
 
     /// Follow the strap from process start, not from a screen. iOS starts NOOP in the background — the strap
     /// reconnecting, a sync, the Sync Strap shortcut — and a process started that way need not build any screen (the

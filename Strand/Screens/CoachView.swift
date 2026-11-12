@@ -7,7 +7,7 @@ import StrandDesign
 /// It is strictly opt-in and bring-your-own-key: the user pastes their own OpenAI
 /// or Anthropic API key (stored in the macOS Keychain by `AICoachEngine`), and only
 /// a compact text summary of their metrics plus their question ever leaves the Mac.
-/// Nothing is sent until a key is saved and a question asked.
+/// Questions use the saved key. Optional briefs and foreground remarks have separate opt-ins.
 ///
 /// This screen compiles against `AICoachEngine`'s public API (the macos-core agent's
 /// contract): `hasKey`, `provider` / `provider.modelOptions`, `model`, `messages`,
@@ -17,6 +17,12 @@ struct CoachView: View {
     /// K8: used by "Save to Journal" — saves the coach advice as a journal entry with the text
     /// in the notes field, so it appears alongside other journal entries in Insights.
     @EnvironmentObject var repo: Repository
+    @Environment(\.scrollToTopSignal) private var scrollToTopSignal
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var scrollFollow = CoachScrollFollowState()
+    @State private var pendingFollow: Task<Void, Never>?
+    @State private var composerOverlayHeight = NoopMetrics.controlHeight + NoopMetrics.space2 * 4
+    @State private var lastTranscriptFrame = CGRect.zero
 
     /// Draft text in the composer (the question being typed).
     /// K15: the composer draft is persisted to UserDefaults so it survives an app relaunch.
@@ -42,11 +48,14 @@ struct CoachView: View {
     /// #2243: the coach settings, presented as a sheet. See `CoachSettingsView` for why a sheet
     /// rather than a push.
     @State private var showSettings = false
+    @State private var setupModelExpanded = false
 
     // K4: on-device voice input for the composer (iOS only). macOS gets a no-op stub via
     // `#if os(iOS)` guards — the shared file keeps compiling for both targets.
     #if os(iOS)
     @StateObject private var voiceInput = CoachVoiceInput()
+    @State private var composerOwnsKeyboard = false
+    @State private var keyboardLayoutRevision = 0
     #endif
 
     /// Sentinel tag for the "Custom…" entry in the model Picker.
@@ -55,39 +64,20 @@ struct CoachView: View {
     /// Contextual suggestion chips, derived from today's bands by `AICoachEngine.suggestions`
     /// (→ `CoachSuggestions`). Falls back to a stable generic set when there is no data. Recomputed
     /// on each body evaluation so a fresh sync immediately updates the chips.
-    private var suggestions: [String] { coach.suggestions }
+    private var suggestions: [String] {
+        coach.suggestions.map { NSLocalizedString($0, comment: "Coach suggested question") }
+    }
 
     var body: some View {
-        ScreenScaffold(title: "Coach",
-                       subtitle: "Ask about your charge, effort, rest and workouts, grounded in your own numbers.",
-                       // Liquid finish: the same full-bleed day-of-sky backdrop Today + the other liquid
-                       // tabs carry, so Coach sits in one atmosphere. Static + non-interactive; the frosted
-                       // message/setup cards below sit on the opaque canvas and stay legible.
-                       topBackground: liquidScaffoldSky()) {
+        Group {
             if coach.isConfigured {
-                connectedHeader
-                transcript
-                if let error = coach.errorText, !error.isEmpty {
-                    errorBanner(error)
-                }
-                if coach.keyRejected || showKeyEditor { keyRepairPanel }
-                // K7: show follow-up chips after each assistant reply (when the transcript is
-                // non-empty and the last message is from the assistant and not mid-send);
-                // otherwise show the initial contextual chips.
-                if showFollowUpChips {
-                    followUpChips
-                } else {
-                    suggestionChips
-                }
-                composer
-                // K12: show a rough token estimate when the draft is non-empty.
-                if !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                   let tokens = coach.estimatedTokens(forDraft: draft) {
-                    tokenEstimateBar(tokens)
-                }
-                privacyFootnote
+                conversation
             } else {
-                setupCard
+                ScreenScaffold(title: "Coach",
+                               subtitle: "Ask about your charge, effort, rest and workouts, grounded in your own numbers.",
+                               topBackground: liquidScaffoldSky(), showsPresence: false) {
+                    setupCard
+                }
             }
         }
         // macOS only. On iOS these actions live in `connectionMenu` instead, because this bar is hidden for
@@ -154,6 +144,7 @@ struct CoachView: View {
         // `startBriefIfNeeded` only ever runs over the network when BOTH of the above left the
         // transcript genuinely empty.
         .task {
+            guard !coach.isLocalDemo else { return }
             await coach.loadPersistedMessagesIfNeeded()
             coach.retireStaleConversationIfNeeded()
             // Gated on the transcript BEFORE consuming. `consumeStoredBrief()` clears the unconsumed
@@ -163,8 +154,11 @@ struct CoachView: View {
             if coach.messages.isEmpty, let stored = CoachBriefScheduler.consumeStoredBrief() {
                 coach.surfaceScheduledBrief(stored)
             }
-            CoachBriefScheduler.activateIfEnabled { await coach.generateBrief() }
-            await coach.startBriefIfNeeded()
+            // Preparing a contextual question is not permission to send an unrelated first-open brief.
+            if coach.pendingDraft == nil && draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                CoachBriefScheduler.activateIfEnabled { await coach.generateBrief() }
+                await coach.startBriefIfNeeded()
+            }
         }
         // #1862: a question handed over by the Today launcher sheet. Cleared BEFORE sending so a view
         // rebuild mid-flight cannot send it twice, and gated on `isConfigured` so an unconfigured handoff
@@ -176,13 +170,27 @@ struct CoachView: View {
             guard coach.isConfigured else { return }
             await coach.send(prompt)
         }
+        // Contextual page remarks prepare a question without sending it. Consume the handoff before
+        // changing the composer, and preserve any text the wearer has already started writing.
+        .task(id: coach.pendingDraft) {
+            guard let pending = coach.pendingDraft else { return }
+            coach.pendingDraft = nil
+            guard !pending.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+            if draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                draft = pending
+            } else {
+                draft += "\n\n" + pending
+            }
+            if coach.isConfigured { composerFocused = true }
+        }
         // K15: persist the composer draft so it survives an app relaunch.
         .onChangeCompat(of: draft) { newValue in
+            guard !coach.isLocalDemo else { return }
             UserDefaults.standard.set(newValue, forKey: Self.draftKey)
         }
         // K14: haptic feedback when a reply arrives (sending goes true → false).
         .onChangeCompat(of: coach.sending) { isSending in
-            if !isSending && !coach.messages.isEmpty {
+            if !isSending && coach.errorText == nil && coach.messages.last?.role == .assistant {
                 triggerReplyHaptic()
             }
         }
@@ -190,7 +198,11 @@ struct CoachView: View {
         // behaviour); the guard inside `startBriefIfNeeded` (messages.isEmpty) keeps this a no-op once
         // a conversation exists.
         .onChangeCompat(of: coach.dataConsent) { _ in
-            Task { await coach.startBriefIfNeeded() }
+            Task {
+                guard coach.pendingDraft == nil,
+                      draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+                await coach.startBriefIfNeeded()
+            }
         }
     }
 
@@ -201,14 +213,14 @@ struct CoachView: View {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 10) {
                     Image(systemName: "sparkles")
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     Text("Connect a provider")
                         .font(StrandFont.headline)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
 
-                Text("Coach uses your own API key. Pick a provider, paste a key, and choose a model. Your key is stored securely in the Keychain and never leaves \(Platform.deviceNounPhrase) except as the request you make.")
+                Text("Choose your provider and add its API key. A model is already selected; your key stays in the secure Keychain.")
                     .font(StrandFont.subhead)
                     .foregroundStyle(StrandPalette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -222,7 +234,10 @@ struct CoachView: View {
                         }
                     }
                     .labelsHidden()
-                    .pickerStyle(.segmented)
+                    .pickerStyle(.menu)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(NoopMetrics.space3)
+                    .background(NoopPanelSurface(cornerRadius: NoopVisualStyle.compactRadius))
                     .accessibilityLabel("Provider")
                 }
 
@@ -264,8 +279,26 @@ struct CoachView: View {
                     }
                 }
 
-                // Model
-                modelSelector
+                // The default model is ready; custom servers may require a specific installed model.
+                if coach.provider == .custom {
+                    modelSelector
+                } else {
+                    Button {
+                        setupModelExpanded.toggle()
+                    } label: {
+                        HStack(spacing: NoopMetrics.space2) {
+                            Text("Choose a different model")
+                            Spacer()
+                            Image(systemName: setupModelExpanded ? "chevron.up" : "chevron.down")
+                        }
+                        .font(StrandFont.footnote)
+                        .foregroundStyle(StrandPalette.textSecondary)
+                        .frame(minHeight: NoopMetrics.controlHeight)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    if setupModelExpanded { modelSelector }
+                }
 
                 // Key
                 VStack(alignment: .leading, spacing: 6) {
@@ -326,8 +359,8 @@ struct CoachView: View {
                         .labelStyle(.titleAndIcon)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(StrandPalette.accent)
-                .disabled(!coach.hasKey)
+                .foregroundStyle(StrandPalette.accentInk)
+                .disabled((!coach.hasKey && coach.provider != .custom) || coach.refreshingModels)
                 .help("Fetch the available models from \(coach.provider.displayName) using your saved key")
                 .accessibilityLabel("Refresh models from provider")
             }
@@ -394,24 +427,32 @@ struct CoachView: View {
     // MARK: - Connected state
 
     private var connectedHeader: some View {
-        HStack(spacing: 10) {
-            StatePill("\(coach.provider.displayName) · \(coach.model)", tone: .accent, showsDot: true)
-            Spacer()
-            if coach.sending {
-                StatePill("Thinking", tone: .accent, pulsing: true)
+        HStack(spacing: NoopMetrics.space2) {
+            VStack(alignment: .leading, spacing: NoopMetrics.spaceHalf) {
+                Text(coach.isLocalDemo ? String(localized: "Local demo") : coach.provider.displayName)
+                    .font(StrandFont.subhead)
+                    .foregroundStyle(StrandPalette.textPrimary)
+                Text(coach.isLocalDemo ? String(localized: "Synthetic conversation. No API request is sent.")
+                     : coach.dataConsent ? String(localized: "Personal answers") : String(localized: "General answers"))
+                    .font(StrandFont.footnote)
+                    .foregroundStyle(StrandPalette.textSecondary)
+                    .lineLimit(2)
             }
+            Spacer()
             // #2243: the way through to what used to be stacked under this header.
             Button {
                 showSettings = true
             } label: {
                 Image(systemName: "slider.horizontal.3")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(StrandFont.subhead)
                     .foregroundStyle(StrandPalette.textSecondary)
+                    .frame(width: NoopMetrics.controlHeight, height: NoopMetrics.controlHeight)
+                    .background(NoopPanelSurface(cornerRadius: NoopVisualStyle.pillRadius))
             }
             .buttonStyle(.plain)
             .accessibilityLabel(String(localized: "Coach settings"))
             #if os(iOS)
-            connectionMenu
+            if !coach.isLocalDemo { connectionMenu.disabled(coach.sending) }
             #endif
         }
     }
@@ -470,53 +511,208 @@ struct CoachView: View {
             Image(systemName: "ellipsis.circle")
                 .font(StrandFont.headline)
                 .foregroundStyle(StrandPalette.textSecondary)
+                .frame(width: NoopMetrics.controlHeight, height: NoopMetrics.controlHeight)
         }
         .accessibilityLabel("Connection")
     }
     #endif
 
-    private var transcript: some View {
-        StrandCard(padding: 16) {
-            if coach.messages.isEmpty {
-                emptyTranscript
-            } else {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        // Lazy so off-screen bubbles aren't all resident/laid-out at once; with the
-                        // `maxStoredMessages` cap the transcript is already bounded, this keeps render cost flat.
-                        LazyVStack(alignment: .leading, spacing: 12) {
-                            ForEach(coach.messages) { message in
-                                bubble(message).id(message.id)
-                            }
-                            if coach.sending {
-                                typingIndicator.id("typing")
+    /// Assistant Composer (#38323) supplies a growing field and one Send/Stop action. The native
+    /// compact adaptation floats over the transcript, reserving its measured height in scroll content.
+    private var conversation: some View {
+        ScrollViewReader { proxy in
+            GeometryReader { viewport in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: NoopMetrics.space5) {
+                        Text("Coach")
+                            .font(StrandFont.title1)
+                            .foregroundStyle(StrandPalette.textPrimary)
+                            .id("coach.top")
+                            .background(NoopDockScrollOffsetProbe())
+                        connectedHeader
+                        NanashiPresenceSettings(compact: true)
+                        if !coach.isLocalDemo {
+                            Text(coach.dataConsent
+                                 ? "Your latest available data is read again for each question."
+                                 : "Data access is off. Coach can only give general guidance.")
+                                .font(StrandFont.footnote)
+                                .foregroundStyle(StrandPalette.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        if coach.messages.isEmpty && !coach.sending {
+                            emptyTranscript
+                        }
+                        ForEach(coach.messages) { message in
+                            if !message.text.isEmpty { bubble(message).id(message.id) }
+                        }
+                        if coach.sending && (coach.messages.last?.text.isEmpty != false) {
+                            typingIndicator
+                        }
+                        if let error = coach.errorText, !error.isEmpty { errorBanner(error) }
+                        if coach.keyRejected || showKeyEditor { keyRepairPanel }
+                        if coach.canRetryLastQuestion {
+                            NoopButton("Retry question", systemImage: "arrow.clockwise", kind: .secondary) {
+                                Task { await coach.retryLastQuestion() }
                             }
                         }
-                        .padding(.vertical, 2)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        if !coach.sending {
+                            if showFollowUpChips { followUpChips } else { suggestionChips }
+                        }
+                        privacyFootnote
+                        // The anchor includes the overlay reservation, so scrolling to its bottom
+                        // leaves the final text above the floating composer rather than behind it.
+                        Color.clear.frame(height: composerOverlayHeight).id("coach.end")
                     }
-                    // #697 parity: this screen builds its OWN ScrollView rather than going through
-                    // ScreenScaffold, so it never inherited the scaffold's horizontal-bounce suppression and
-                    // could still rubber-band left-right on a purely vertical scroll. Same modifier, same
-                    // guard. `.basedOnSize` permits horizontal bounce only when content genuinely overflows
-                    // the width, so nothing that is meant to scroll sideways is affected. (#1532 follow-up)
-                    #if os(iOS)
-                    .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
-                    #endif
-                    .frame(minHeight: 220, maxHeight: 460)
-                    .onChangeCompat(of: coach.messages.count) { _ in
-                        scrollToEnd(proxy)
-                    }
-                    .onChangeCompat(of: coach.sending) { _ in
-                        scrollToEnd(proxy)
+                    .padding(.horizontal, NoopMetrics.screenHPadding)
+                    .padding(.vertical, NoopMetrics.space5)
+                    .frame(maxWidth: NoopMetrics.pageMaxWidth)
+                    .frame(maxWidth: .infinity)
+                    .background {
+                        GeometryReader { content in
+                            Color.clear.preference(key: CoachTranscriptFrameKey.self,
+                                value: content.frame(in: .named(NoopDockScrollOffsetProbe.coordinateSpaceName)))
+                        }
                     }
                 }
+                .coordinateSpace(name: NoopDockScrollOffsetProbe.coordinateSpaceName)
+                #if os(iOS)
+                .scrollDismissesKeyboard(.interactively)
+                .scrollBounceBasedOnSizeCompat(axes: .horizontal)
+                #endif
+                .onPreferenceChange(CoachTranscriptFrameKey.self) { frame in
+                    if lastTranscriptFrame != frame { lastTranscriptFrame = frame }
+                    let follow = scrollFollow.observe(
+                        distanceFromBottom: Double(frame.maxY - viewport.size.height),
+                        contentHeight: Double(frame.height), viewportHeight: Double(viewport.size.height),
+                        nearBottomThreshold: Double(NoopMetrics.controlHeight + NoopMetrics.space4))
+                    if follow { scheduleFollow(proxy) }
+                }
+                .onChangeCompat(of: viewport.size.height) { height in
+                    // A keyboard can resize the viewport without changing the transcript's frame.
+                    // Observe that boundary explicitly, and only move readers who already followed.
+                    guard lastTranscriptFrame.height > 0 else { return }
+                    let wasFollowing = scrollFollow.shouldFollow
+                    let follow = scrollFollow.observe(
+                        distanceFromBottom: Double(lastTranscriptFrame.maxY - height),
+                        contentHeight: Double(lastTranscriptFrame.height), viewportHeight: Double(height),
+                        nearBottomThreshold: Double(NoopMetrics.controlHeight + NoopMetrics.space4))
+                    if wasFollowing && follow { scheduleFollow(proxy) }
+                }
+                .simultaneousGesture(DragGesture(minimumDistance: NoopMetrics.space2)
+                    .onChanged { gesture in
+                        guard abs(gesture.translation.height) > abs(gesture.translation.width) else { return }
+                        scrollFollow.beginInteraction(towardHistory: gesture.translation.height > 0)
+                        pendingFollow?.cancel()
+                        pendingFollow = nil
+                    }
+                    .onEnded { _ in
+                        scrollFollow.endInteraction()
+                        if scrollFollow.shouldFollow { scheduleFollow(proxy) }
+                    })
+                .overlay(alignment: .bottom) {
+                    if !coach.messages.isEmpty &&
+                        (!scrollFollow.followsLatest || (!coach.sending && !scrollFollow.isNearBottom)) {
+                        Button {
+                            scrollFollow.showLatest()
+                            withAnimation(reduceMotion ? nil : NoopMotion.card) {
+                                scrollToEnd(proxy)
+                            }
+                        } label: {
+                            Label("Latest response", systemImage: "arrow.down")
+                                .font(StrandFont.subhead)
+                                .foregroundStyle(StrandPalette.textPrimary)
+                                .padding(.horizontal, NoopMetrics.space4)
+                                .frame(minHeight: NoopMetrics.controlHeight)
+                                .background(NoopPanelSurface(cornerRadius: NoopVisualStyle.pillRadius, elevated: true))
+                        }
+                        .buttonStyle(LiquidPressStyle())
+                        .padding(.bottom, composerOverlayHeight + NoopMetrics.space2)
+                        .accessibilityIdentifier("coach.latest-response")
+                    }
+                }
+            }
+            .overlay(alignment: .bottom) {
+                floatingComposer
+                    .background {
+                        GeometryReader { geometry in
+                            Color.clear.preference(key: CoachComposerHeightKey.self,
+                                                   value: geometry.size.height)
+                        }
+                    }
+            }
+            .onPreferenceChange(CoachComposerHeightKey.self) { height in
+                guard height.isFinite, height > 0,
+                      abs(composerOverlayHeight - height) > NoopMetrics.hairlineWidth else { return }
+                composerOverlayHeight = height
+            }
+            .background(alignment: .top) {
+                ZStack(alignment: .top) {
+                    StrandPalette.surfaceBase
+                    liquidScaffoldSky()
+                }.ignoresSafeArea()
+            }
+            #if os(iOS)
+            .onChangeCompat(of: composerFocused) { focused in
+                if focused && !showSettings {
+                    // Focus arrives before the keyboard can move the scroll view. Do not derive
+                    // follow intent from intermediate keyboard-avoidance geometry.
+                    composerOwnsKeyboard = true
+                    scrollFollow.beginViewportTransition()
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { _ in
+                guard !showSettings, composerFocused || composerOwnsKeyboard else { return }
+                scrollFollow.beginViewportTransition()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidChangeFrameNotification)) { _ in
+                guard scrollFollow.isViewportTransitionPending else { return }
+                keyboardLayoutRevision &+= 1
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidHideNotification)) { _ in
+                composerOwnsKeyboard = false
+            }
+            .task(id: keyboardLayoutRevision) {
+                guard keyboardLayoutRevision > 0 else { return }
+                // The system's did-change event bounds this correction to a settled keyboard.
+                // Yield for SwiftUI's matching layout commit, without a timing-based retry loop.
+                await Task.yield()
+                guard !Task.isCancelled, scrollFollow.completeViewportTransition() else { return }
+                pendingFollow?.cancel()
+                pendingFollow = nil
+                scrollToEnd(proxy)
+            }
+            #endif
+            .onChangeCompat(of: scrollToTopSignal) { _ in
+                scrollFollow.pause()
+                pendingFollow?.cancel()
+                pendingFollow = nil
+                proxy.scrollTo("coach.top", anchor: .top)
+            }
+            .task(id: coach.messages.first?.id) {
+                guard !coach.messages.isEmpty else { return }
+                // A first preference may precede ScrollViewReader registering the restored rows.
+                // Retry that initial placement after layout settles, but never after user navigation.
+                for attempt in 0..<3 {
+                    do { try await Task.sleep(nanoseconds: 150_000_000) }
+                    catch { return }
+                    guard scrollFollow.canPositionInitialTranscript else { return }
+                    if attempt > 0, scrollFollow.isNearBottom { return }
+                    scrollToEnd(proxy)
+                }
+            }
+            .onDisappear {
+                pendingFollow?.cancel()
+                pendingFollow = nil
+                scrollFollow.cancelViewportTransition()
+                #if os(iOS)
+                composerOwnsKeyboard = false
+                #endif
             }
         }
     }
 
     private var emptyTranscript: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: NoopMetrics.space2) {
             Text("Ask your first question")
                 .font(StrandFont.headline)
                 .foregroundStyle(StrandPalette.textPrimary)
@@ -525,7 +721,9 @@ struct CoachView: View {
                 .foregroundStyle(StrandPalette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
+        .padding(NoopMetrics.cardPadding)
+        .background(NoopPanelSurface())
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 
     @ViewBuilder
@@ -533,33 +731,31 @@ struct CoachView: View {
         switch message.role {
         case .user:
             HStack {
-                Spacer(minLength: 48)
+                Spacer(minLength: NoopMetrics.space8)
                 Text(message.text)
                     .font(StrandFont.body)
-                    .foregroundStyle(StrandPalette.surfaceBase)
+                    .foregroundStyle(StrandPalette.textPrimary)
                     .textSelection(.enabled)
                     .multilineTextAlignment(.leading)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(StrandPalette.accent, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .frame(maxWidth: 520, alignment: .trailing)
+                    .padding(NoopMetrics.space4)
+                    .background(NoopPanelSurface(tint: StrandPalette.accent,
+                                                cornerRadius: NoopVisualStyle.compactRadius))
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel("You said: \(message.text)")
         case .assistant:
-            // LLM replies arrive as Markdown (bold, lists, headings, tables),             // rendered with the chat-bubble-sized Strand theme. User bubbles stay
-            // verbatim `Text` so typed `*`/`#` never turn into surprise formatting.
-            // The reply sits on a frosted Charge-tinted surface, a card, not a flat box.
+            // Render assistant Markdown with the shared theme; user text stays verbatim so typed
+            // formatting characters do not turn into unexpected markup.
             // K8: context menu (long-press / right-click) with Copy, Share, and Save actions.
-            HStack {
+            VStack(alignment: .leading, spacing: NoopMetrics.space3) {
+                Label("Coach", systemImage: "sparkles")
+                    .font(StrandFont.footnote)
+                    .foregroundStyle(StrandPalette.accentInk)
                 Markdown(message.text)
                     .markdownTheme(.strand)
                     .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 11)
-                    .frostedCardSurface(tint: StrandPalette.chargeColor, cornerRadius: 16)
-                    .frame(maxWidth: 560, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     // K8: Copy / Share / Save context menu on assistant replies.
                     .contextMenu {
                         Button {
@@ -581,25 +777,24 @@ struct CoachView: View {
                             Label("Save to Journal", systemImage: "square.and.pencil")
                         }
                     }
-                Spacer(minLength: 48)
             }
+            .padding(NoopMetrics.space4)
+            .background(NoopPanelSurface())
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Coach said: \(message.text)")
         }
     }
 
     private var typingIndicator: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: NoopMetrics.space2) {
             ProgressView().controlSize(.small).tint(StrandPalette.accent)
             Text("Coach is thinking…")
                 .font(StrandFont.subhead)
                 .foregroundStyle(StrandPalette.textSecondary)
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 11)
-        .frostedCardSurface(tint: StrandPalette.chargeColor, cornerRadius: 16)
-        .frame(maxWidth: 320, alignment: .leading)
+        .padding(NoopMetrics.space4)
+        .background(NoopPanelSurface(cornerRadius: NoopVisualStyle.compactRadius))
         .accessibilityLabel("Coach is thinking")
     }
 
@@ -684,8 +879,9 @@ struct CoachView: View {
                         Text(prompt)
                             .font(StrandFont.captionNumber)
                             .foregroundStyle(StrandPalette.textSecondary)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
+                            .padding(.horizontal, NoopMetrics.space3)
+                            .padding(.vertical, NoopMetrics.space2)
+                            .frame(minHeight: NoopMetrics.controlHeight)
                             .background(StrandPalette.surfaceInset, in: Capsule(style: .continuous))
                             .overlay(Capsule(style: .continuous).strokeBorder(StrandPalette.hairline, lineWidth: 1))
                     }
@@ -713,15 +909,17 @@ struct CoachView: View {
     private var followUpChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(AICoachEngine.followUpSuggestions, id: \.self) { prompt in
+                ForEach(AICoachEngine.followUpSuggestions, id: \.self) { promptKey in
+                    let prompt = NSLocalizedString(promptKey, comment: "Coach follow-up question")
                     Button {
                         send(prompt)
                     } label: {
                         Text(prompt)
                             .font(StrandFont.captionNumber)
                             .foregroundStyle(StrandPalette.textSecondary)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
+                            .padding(.horizontal, NoopMetrics.space3)
+                            .padding(.vertical, NoopMetrics.space2)
+                            .frame(minHeight: NoopMetrics.controlHeight)
                             .background(StrandPalette.surfaceInset, in: Capsule(style: .continuous))
                             .overlay(Capsule(style: .continuous).strokeBorder(StrandPalette.hairline, lineWidth: 1))
                     }
@@ -753,56 +951,61 @@ struct CoachView: View {
         .padding(.top, 2)
     }
 
-    /// The input bar, a frosted overlay surface holding the field + Send, so the composer reads as a
-    /// distinct docked surface above the canvas rather than two floating controls.
+    /// The glass control floats by itself: no full-width opaque footer behind it. Native keyboard
+    /// safe-area changes move the overlay; the shell separately reserves the dock when it is visible.
+    private var floatingComposer: some View {
+        VStack(alignment: .leading, spacing: NoopMetrics.space1) {
+            composer
+            // Ordinary drafts need no technical counter. Keep the meaningful large-context warning.
+            if composerFocused, let tokens = coach.estimatedTokens(forDraft: draft), tokens > 8000 {
+                tokenEstimateBar(tokens)
+                    .padding(.horizontal, NoopMetrics.space3)
+            }
+        }
+        .padding(.horizontal, NoopMetrics.screenHPadding)
+        .padding(.vertical, NoopMetrics.space2)
+        .frame(maxWidth: NoopMetrics.pageMaxWidth)
+        .frame(maxWidth: .infinity)
+    }
+
+    /// Compact mobile adaptation of Assistant Composer: input and actions share one row at rest.
+    /// A multiline draft grows upward; 44-point controls remain reachable beside the last input line.
     private var composer: some View {
-        HStack(alignment: .bottom, spacing: 10) {
-            TextField("Ask Coach about your data…", text: $draft, axis: .vertical)
+        HStack(alignment: .bottom, spacing: NoopMetrics.space2) {
+            TextField("Message", text: $draft,
+                      prompt: Text("Message").foregroundColor(StrandPalette.textSecondary),
+                      axis: .vertical)
                 .textFieldStyle(.plain)
                 .font(StrandFont.body)
                 .foregroundStyle(StrandPalette.textPrimary)
-                .lineLimit(1...5)
+                .lineLimit(1...4)
                 .focused($composerFocused)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 9)
-                .background(StrandPalette.surfaceInset, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(composerFocused ? StrandPalette.focusRing : StrandPalette.hairline, lineWidth: 1))
+                .frame(minHeight: NoopMetrics.controlHeight, alignment: .center)
+                .padding(.leading, NoopMetrics.space2)
                 .onSubmit { send(draft) }
                 .accessibilityLabel("Question")
-
-            // K4: on-device voice input (iOS only). macOS compiles this section out entirely.
             #if os(iOS)
             micButton
             #endif
-
-            // Docked icon-only send affordance: a crisp accent-filled square sized to the
-            // composer row (not the full 48pt control height), so it routes through the same
-            // token fill/label colours as the button system without overpowering the field.
             Button {
-                send(draft)
+                if coach.sending { coach.stopResponse() } else { send(draft) }
             } label: {
-                Group {
-                    if coach.sending {
-                        ProgressView().controlSize(.small).tint(StrandPalette.goldDeepText)
-                    } else {
-                        Image(systemName: "arrow.up")
-                            .font(.system(size: 15, weight: .semibold))
-                    }
-                }
-                .frame(width: 44, height: 38)
-                .foregroundStyle(StrandPalette.goldDeepText)
-                .background(StrandPalette.accent,
-                            in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                Image(systemName: coach.sending ? "stop.fill" : "arrow.up")
+                    .font(StrandFont.headline)
+                    .frame(width: NoopMetrics.controlHeight, height: NoopMetrics.controlHeight)
+                    .foregroundStyle(StrandPalette.onAccent)
+                    .background(StrandPalette.accent, in: Circle())
             }
-            .buttonStyle(.plain)
-            .disabled(coach.sending || draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .accessibilityLabel("Send")
+            .buttonStyle(LiquidPressStyle())
+            .disabled(!coach.sending && draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .accessibilityLabel(coach.sending ? Text("Stop response") : Text("Send"))
         }
-        .padding(8)
-        .background(NoopPanelSurface(cornerRadius: 16))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous)
-            .strokeBorder(StrandPalette.hairline, lineWidth: 1))
+        .padding(NoopMetrics.space2)
+        .background(NoopPanelSurface(cornerRadius: NoopVisualStyle.cardRadius, elevated: true))
+        .overlay(RoundedRectangle(cornerRadius: NoopVisualStyle.cardRadius, style: .continuous)
+            .strokeBorder(composerFocused ? StrandPalette.focusRing : StrandPalette.hairline,
+                          lineWidth: NoopMetrics.hairlineWidth))
+        .accessibilityIdentifier("coach.floating-composer")
     }
 
     // MARK: - K4: Voice input (iOS only)
@@ -818,18 +1021,18 @@ struct CoachView: View {
             Group {
                 if voiceInput.isRecording {
                     Image(systemName: "stop.circle.fill")
-                        .font(.system(size: 18, weight: .medium))
+                        .font(StrandFont.headline)
                         .foregroundStyle(StrandPalette.statusCritical)
                 } else {
                     Image(systemName: "mic.fill")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(canUseVoice ? StrandPalette.textSecondary : StrandPalette.textTertiary)
+                        .font(StrandFont.subhead)
+                        .foregroundStyle(micButtonEnabled ? StrandPalette.textSecondary : StrandPalette.textTertiary)
                 }
             }
-            .frame(width: 36, height: 38)
+            .frame(width: NoopMetrics.controlHeight, height: NoopMetrics.controlHeight)
             .background(StrandPalette.surfaceInset,
-                        in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        in: Circle())
+            .overlay(Circle()
                 .strokeBorder(StrandPalette.hairline, lineWidth: 1))
         }
         .buttonStyle(.plain)
@@ -837,12 +1040,6 @@ struct CoachView: View {
         .help(voiceInput.statusMessage ?? "Ask out loud")
         .accessibilityLabel(voiceInput.isRecording ? "Stop voice input" : "Voice input")
         .accessibilityHint(voiceInput.statusMessage ?? "Transcribes your question on-device")
-        .task {
-            // Pre-check on appear so the button reflects the right state without a tap.
-            if voiceInput.authorization == .notDetermined {
-                voiceInput.requestAuthorization { _ in }
-            }
-        }
     }
 
     /// Whether the mic button is tappable: not while sending, and only if voice is either
@@ -883,9 +1080,10 @@ struct CoachView: View {
 
     private var privacyFootnote: some View {
         Label {
-            Text(coach.provider == .custom
+            NanashiPresencePrivacyText(fallback: Text(coach.isLocalDemo ? "Synthetic conversation. No API request is sent." : coach.provider == .custom
                  ? "Coach talks only to the server URL you set. Point it at a local model (Ollama, LM Studio, llama.cpp) to keep everything on your own machine. Nothing is sent until you ask."
-                 : "This is the only feature that leaves \(Platform.deviceNounPhrase). It sends a summary of your metrics to \(coach.provider.displayName) using your own key. Nothing is sent until you ask.")
+                 : "This is the only feature that leaves \(Platform.deviceNounPhrase). It sends a summary of your metrics to \(coach.provider.displayName) using your own key. Nothing is sent until you ask."),
+                 provider: coach.provider.displayName)
                 .font(StrandFont.footnote)
                 .foregroundStyle(StrandPalette.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -902,7 +1100,7 @@ struct CoachView: View {
         let trimmed = keyDraft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         coach.setKey(trimmed)
-        keyDraft = ""
+        if coach.errorText == nil { keyDraft = "" }
     }
 
     /// Commit the Custom (local) provider: save an optional key, then connect on the entered URL.
@@ -920,6 +1118,7 @@ struct CoachView: View {
         guard !trimmed.isEmpty, !coach.sending else { return }
         draft = ""
         composerFocused = false
+        scrollFollow.showLatest()
         Task { await coach.send(trimmed) }
     }
 
@@ -936,6 +1135,7 @@ struct CoachView: View {
     /// entries in Insights and can be reviewed later. Uses the existing journal API with a
     /// fixed question ("Coach advice") and the reply text in the notes field.
     private func saveAdvice(_ text: String) {
+        guard !coach.isLocalDemo else { return }
         let day = Repository.localDayKey(Date())
         Task {
             await repo.saveJournalAnswer(
@@ -947,13 +1147,33 @@ struct CoachView: View {
         }
     }
 
-    private func scrollToEnd(_ proxy: ScrollViewProxy) {
-        withAnimation(StrandMotion.fade) {
-            if coach.sending {
-                proxy.scrollTo("typing", anchor: .bottom)
-            } else if let last = coach.messages.last {
-                proxy.scrollTo(last.id, anchor: .bottom)
-            }
+    /// Coalesce layout changes while streaming. No animation or per-token scroll; cancel promptly
+    /// when the reader takes control or leaves the screen.
+    private func scheduleFollow(_ proxy: ScrollViewProxy) {
+        guard scrollFollow.shouldFollow, pendingFollow == nil else { return }
+        pendingFollow = Task { @MainActor in
+            do { try await Task.sleep(nanoseconds: 100_000_000) }
+            catch { return }
+            pendingFollow = nil
+            guard scrollFollow.shouldFollow else { return }
+            scrollToEnd(proxy)
         }
+    }
+
+    private func scrollToEnd(_ proxy: ScrollViewProxy) {
+        proxy.scrollTo("coach.end", anchor: .bottom)
+    }
+}
+
+private struct CoachTranscriptFrameKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) { value = nextValue() }
+}
+
+/// Measures only composer height, never scroll position or a per-frame transformed rectangle.
+private struct CoachComposerHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }

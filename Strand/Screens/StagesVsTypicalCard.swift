@@ -21,7 +21,7 @@ struct StagesVsTypicalCard: View {
         // Per-stage typical means are computed ONCE in the model build (each a full pass
         // over repo.days) and read here.
         VStack(alignment: .leading, spacing: NoopMetrics.gap) {
-            SectionHeader("Stages vs typical", overline: "Last night")
+            SectionHeader("Stages vs typical", overline: "Sleep", trailing: model.night.spanLabel)
             NoopCard(tint: StrandPalette.restColor) {
                 VStack(alignment: .leading, spacing: NoopMetrics.space4) {
                     stageRow(stage: String(localized: "Deep"),  last: s.deep,  typical: model.typicalDeepMin,  nightTotal: s.total, color: StrandPalette.sleepDeep)
@@ -102,16 +102,14 @@ struct StagesVsTypicalCard: View {
             }
             .frame(height: 12)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(stageRowAccessibilityLabel(label: label, last: last, sharePct: sharePct, typical: typical))
+            .accessibilityLabel(stageRowAccessibilityLabel(label: label, last: last, sharePct: sharePct))
+            .accessibilityValue(typical.map { String(localized: "typically \(durationText($0))") } ?? "")
         }
     }
 
-    /// Whole-string VoiceOver label for a stage row: one key per variant, never a stitched tail fragment.
-    private func stageRowAccessibilityLabel(label: String, last: Double, sharePct: Int, typical: Double?) -> String {
-        if let typical, typical > 0 {
-            return String(localized: "\(label): \(durationText(last)) last night, \(sharePct) percent of the night, typical \(durationText(typical))")
-        }
-        return String(localized: "\(label): \(durationText(last)) last night, \(sharePct) percent of the night")
+    /// Date-neutral VoiceOver label; the section names the model's actual night for every host.
+    private func stageRowAccessibilityLabel(label: String, last: Double, sharePct: Int) -> String {
+        String(localized: "\(label): \(durationText(last)), \(sharePct) percent of the night")
     }
 
     /// Minutes → "Xm" / "Yh Zm" (verbatim of `SleepView.durationText`). Kept local to the card so it renders

@@ -913,9 +913,8 @@ private struct FitnessAgeSection: View {
                                      animated: true, tapPassesThrough: true)
                             .frame(width: 96, height: 96)
                         CountUpNumber(value: Double(shown), font: StrandFont.rounded(30), prefix: bound)
-                            .foregroundStyle(.white)
-                            .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
-                            .allowsHitTesting(false)
+                            .foregroundStyle(StrandPalette.textPrimary)
+                                    .allowsHitTesting(false)
                     }
                     VStack(alignment: .leading, spacing: NoopMetrics.space1) {
                         Text("Fitness Age").strandOverline()
@@ -978,7 +977,7 @@ private struct FitnessAgeSection: View {
             } label: {
                 HStack(spacing: NoopMetrics.space2) {
                     Image(systemName: "info.circle")
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     Text("How accurate is this?")
                         .font(StrandFont.subhead)
@@ -1081,7 +1080,7 @@ private struct ReadinessChecklistCard: View {
                             Button(action: onRefresh) {
                                 Image(systemName: "arrow.clockwise")
                                     .font(StrandFont.subhead)
-                                    .foregroundStyle(StrandPalette.accent)
+                                    .foregroundStyle(StrandPalette.accentInk)
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel("Refresh Fitness Age now")
@@ -1151,7 +1150,7 @@ private struct ReadinessChecklistCard: View {
                 Button(action: onFix) {
                     Text("Fix in Settings")
                         .font(StrandFont.footnote.weight(.semibold))
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("\(item.label): \(item.detail). Fix in Settings.")
@@ -1260,9 +1259,8 @@ private struct VitalitySection: View {
                             .frame(width: 108, height: 108)
                         VStack(spacing: 0) {
                             CountUpNumber(value: v, font: StrandFont.rounded(38))
-                                .foregroundStyle(.white)
-                                .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
-                            Text("of 100").font(StrandFont.caption).foregroundStyle(StrandPalette.textSecondary)
+                                .foregroundStyle(StrandPalette.textPrimary)
+                                        Text("of 100").font(StrandFont.caption).foregroundStyle(StrandPalette.textSecondary)
                         }
                         .allowsHitTesting(false)
                     }

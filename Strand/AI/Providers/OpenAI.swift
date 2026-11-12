@@ -10,26 +10,13 @@ struct OpenAIClient: AIProviderClient {
         messages: [(role: ChatMessage.Role, content: String)],
         session: URLSession
     ) async throws -> String {
-        var wire: [[String: Any]] = [["role": "system", "content": systemPrompt]]
-        for m in messages { wire.append(["role": m.role.rawValue, "content": m.content]) }
-
-        // Standard params first (gpt-4 family). Newer/reasoning models reject `temperature` and want
-        // `max_completion_tokens`; if the provider 400s about either, retry with the modern shape.
-        do {
-            return try await chat(key: key, model: model, wire: wire, modernParams: false, session: session)
-        } catch let AICoachError.server(code, detail) where code == 400 {
-            let d = detail.lowercased()
-            if d.contains("max_completion_tokens") || d.contains("max_tokens")
-                || d.contains("temperature") || d.contains("unsupported") {
-                return try await chat(key: key, model: model, wire: wire, modernParams: true, session: session)
-            }
-            throw AICoachError.server(code, detail)
-        }
+        try await OpenAIChatTransport.send(
+            request: request(key: key, model: model, systemPrompt: systemPrompt, messages: messages),
+            modernParams: true, allowModernRetry: false, session: session
+        )
     }
 
-    /// K1: Stream via `stream: true`. Same body as `send`, with `stream: true` added. SSE parsing
-    /// via `SseDeltas.openAiDelta`. The modern-params retry on 400 is NOT streamed (rare path;
-    /// falls back to `send`'s retry). Byte-parity pin in `SseDeltasTests.openAiReassembleMatchesFullReply`.
+    /// Streaming and regular requests share the current Chat Completions parameter shape.
     func stream(
         key: String,
         model: String,
@@ -38,24 +25,10 @@ struct OpenAIClient: AIProviderClient {
         session: URLSession,
         onDelta: (String) -> Void
     ) async throws {
-        var wire: [[String: Any]] = [["role": "system", "content": systemPrompt]]
-        for m in messages { wire.append(["role": m.role.rawValue, "content": m.content]) }
-
-        var body: [String: Any] = ["model": model, "messages": wire, "stream": true]
-        body["temperature"] = 0.6
-        body["max_tokens"] = 4096
-
-        var req = URLRequest(url: AIProvider.openAI.endpoint)
-        req.httpMethod = "POST"
-        req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-        try await performStreamingRequest(req, session: session) { payload in
-            if let delta = SseDeltas.openAiDelta(payload) {
-                onDelta(delta)
-            }
-        }
+        try await OpenAIChatTransport.stream(
+            request: request(key: key, model: model, systemPrompt: systemPrompt, messages: messages),
+            modernParams: true, allowModernRetry: false, session: session, onDelta: onDelta
+        )
     }
 
     func fetchModels(key: String, session: URLSession) async throws -> [String] {
@@ -66,49 +39,30 @@ struct OpenAIClient: AIProviderClient {
         return parseModels(try await performRequest(req, session: session))
     }
 
-    /// Pure: unwrap the `/models` body into chat-capable ids (gpt*/o*). No network — unit-tested.
-    func parseModels(_ json: [String: Any]) -> [String] {
+    /// Pure: retain text-coaching candidates while excluding known incompatible/specialized models.
+    /// The model list has no endpoint-capability field; manually entered IDs remain available.
+    func parseModels(_ json: [String: Any], now: Date = Date()) -> [String] {
         guard let list = json["data"] as? [[String: Any]] else { return [] }
+        let dateParser = ISO8601DateFormatter()
+        dateParser.formatOptions = [.withFullDate]
         return list.compactMap { row in
             guard let id = row["id"] as? String, !id.isEmpty else { return nil }
-            return (id.hasPrefix("gpt") || id.hasPrefix("o")) ? id : nil
+            if let shutdown = row["shutdown_date"] as? String,
+               let date = dateParser.date(from: shutdown), date <= now { return nil }
+            return OpenAIChatTransport.isModelCandidate(id) ? id : nil
         }
     }
 
-    // MARK: Private
-
-    /// `modernParams`: use `max_completion_tokens`, drop `temperature` — required by reasoning models.
-    private func chat(
+    private func request(
         key: String,
         model: String,
-        wire: [[String: Any]],
-        modernParams: Bool,
-        session: URLSession
-    ) async throws -> String {
-        var body: [String: Any] = ["model": model, "messages": wire]
-        // #1074: 900 truncated detailed coaching replies mid-sentence; 4096 lets a full multi-section
-        // reply complete (a cap, not a target — the system prompt keeps it short). Matches Gemini + Android.
-        if modernParams {
-            body["max_completion_tokens"] = 4096
-        } else {
-            body["temperature"] = 0.6
-            body["max_tokens"] = 4096
-        }
-
-        var req = URLRequest(url: AIProvider.openAI.endpoint)
-        req.httpMethod = "POST"
-        req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-        let json = try await performRequest(req, session: session)
-        guard let choices = json["choices"] as? [[String: Any]],
-              let first = choices.first,
-              let message = first["message"] as? [String: Any],
-              let content = (message["content"] as? String)?
-                  .trimmingCharacters(in: .whitespacesAndNewlines), !content.isEmpty else {
-            throw emptyReplyError(json)   // #1074: surface the provider's real error if the 200 body has one
-        }
-        return content
+        systemPrompt: String,
+        messages: [(role: ChatMessage.Role, content: String)]
+    ) throws -> URLRequest {
+        var request = try OpenAIChatTransport.request(
+            url: AIProvider.openAI.endpoint, model: model, systemPrompt: systemPrompt, messages: messages
+        )
+        request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        return request
     }
 }

@@ -1,0 +1,29 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"component\": {\"id\": 19169, \"componentId\": 9754, \"authorUserId\": \"user_2xmIUPynCyYHPXZPBwS1EDV1Aq8\", \"name\": \"Orbital Letters\", \"demoName\": \"Default\", \"description\": \"Animated text where each letter drifts and orbits on spring physics before settling into place, with a hover replay.\", \"previewUrl\": \"https://cdn.21st.dev/arihantcodes_1f7b8c4d/orbital-letters/default/preview.1783709850261.png\", \"installCommand\": \"npx shadcn@latest add \\\"https://21st.dev/r/arihantcodes_1f7b8c4d/orbital-letters?api_key=$API_KEY_21ST\\\"\", \"componentCode\": \"\\\"use client\\\"\\n\\nimport { useMemo } from \\\"react\\\"\\nimport { OrbitalChar } from \\\"@/components/ui/orbital-letters-utils/orbital-char\\\"\\n\\ntype Props = {\\n  text?: string\\n  radius?: number\\n  duration?: number\\n  decay?: number\\n}\\n\\nexport default function OrbitalText({ text = \\\"Orbital Letters\\\", radius = 18, duration = 2000, decay = 0.9 }: Props) {\\n  const chars = useMemo(() => text.split(\\\"\\\"), [text])\\n\\n  return (\\n    <div className=\\\"relative font-semibold tracking-tight text-[clamp(28px,5vw,56px)]\\\" aria-label={text} role=\\\"img\\\">\\n      <div className=\\\"flex select-none items-center justify-center gap-[0.02em] text-neutral-900 dark:text-neutral-200\\\">\\n        {chars.map((c, i) => (\\n          <OrbitalChar\\n            key={i}\\n            char={c}\\n            index={i}\\n            radius={radius}\\n            duration={duration}\\n            decay={decay}\\n          />\\n        ))}\\n      </div>\\n      <div className=\\\"pointer-events-none absolute inset-0 -z-10 opacity-[0.08]\\\">\\n        <div className=\\\"h-full w-full bg-[radial-gradient(50%_50%_at_50%_40%,#8882_0%,transparent_60%)]\\\" />\\n      </div>\\n    </div>\\n  )\\n}\\n\\nexport { OrbitalText }\\n\", \"demoCode\": \"\\\"use client\\\"\\n\\nimport { OrbitalText } from \\\"@/components/ui/orbital-letters\\\"\\n\\nexport default function Default() {\\n  return (\\n    <div className=\\\"flex min-h-[320px] w-full items-center justify-center bg-white dark:bg-neutral-950\\\">\\n      <OrbitalText text=\\\"Orbital Letters\\\" />\\n    </div>\\n  )\\n}\\n\", \"registryDependencies\": {\"filesWithRegistry\": {}, \"npmDependencies\": {}}, \"isPublic\": true, \"registryTeamId\": null, \"registryUserId\": \"user_2xmIUPynCyYHPXZPBwS1EDV1Aq8\"}}"
+    }
+  ],
+  "structuredContent": {
+    "component": {
+      "id": 19169,
+      "componentId": 9754,
+      "authorUserId": "user_2xmIUPynCyYHPXZPBwS1EDV1Aq8",
+      "name": "Orbital Letters",
+      "demoName": "Default",
+      "description": "Animated text where each letter drifts and orbits on spring physics before settling into place, with a hover replay.",
+      "previewUrl": "https://cdn.21st.dev/arihantcodes_1f7b8c4d/orbital-letters/default/preview.1783709850261.png",
+      "installCommand": "npx shadcn@latest add \"https://21st.dev/r/arihantcodes_1f7b8c4d/orbital-letters?api_key=$API_KEY_21ST\"",
+      "componentCode": "\"use client\"\n\nimport { useMemo } from \"react\"\nimport { OrbitalChar } from \"@/components/ui/orbital-letters-utils/orbital-char\"\n\ntype Props = {\n  text?: string\n  radius?: number\n  duration?: number\n  decay?: number\n}\n\nexport default function OrbitalText({ text = \"Orbital Letters\", radius = 18, duration = 2000, decay = 0.9 }: Props) {\n  const chars = useMemo(() => text.split(\"\"), [text])\n\n  return (\n    <div className=\"relative font-semibold tracking-tight text-[clamp(28px,5vw,56px)]\" aria-label={text} role=\"img\">\n      <div className=\"flex select-none items-center justify-center gap-[0.02em] text-neutral-900 dark:text-neutral-200\">\n        {chars.map((c, i) => (\n          <OrbitalChar\n            key={i}\n            char={c}\n            index={i}\n            radius={radius}\n            duration={duration}\n            decay={decay}\n          />\n        ))}\n      </div>\n      <div className=\"pointer-events-none absolute inset-0 -z-10 opacity-[0.08]\">\n        <div className=\"h-full w-full bg-[radial-gradient(50%_50%_at_50%_40%,#8882_0%,transparent_60%)]\" />\n      </div>\n    </div>\n  )\n}\n\nexport { OrbitalText }\n",
+      "demoCode": "\"use client\"\n\nimport { OrbitalText } from \"@/components/ui/orbital-letters\"\n\nexport default function Default() {\n  return (\n    <div className=\"flex min-h-[320px] w-full items-center justify-center bg-white dark:bg-neutral-950\">\n      <OrbitalText text=\"Orbital Letters\" />\n    </div>\n  )\n}\n",
+      "registryDependencies": {
+        "filesWithRegistry": {},
+        "npmDependencies": {}
+      },
+      "isPublic": true,
+      "registryTeamId": null,
+      "registryUserId": "user_2xmIUPynCyYHPXZPBwS1EDV1Aq8"
+    }
+  }
+}

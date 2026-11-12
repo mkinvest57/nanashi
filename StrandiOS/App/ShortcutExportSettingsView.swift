@@ -21,7 +21,7 @@ struct ShortcutExportSettingsView: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 10) {
                     Image(systemName: "square.and.arrow.up.on.square.fill")
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     Text("Shortcuts file export")
                         .font(StrandFont.headline)
@@ -32,7 +32,7 @@ struct ShortcutExportSettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
+                .toggleStyle(NoopToggleStyle())
                 .tint(StrandPalette.accent)
                 Text("When this is on, NOOP rewrites a plain-text file (On My iPhone › NOOP › noop_sync.txt) each time you leave the app: one line per 15 minutes of heart rate, HRV and steps, read straight from your strap. Pair it with the Siri Shortcut that reads the file and logs everything into Apple Health (no HealthKit entitlement needed), so it works on sideloaded installs. The setup guide and the pre-built Shortcut live in the project wiki on GitHub.")
                     .font(StrandFont.caption)

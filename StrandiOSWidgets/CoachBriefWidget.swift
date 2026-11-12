@@ -74,7 +74,7 @@ struct CoachBriefWidgetView: View {
             HStack(spacing: 4) {
                 Image(systemName: "sparkles")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                 Text("Coach")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundStyle(StrandPalette.textSecondary)
@@ -106,7 +106,7 @@ struct CoachBriefWidgetView: View {
             HStack(spacing: 6) {
                 Image(systemName: "sparkles")
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                 Text("Coach Brief")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(StrandPalette.textSecondary)

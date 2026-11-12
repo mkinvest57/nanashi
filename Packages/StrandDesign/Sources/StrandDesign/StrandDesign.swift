@@ -16,6 +16,16 @@ import Charts   // Swift Charts isn't used by the watch app; the ChartProxy shim
 // call site. Behaviour is identical to a direct `.onChange` / `plotAreaFrame`.
 
 public extension View {
+    /// Suppress bounce when content fits, using the default behavior on older systems.
+    @ViewBuilder
+    func scrollBounceBasedOnSizeCompat(axes: Axis.Set) -> some View {
+        if #available(iOS 16.4, macOS 13.3, tvOS 16.4, watchOS 9.4, *) {
+            self.scrollBounceBehavior(.basedOnSize, axes: axes)
+        } else {
+            self
+        }
+    }
+
     /// macOS-13-safe `onChange` that hands the closure the new value. Every NOOP
     /// call site reads only the new value, so a single-parameter shim keeps the
     /// existing closures byte-for-byte unchanged (no `_,` rewrite needed).

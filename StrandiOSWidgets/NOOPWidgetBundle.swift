@@ -9,11 +9,13 @@ import SwiftUI
 struct NOOPWidgetBundle: WidgetBundle {
     var body: some Widget {
         NOOPWidget()
-        NOOPLiveActivity()
         CoachBriefWidget()
         HeartRateWidget()
         StressWidget()
-        LiftLiveActivity()
-        SyncLiveActivity()
+        if #available(iOS 16.2, *) {
+            NOOPLiveActivity()
+            LiftLiveActivity()
+            SyncLiveActivity()
+        }
     }
 }

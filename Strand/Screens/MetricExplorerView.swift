@@ -995,7 +995,7 @@ struct MetricDetailView: View {
                                 } label: {
                                     Label("Refresh Fitness Age", systemImage: "arrow.clockwise")
                                         .font(StrandFont.subhead)
-                                        .foregroundStyle(StrandPalette.accent)
+                                        .foregroundStyle(StrandPalette.accentInk)
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -1045,7 +1045,7 @@ struct MetricDetailView: View {
         // guard. `.basedOnSize` permits horizontal bounce only when content genuinely overflows
         // the width, so nothing that is meant to scroll sideways is affected. (#1532 follow-up)
         #if os(iOS)
-        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .scrollBounceBasedOnSizeCompat(axes: .horizontal)
         #endif
         // Day-cycle-aware backdrop (#430 parity): the top sky band every liquid screen uses when the
         // setting is on — or the FULL-viewport sky with the softer settle when "Sky behind cards" is also
@@ -1058,7 +1058,7 @@ struct MetricDetailView: View {
                 if backgroundStore.isActive {
                     BackgroundImageBackdrop()
                 } else if showDayCycleBackground {
-                    LiquidSkyStatic(hour: nil, settleStrength: skyBehindCards ? 0.78 : 1)
+                    NoopEditorialBackdrop(dark: false, patterned: true)
                         .frame(maxWidth: .infinity)
                         .frame(height: skyBehindCards ? nil : 240, alignment: .top)
                         .allowsHitTesting(false)
@@ -1324,14 +1324,12 @@ struct MetricDetailView: View {
                                     .accessibilityHidden(true)
                                 VStack(spacing: 2) {
                                     CountUpNumber(value: v, font: StrandFont.rounded(48))
-                                        .foregroundStyle(.white)
-                                        .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
-                                    if !metric.unit.isEmpty {
+                                        .foregroundStyle(StrandPalette.textPrimary)
+                                                        if !metric.unit.isEmpty {
                                         Text(metric.unit)
                                             .font(StrandFont.footnote)
-                                            .foregroundStyle(.white.opacity(0.85))
-                                            .shadow(color: .black.opacity(0.5), radius: 4, y: 1)
-                                    }
+                                            .foregroundStyle(StrandPalette.textSecondary)
+                                        }
                                 }
                                 .allowsHitTesting(false)
                             }

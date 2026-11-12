@@ -1,12 +1,9 @@
 import SwiftUI
 
-// MARK: - GlowRing — crisp WHOOP-style score ring
+// MARK: - GlowRing — flat Circular Progress Card adaptation (21st 7716)
 //
-// Quality here is CRISPNESS, not blur. A clean solid arc with rounded caps over a clearly-visible
-// full-circle track (so the ring reads as "X% of a circle"), a bold centred number that counts up, and
-// only a TIGHT, low-opacity glow hugging the arc (additive on dark, hidden on light) — never a wide
-// fuzzy bloom. The arc springs in from 12 o'clock and re-animates when the value changes (day nav).
-// Theme-aware (number + track follow light/dark). Motion gated on Reduce Motion; macOS-13 / iOS-17 safe.
+// A flat semantic progress stroke over a complete neutral track, with a stable tabular readout.
+// Motion is a one-shot fill and respects Reduce Motion; data and scale stay caller-owned.
 
 public struct GlowRing: View {
 
@@ -45,13 +42,13 @@ public struct GlowRing: View {
     private var clamped: CGFloat { CGFloat(min(max(fraction, 0), 1)) }
     private var filled: CGFloat { appeared ? clamped : 0 }
     private var shown: Double { appeared ? value : 0 }
-    private var drawSpring: Animation { .spring(response: 0.9, dampingFraction: 0.86) }
+    private var drawSpring: Animation { .easeOut(duration: StrandMotion.durationSlow) }
 
     public var body: some View {
         ZStack {
             // Clearly-visible full-circle track, so the arc reads as a fraction of a circle (like WHOOP).
             Circle()
-                .stroke(StrandPalette.textPrimary.opacity(0.10),
+                .stroke(StrandPalette.hairline,
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
 
             // Design Reset: NO glow. A flat, crisp solid arc only — the clean Material-style look.

@@ -106,7 +106,7 @@ struct HowNoopWorksView: View {
             }
             #if os(iOS)
             // #697/#horizontal-swipe parity, see ScreenScaffold.
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
             Divider().overlay(StrandPalette.hairline)
             footerBar

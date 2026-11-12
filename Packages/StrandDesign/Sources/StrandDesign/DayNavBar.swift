@@ -9,7 +9,7 @@ import SwiftUI
 // disabled at today so a future day can't be selected), and the centre accent block shows the
 // selected day's label + date and opens a graphical DatePicker capped at today for a direct jump.
 // Replaces the fixed three-day strip so navigation reaches arbitrarily far back. The same control
-// renders on macOS and iOS — the DatePicker is shown in a popover on both. Mirrors the Android
+// renders on macOS and iOS — a phone-width sheet on iOS, a sized popover on macOS. Mirrors the Android
 // DayNavBar (StrandComponents.kt). Offset is days-back-from-today (0 = today).
 
 public struct DayNavBar: View {
@@ -55,7 +55,7 @@ public struct DayNavBar: View {
             Button { onSelect(selectedOffset + 1) } label: {
                 Image(systemName: "chevron.left")
                     .font(StrandFont.headline)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                     .frame(width: 44, height: 44)        // ≥44pt hit target (HIG); glyph stays 17pt
                     .contentShape(Rectangle())
             }
@@ -76,7 +76,7 @@ public struct DayNavBar: View {
                             .dateTime.day().month(.abbreviated).year().locale(locale)
                         ))
                             .font(StrandFont.captionNumber)
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                             .lineLimit(1)
                     }
                 }
@@ -91,9 +91,8 @@ public struct DayNavBar: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("Pick a date", bundle: .module))
-            .popover(isPresented: $showingPicker) {
-                datePickerPopover
-            }
+            .accessibilityIdentifier("nanashi.day.calendar")
+            .noopDayPicker(isPresented: $showingPicker, selection: pickedBinding, latestDate: today)
 
             Button { if canGoNewer { onSelect(selectedOffset - 1) } } label: {
                 Image(systemName: "chevron.right")
@@ -111,9 +110,9 @@ public struct DayNavBar: View {
 
     /// Graphical date jump, capped at today so a future day can't be picked. Converting the chosen
     /// date back to a whole-day offset keeps the rest of the screen driven by the single offset value.
-    private var datePickerPopover: some View {
+    private var pickedBinding: Binding<Date> {
         // A local binding so the picker writes straight through to an offset via onSelect.
-        let pickedBinding = Binding<Date>(
+        Binding<Date>(
             get: { selectedDay },
             set: { newValue in
                 let cal = Calendar.current
@@ -126,13 +125,6 @@ public struct DayNavBar: View {
                 showingPicker = false
             }
         )
-        return DatePicker("", selection: pickedBinding, in: ...today, displayedComponents: [.date])
-            .datePickerStyle(.graphical)
-            .labelsHidden()
-            .padding(12)
-            // #840 — iPad popover needs an explicit size or the graphical picker clips. Safe on macOS 13
-            // and iPhone (the popover/sheet sizes to this); avoids the macOS 13.3-only compact-adaptation API.
-            .frame(minWidth: 320, minHeight: 360)
     }
 
     private var blockShape: RoundedRectangle { RoundedRectangle(cornerRadius: 14, style: .continuous) }

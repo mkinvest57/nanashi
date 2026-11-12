@@ -569,7 +569,7 @@ struct LiftSessionView: View {
         .padding(.horizontal, NoopMetrics.screenPadding)
         .padding(.top, 10)
         .padding(.bottom, 14)
-        .background(.ultraThinMaterial)
+        .background(NoopChromeSurface())
         .overlay(alignment: .top) {
             Rectangle().fill(StrandPalette.textTertiary.opacity(0.15)).frame(height: 0.5)
         }

@@ -1,0 +1,50 @@
+{
+  "query": "clay",
+  "results": [
+    {
+      "id": "ac58a968-8cbe-4a9a-b45c-8339ba47abc1",
+      "name": "Claymorphism",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/claymorphism",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "5d0ae3b0-72a9-445c-8f74-d3863352f302",
+      "name": "Copper Clay",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/copper-clay",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "ed7322b1-a591-4f62-8f91-32715e302d81",
+      "name": "Rosewood Clay",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/rosewood-clay",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "6f73d6ad-fa63-4553-9349-4e109aeb9d98",
+      "name": "Vermilion Clay",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/vermilion-clay",
+      "previewUrl": null,
+      "type": "theme"
+    },
+    {
+      "id": "9b7da37c-0de0-4591-a2a2-9844f6a2c7e3",
+      "name": "Clay Ember",
+      "author": "serafimcloud",
+      "description": null,
+      "url": "https://21st.dev/community/themes/clay-ember",
+      "previewUrl": null,
+      "type": "theme"
+    }
+  ]
+}

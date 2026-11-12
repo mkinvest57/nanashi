@@ -1,5 +1,5 @@
 //  LiquidTodayView.swift
-//  NOOP · Liquid design language — the Today screen, rebuilt in the liquid finish.
+//  Nanashi · Moonlight — source-derived daily dashboard, native SwiftUI.
 //
 //  This is the FULL Today, re-created faithfully from the locked mockup
 //  (scratchpad/liquid-metal-home.html): sky title + record/add/battery controls,
@@ -29,6 +29,7 @@ struct LiquidTodayView: View {
     // only publishes connect/discovery state, never HR. Injected at the app roots beside .environmentObject(model).
     @EnvironmentObject var ble: BLEManager
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     /// Low Power Mode — and the in-app "Reduce motion in NOOP" toggle — pose the sky still too, the
     /// behaviour the comment on the sky branch below has always described. Neither has a SwiftUI
     /// environment key, hence the shared monitor.
@@ -77,6 +78,7 @@ struct LiquidTodayView: View {
     /// strap whose history never offloads, where heart rate exists ONLY for the windows it was connected.
     @State private var hrSegments: [String] = []
     @State private var workouts: [WorkoutRow] = [] // newest-first
+    @Environment(\.noopDockContentClearance) private var dockContentClearance
     /// #today-hosted-cards: the shared SleepModel that backs every SleepModel-derived hosted sleep card
     /// (Stages vs typical today; more to follow). Built ONCE in `load()` from the SAME inputs the Sleep tab
     /// uses (`SleepModel.build`), and only when a sleep-origin card is actually hosted — so a Today with no
@@ -108,7 +110,15 @@ struct LiquidTodayView: View {
     @AppStorage(TodayLayoutPrefs.orderKey) private var sectionOrderRaw = ""
     @AppStorage(TodayLayoutPrefs.hiddenKey) private var hiddenSectionsRaw = ""
     private var sectionOrder: [TodaySection] {
-        TodayLayoutPrefs.visibleOrder(orderRaw: sectionOrderRaw, hiddenRaw: hiddenSectionsRaw)
+        var order = TodayLayoutPrefs.visibleOrder(orderRaw: sectionOrderRaw, hiddenRaw: hiddenSectionsRaw)
+        // The native glass default brings interpretation next to scores; an explicit saved order wins.
+        if sectionOrderRaw.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+           let synthesis = order.firstIndex(of: .synthesis) {
+            order.remove(at: synthesis)
+            if let hero = order.firstIndex(of: .hero) { order.insert(.synthesis, at: hero + 1) }
+            else { order.insert(.synthesis, at: 0) }
+        }
+        return order
     }
     // #430 parity: the Key-Metrics grid honours the SAME editor selection/order + Detailed-tiles switch as
     // Android (byte-identical @AppStorage keys). `kSparks` holds the trailing-30-day series the detailed
@@ -157,6 +167,44 @@ struct LiquidTodayView: View {
     /// Flips true once the first load() completes. Until then the hero gauges + sky render STATIC so the
     /// launch data-churn (refresh publish + BLE/HR notifies) isn't fighting 4 live canvases + CoreMotion.
     @State private var dataLoaded = false
+    @State private var presentationLoad = PresentationLoadState<PresentationLoadKey>()
+
+    private struct PresentationLoadKey: Equatable {
+        let deviceID: String
+        let revision: Int
+        let hydrationRevision: Int
+        let selectedDay: String
+        let logicalDay: String
+        let calendarDay: String
+        let dayOffset: Int
+        let timezone: String
+        let timezoneOffset: Int
+        let hydration: Bool
+        let cycleMode: String
+        let sex: String
+        let maxHR: Double?
+        let banisterEffort: Bool
+        let personalStressBaseline: Bool
+        let hostedCards: String
+        let language: String
+    }
+
+    private var presentationLoadKey: PresentationLoadKey {
+        PresentationLoadKey(deviceID: repo.deviceId, revision: repo.refreshSeq,
+                            hydrationRevision: repo.hydrationSeq, selectedDay: selectedDayKey,
+                            logicalDay: Repository.localDayKey(selectedLogicalDay),
+                            calendarDay: Repository.localDayKey(Date()), dayOffset: selectedDayOffset,
+                            timezone: TimeZone.current.identifier,
+                            timezoneOffset: TimeZone.current.secondsFromGMT(), hydration: hydrationEnabled,
+                            cycleMode: dayCycleModeRaw, sex: profile.sex, maxHR: profile.effortHRmax,
+                            banisterEffort: PuffinExperiment.banisterEffortEnabled,
+                            personalStressBaseline: PuffinExperiment.stressPersonalBaselineEnabled,
+                            hostedCards: hostedCardsRaw, language: AppLanguage.activeLocale.identifier)
+    }
+
+    private func canPublish(_ ticket: PresentationLoadState<PresentationLoadKey>.Ticket) -> Bool {
+        presentationLoad.isCurrent(ticket, key: presentationLoadKey, cancelled: Task.isCancelled)
+    }
 
     // Custom liquid pull-to-refresh: a vessel that FILLS as you drag, releases into a refresh (replaces
     // the system spinner). Driven by the scroll's top overscroll offset.
@@ -170,8 +218,8 @@ struct LiquidTodayView: View {
     /// with the design-system default so the first frame is not laid out against a reserve of zero.
     @State private var headerControlsWidth = NoopMetrics.headerControlReserveWidth
 
-    /// Mock Vitality purple (#9b7bff) has no exact StrandPalette token in this theme.
-    private let liquidPurple = Color(.sRGB, red: 0x9b / 255, green: 0x7b / 255, blue: 0xff / 255, opacity: 1)
+    /// Semantic metric color follows the shared palette and the user's chart style.
+    private let liquidPurple = StrandPalette.metricPurple
     /// The liquid heart pink shared with the sync indicator and LiquidThread.
     private let liquidHeart = StrandPalette.liquidHeart
     /// Hero / session-start chrome uses theme-aware `NoopPanelSurface` (design-system surfaces that
@@ -333,6 +381,7 @@ struct LiquidTodayView: View {
             VStack(spacing: 0) {
                 // Zero-height scroll-to-top anchor (#198 follow-up): the target for an at-root Today re-tap.
                 Color.clear.frame(height: 0).id(Self.topAnchorID)
+                NoopDockScrollOffsetProbe(coordinateSpace: Self.pullSpace)
                 // Scroll-offset probe at the very top (before padding), so its minY in the scroll's
                 // coordinate space reads the top OVERSCROLL: ~0 at rest, positive as you pull down.
                 GeometryReader { g in
@@ -343,7 +392,7 @@ struct LiquidTodayView: View {
 
                 liquidRefreshIndicator   // grows in the revealed space; a vessel filling with the pull
 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: NoopMetrics.sectionSpacing) {
                     scene
                     // The strain/illness early-warning banner, dropped in the liquid Home rewrite. Liquid is
                     // the DEFAULT Today on both platforms (RootTabView.swift's liquidTodayEnabled = true,
@@ -368,6 +417,8 @@ struct LiquidTodayView: View {
                         switch section {
                         case .hero:
                             heroCard
+                            dayActions
+                            NanashiAside(scene: .day)
                             if chargeLegacyRRGap { ChargeLegacyRRGapNote() }
                         case .liveSession: if liveSessionsBeta { liveSessionStartRow }
                         case .synthesis: synthesisSection
@@ -398,10 +449,10 @@ struct LiquidTodayView: View {
                     // so it renders nothing by default.
                     AutoWorkoutCard()
                     dataSourcesSection
-                    Color.clear.frame(height: 90) // floating tab-bar clearance
+                    Color.clear.frame(height: NoopMetrics.space6 + max(0, dockContentClearance ?? 0))
                 }
                 .padding(.horizontal, NoopMetrics.screenHPadding)
-                .padding(.top, 30) // sit the title lower into the sky, not jammed under the status bar
+                .padding(.top, NoopMetrics.space4)
             }
             #if os(macOS)
             // Keep the phone-shaped column readable + centred on the wide mac detail pane. The sky is a
@@ -410,6 +461,7 @@ struct LiquidTodayView: View {
             .frame(maxWidth: .infinity)
             #endif
         }
+        .background { NanashiPresenceLifecycleProbe(scene: .day) }
         .coordinateSpace(name: Self.pullSpace)
         #if os(iOS)
         // #697 parity: ScreenScaffold already stops a vertical scroll from drifting/bouncing the
@@ -419,35 +471,20 @@ struct LiquidTodayView: View {
         // genuinely overflows the width (it does not here, the column is width-capped), so this
         // brings Today's scroll behaviour in line with the rest of the app without touching the
         // vertical pull-to-refresh gesture above.
-        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .scrollBounceBasedOnSizeCompat(axes: .horizontal)
         #endif
         .onPreferenceChange(PullOffsetKey.self) { handlePull($0) }
-        // The sky is a FIXED full-bleed backdrop drawn behind the scroll content, edge-to-edge under the
-        // status bar. A ScrollView background does not scroll with the content, so pulling down never
-        // moves the sky (the exact behaviour the scaffold uses on the classic Today).
+        // The editorial canvas is static; cards and content carry the visual hierarchy.
         .background(alignment: .top) {
             ZStack(alignment: .top) {
                 StrandPalette.surfaceBase
-                // Custom background image (#custom-background): a picked photo OVERRIDES the sky, filling
-                // the whole backdrop (same cached image as every other tab, so it's seamless).
                 if backgroundStore.isActive {
                     BackgroundImageBackdrop()
-                }
-                // Day-cycle scene (#698): the sky only paints when the toggle is ON AND no custom image is
-                // active; off = the plain surfaceBase canvas above (parity with Android + classic TodayView).
-                else if showDayCycleBackground {
-                    // Reduce-motion (and low-power) users get the same sky posed still — no twinkle/breath.
-                    // Also static until the first data load settles, so launch isn't fighting a live sky too.
-                    // "Sky behind cards" (opt-in): fill the whole backdrop with a softer settle so the sky
-                    // reads under every card, instead of the default 340 top band that dissolves to canvas.
-                    Group {
-                        if poseStill || !dataLoaded { LiquidSkyStatic(hour: liveHour, settleStrength: skyBehindCards ? 0.78 : 1) }
-                        else { LiquidSky(hour: liveHour, settleStrength: skyBehindCards ? 0.78 : 1) }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: skyBehindCards ? nil : 340, alignment: .top)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
+                } else if showDayCycleBackground {
+                    NoopGlassBackground()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: skyBehindCards ? nil : NoopMetrics.chartHeight + NoopMetrics.tileHeight,
+                               alignment: .top)
                 }
             }
             .ignoresSafeArea()
@@ -464,7 +501,7 @@ struct LiquidTodayView: View {
         .liquidMediumHaptic(trigger: pullHaptic)
         // hydrationSeq joins the id so logging a drink re-reads the card immediately, the same trigger set
         // classic TodayView's reloadHydration() uses.
-        .task(id: "\(repo.refreshSeq)-\(selectedDayOffset)-\(repo.hydrationSeq)-\(hydrationEnabled)-\(dayCycleModeRaw)") {
+        .task(id: presentationLoadKey) {
             DashboardCardPrefs.migrateLegacyStepsAverage()
             await load()
         }
@@ -504,7 +541,7 @@ struct LiquidTodayView: View {
         #endif
         #if os(iOS)
         // Scroll-to-top on an at-root Today re-tap (#198 follow-up); iOS-only — the tab shell is the only driver.
-        .onChange(of: scrollToTopSignal) { _, _ in
+        .onChangeCompat(of: scrollToTopSignal) { _ in
             withAnimation(.easeOut(duration: 0.35)) { proxy.scrollTo(Self.topAnchorID, anchor: .top) }
         }
         #endif
@@ -555,7 +592,7 @@ struct LiquidTodayView: View {
                 // ongoing offload progress; the pull spinner stays short (the reload below).
                 ble.syncNow()
                 await repo.refresh()
-                await load()
+                await load(force: true)
                 try? await Task.sleep(nanoseconds: 350_000_000)   // let the fill read as "done"
                 withAnimation(.easeOut(duration: 0.25)) { refreshing = false }
             }
@@ -565,98 +602,49 @@ struct LiquidTodayView: View {
     // MARK: - Scene (sky title + controls + hero)
 
     private var scene: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ZStack(alignment: .topTrailing) {
-                Button { showDayPicker = true } label: {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(dayTitle)
-                            .font(StrandFont.rounded(28))
-                            .foregroundStyle(StrandPalette.textPrimary)
-                            .shadow(color: .black.opacity(0.4), radius: 10, y: 1)
-                        Text(dateLine)
-                            .font(StrandFont.caption)
-                            .foregroundStyle(StrandPalette.textSecondary)
-                            .shadow(color: .black.opacity(0.35), radius: 8, y: 1)
-                    }
-                    .contentShape(Rectangle())
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(dayTitle). Tap to pick a day, swipe to change day.")
-                .popover(isPresented: $showDayPicker) {
-                    DatePicker("", selection: dayPickerBinding, in: ...Repository.logicalDay(Date()),
-                               displayedComponents: [.date])
-                        .datePickerStyle(.graphical)
-                        .labelsHidden()
-                        .padding(12)
-                        .frame(minWidth: 320, minHeight: 360)
-                        .liquidPopoverAdaptation()
-                }
-                // Long names fade beneath the trailing controls while an expanded transient control
-                // participates in layout and pushes its preceding siblings left. The reserve is the
-                // cluster's MEASURED width, not a constant: a constant is only ever right for the exact
-                // set of controls it was written against, and this row has already gained one (Customize,
-                // #1207) since. Measuring also means the fade tracks the sync capsule as it expands,
-                // which is the push-left behaviour rather than a separate approximation of it.
-                .headerTrailingControlFadeMask(reserving: headerControlsWidth)
+        VStack(alignment: .leading, spacing: NoopMetrics.space3) {
+            HStack(spacing: NoopMetrics.space2) {
+                LiquidWordmark()
+                Spacer(minLength: NoopMetrics.space2)
                 HStack(spacing: headerClusterSpacing) {
-                    // Profile pic (the one set in Settings) → opens Settings, matching the classic Today.
                     Button { showSettings = true } label: {
-                        Color.clear.frame(
-                            width: NoopMetrics.compactControlSize,
-                            height: NoopMetrics.compactControlSize
-                        )
+                        ProfileAvatarView(imageData: profile.avatarImageData, size: NoopMetrics.compactControlSize)
+                            .frame(width: NoopMetrics.compactControlSize, height: NoopMetrics.compactControlSize)
                     }
                     .nativeLiquidGlassHeaderButton()
-                    .overlay {
-                        GeometryReader { proxy in
-                            let diameter = min(proxy.size.width, proxy.size.height)
-                            ProfileAvatarView(imageData: profile.avatarImageData, size: diameter)
-                                .frame(width: diameter, height: diameter)
-                                .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
-                        }
-                        .allowsHitTesting(false)
-                    }
-                    .nativeLiquidGlassPhotoFinish()
                     .accessibilityLabel("Profile and settings")
                     LiquidAddButton()
                     LiquidBatteryButton()
-                    // One entry point for section order/visibility and both nested card editors.
                     Button { customizationDestination = .today } label: {
                         Image(systemName: "slider.horizontal.3")
-                            .font(.system(size: 14, weight: .bold))
+                            .font(StrandFont.subhead.weight(.semibold))
                             .foregroundStyle(StrandPalette.textPrimary)
-                            .frame(
-                                width: NoopMetrics.compactControlSize,
-                                height: NoopMetrics.compactControlSize
-                            )
+                            .frame(width: NoopMetrics.compactControlSize, height: NoopMetrics.compactControlSize)
                     }
                     .nativeLiquidGlassHeaderButton()
                     .accessibilityLabel("Customize Today")
                 }
-                .background(
-                    GeometryReader { proxy in
-                        Color.clear.preference(
-                            key: HeaderControlsWidthKey.self,
-                            value: proxy.size.width
-                        )
+            }
+            Button { showDayPicker = true } label: {
+                HStack(alignment: .center, spacing: NoopMetrics.space3) {
+                    VStack(alignment: .leading, spacing: NoopMetrics.spaceHalf) {
+                        Text(dayTitle).font(StrandFont.title1).foregroundStyle(StrandPalette.textPrimary)
+                        Text(dateLine).font(StrandFont.subhead).foregroundStyle(StrandPalette.textSecondary)
                     }
-                )
-                .zIndex(1)
+                    Spacer(minLength: NoopMetrics.space2)
+                    Image(systemName: "calendar").font(StrandFont.headline)
+                        .foregroundStyle(StrandPalette.textSecondary)
+                        .frame(width: NoopMetrics.controlHeight, height: NoopMetrics.controlHeight)
+                        .background(StrandPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
-            .onPreferenceChange(HeaderControlsWidthKey.self) { measured in
-                // Ignore sub-point churn so a rounding wobble cannot re-render the mask every frame.
-                guard measured > 0, abs(measured - headerControlsWidth) > 0.5 else { return }
-                headerControlsWidth = measured
-            }
-            // Subtle NOOP wordmark in the sky between header and hero. Perfectly centred (a letter row has
-            // no trailing tracking gap the way `Text(...).tracking()` does), with a tap easter egg.
-            // #today-layout: the hero + Start-session row moved OUT of the scene into the reorderable
-            // section block below. The wordmark's bottom pad (10) + the section VStack's 12 spacing keeps
-            // the default hero-under-wordmark gap at the original 22.
-            LiquidWordmark()
-                .padding(.top, 30)
-                .padding(.bottom, 10)
+            .buttonStyle(LiquidPressStyle())
+            .accessibilityLabel("\(dayTitle). Tap to pick a day, swipe to change day.")
+            .accessibilityIdentifier("nanashi.day.calendar")
+            .noopDayPicker(isPresented: $showDayPicker, selection: dayPickerBinding,
+                           latestDate: Repository.logicalDay(Date()))
         }
     }
 
@@ -667,7 +655,7 @@ struct LiquidTodayView: View {
         Button { showLiveSession = true } label: {
             HStack(spacing: 10) {
                 Image(systemName: "shield.lefthalf.filled")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(StrandFont.subhead.weight(.semibold))
                     .foregroundStyle(StrandPalette.metricCyan)
                 // Theme-aware session-start chrome (#1160 parity): NoopPanelSurface + normal text
                 // tokens — light ink on Dark, dark ink on Light. (Was pinned-dark + on-dark tokens.)
@@ -684,7 +672,7 @@ struct LiquidTodayView: View {
                             lineWidth: NoopMetrics.hairlineWidth
                         )))
                 Spacer(minLength: 8)
-                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
+                Image(systemName: "chevron.right").font(StrandFont.footnote.weight(.semibold))
                     .foregroundStyle(StrandPalette.textTertiary)
             }
             .padding(.horizontal, 14)
@@ -695,45 +683,116 @@ struct LiquidTodayView: View {
         .accessibilityLabel("Start a live session. Beta. Silent strap coaching against today's Charge.")
     }
 
+    private var primaryScoreInk: Color { StrandPalette.textPrimary }
+
+    private var chargeHeroCaption: String {
+        if case .carried(_, let caption) = chargeDisplay { return caption }
+        if case .scored = chargeDisplay { return String(localized: "Recorded score") }
+        return chargeDisplay.stateLabel
+    }
+
+    /// Stats Bento (21st 25311) hierarchy and Radial Chart (28963), inside the
+    /// refractive Glass Card (28259). One hero carries the three existing scores.
     private var heroCard: some View {
-        HStack(alignment: .top, spacing: 4) {
-            // #543 carry: an unscored today shows the last scored night's REAL Charge (labelled as prior by
-            // the state pill) rather than an empty vessel, matching the classic Today, the widget/watch/Live
-            // Activity (`Repository.widgetAnchor`) and Android. Effort deliberately does NOT carry — it is
-            // today's own accumulation, so yesterday's number would be a false statement, not a stale one.
-            HeroScoreCell(label: String(localized: "Charge"), score: chargeDisplay.pct,
-                          tint: chargeDisplay.pct.map { StrandPalette.recoveryColor($0) } ?? StrandPalette.chargeColor,
-                          animated: dataLoaded, onGuide: { guideSection = .charge },
-                          detailRoute: .metric(HeroRingMetric.charge))
-            // #45: the hero Effort must honour the user's Effort scale like every other Effort read-out.
-            // Show the value on the chosen scale (0–100 or WHOOP 0–21) with the matching vessel max, and
-            // one decimal on the compressed 0–21 axis to match the app-wide `effortDisplay` convention
-            // (12.6, not a rounded "13"); the 0–100 hero stays a whole number as before.
-            HeroScoreCell(label: String(localized: "Effort"),
-                          score: effortStrain(displayDay).map { UnitFormatter.effortValue($0, scale: effortScale) },
-                          tint: StrandPalette.effortColor, animated: dataLoaded,
-                          onGuide: { guideSection = .effort },
-                          maxValue: effortScale == .whoop ? 21 : 100,
-                          decimals: effortScale == .whoop ? 1 : 0,
-                          detailRoute: .metric(HeroRingMetric.effort))
-            HeroScoreCell(label: String(localized: "Rest"), score: restScore, tint: StrandPalette.restColor,
-                          animated: dataLoaded, onGuide: { guideSection = .rest },
-                          detailRoute: .metric(HeroRingMetric.rest))
-                .overlay(alignment: .top) {
-                    if let sourceLabel = heroSourceLabel {
-                        SourceBadge("\(sourceLabel)", tint: StrandPalette.textSecondary)
-                            // Match the badge's trailing edge to the Rest vessel and centre it on the card border.
-                            .fixedSize()
-                            .frame(width: HeroScoreCell.vesselDiameter, alignment: .trailing)
-                            .offset(y: -(NoopMetrics.space4 + NoopMetrics.sourceBadgeHeight / 2))
-                            .allowsHitTesting(false)
-                            .accessibilityLabel(Text("Source: \(sourceLabel)"))
-                    }
+        VStack(alignment: .leading, spacing: NoopMetrics.space3) {
+            HStack(alignment: .top, spacing: NoopMetrics.space3) {
+                VStack(alignment: .leading, spacing: NoopMetrics.space1) {
+                    Text("YOUR BALANCE").font(StrandFont.overline)
+                        .tracking(NoopColdGlassMetrics.labelTracking)
+                        .foregroundStyle(StrandPalette.textSecondary)
                 }
+                Spacer(minLength: 0)
+                if let source = heroSourceLabel {
+                    SourceBadge("\(source)", tint: StrandPalette.textSecondary)
+                        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                        .fixedSize()
+                }
+            }
+            HStack(alignment: .center, spacing: NoopMetrics.space5) {
+                VStack(alignment: .leading, spacing: NoopMetrics.space1) {
+                    Button { guideSection = .charge } label: {
+                        Label("Charge", systemImage: "info.circle")
+                            .font(StrandFont.subhead).foregroundStyle(StrandPalette.textSecondary)
+                            .frame(minHeight: NoopButtonMetrics.minHitTarget)
+                    }.buttonStyle(.plain)
+                    NavigationLink(value: TabRoute.metric(HeroRingMetric.charge)) {
+                        HStack(alignment: .firstTextBaseline, spacing: NoopMetrics.space1) {
+                            Text(chargeDisplay.pct.map { String(Int($0.rounded())) } ?? Self.noValueDash)
+                                .font(StrandFont.display(NoopColdGlassMetrics.heroValueSize))
+                                .monospacedDigit().lineLimit(1).minimumScaleFactor(0.65)
+                            Text("/ 100").font(StrandFont.caption).foregroundStyle(StrandPalette.textSecondary).lineLimit(1).fixedSize()
+                        }
+                        .foregroundStyle(primaryScoreInk)
+                    }.buttonStyle(LiquidPressStyle())
+                        .accessibilityLabel(Text("\(String(localized: "Charge")), \(chargeDisplay.pct.map { String(Int($0.rounded())) } ?? String(localized: "no data yet"))"))
+                    Text(chargeHeroCaption).font(StrandFont.caption)
+                        .foregroundStyle(StrandPalette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                NavigationLink(value: TabRoute.metric(HeroRingMetric.charge)) {
+                    NanashiRadialScores(charge: frac(chargeDisplay.pct),
+                                        effort: frac(effortStrain(displayDay)), rest: frac(restScore))
+                        .frame(width: NoopColdGlassMetrics.heroRingDiameter, height: NoopColdGlassMetrics.heroRingDiameter)
+                }.buttonStyle(LiquidPressStyle())
+                    .accessibilityLabel("Charge")
+                    .accessibilityHint("Opens the trend and readings")
+            }
+            Rectangle().fill(StrandPalette.hairline).frame(height: NoopMetrics.lineWidth)
+            HStack(spacing: NoopMetrics.space5) {
+                compactHeroScore(label: "Effort", value: effortStrain(displayDay).map {
+                    UnitFormatter.effortValue($0, scale: effortScale).formatted(.number.precision(.fractionLength(effortScale == .whoop ? 1 : 0)))
+                }, tint: StrandPalette.effortColor, route: HeroRingMetric.effort)
+                Rectangle().fill(StrandPalette.hairline).frame(width: NoopMetrics.lineWidth)
+                compactHeroScore(label: "Rest", value: restScore.map { String(Int($0.rounded())) },
+                                 tint: StrandPalette.restColor, route: HeroRingMetric.rest)
+            }.fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.vertical, NoopMetrics.space4)
-        .padding(.horizontal, NoopMetrics.space3)
-        .background(NoopPanelSurface(cornerRadius: 26, elevated: true, surfaceOpacity: cardOpacity))
+        .padding(NoopMetrics.space5)
+        .background(NoopPanelSurface(elevated: true, surfaceOpacity: cardOpacity))
+    }
+
+    private func compactHeroScore(label: LocalizedStringKey, value: String?, tint: Color,
+                                  route: String) -> some View {
+        NavigationLink(value: TabRoute.metric(route)) {
+            VStack(alignment: .leading, spacing: NoopMetrics.space2) {
+                HStack(spacing: NoopMetrics.space2) {
+                    Circle().fill(tint).frame(width: NoopMetrics.space2, height: NoopMetrics.space2)
+                    Text(label).font(StrandFont.caption).foregroundStyle(StrandPalette.textSecondary)
+                    Spacer(minLength: 0)
+                    Image(systemName: "arrow.up.right").font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
+                }
+                Text(value ?? Self.noValueDash).font(StrandFont.number(NoopColdGlassMetrics.compactValueSize, weight: .medium))
+                    .monospacedDigit().foregroundStyle(StrandPalette.textPrimary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(minHeight: NoopButtonMetrics.minHitTarget)
+            .contentShape(Rectangle())
+        }.buttonStyle(LiquidPressStyle())
+    }
+
+    /// Activity Card (21st 1375): direct icon-led actions beside the daily metrics.
+    private var dayActions: some View {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: NoopMetrics.space3))
+            : AnyLayout(HStackLayout(spacing: NoopMetrics.space3))
+        return layout {
+            NavigationLink(value: TabRoute.sleep) {
+                Label("Last night", systemImage: "moon")
+                    .font(StrandFont.subhead.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: NoopMetrics.controlHeight)
+            }
+            .buttonStyle(LiquidPressStyle())
+            .background(NoopGlassControlSurface(cornerRadius: NoopVisualStyle.compactRadius))
+            NavigationLink(value: TabRoute.workouts) {
+                Label("Workouts", systemImage: "figure.run")
+                    .font(StrandFont.subhead.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: NoopMetrics.controlHeight)
+            }
+            .buttonStyle(LiquidPressStyle())
+            .background(NoopGlassControlSurface(cornerRadius: NoopVisualStyle.compactRadius))
+        }
+        .foregroundStyle(StrandPalette.textPrimary)
     }
 
     // MARK: - Heart rate
@@ -776,7 +835,7 @@ struct LiquidTodayView: View {
                     // platforms (Android #563). Reuse the localized "Edit" key, uppercased at display, so this
                     // stays translated (BEARBEITEN / MODIFIER / …) without a new literal.
                     Text(String(localized: "Edit").uppercased()).font(StrandFont.overlineScaled(11)).tracking(1.0)
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                 }
                 .buttonStyle(.plain)
             }
@@ -1140,7 +1199,7 @@ struct LiquidTodayView: View {
                 }
                 Spacer(minLength: 8)
                 Text(value).font(StrandFont.number(17)).foregroundStyle(StrandPalette.textPrimary)
-                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
+                Image(systemName: "chevron.right").font(StrandFont.footnote.weight(.semibold))
                     .foregroundStyle(StrandPalette.textTertiary)
             }
             .padding(.horizontal, 14)
@@ -1159,36 +1218,7 @@ struct LiquidTodayView: View {
     }
 
     private var synthesisSection: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text(greeting).font(StrandFont.rounded(19)).foregroundStyle(StrandPalette.textPrimary)
-                    .lineLimit(1).minimumScaleFactor(0.6)   // yield to the pills rather than push them to wrap
-                Spacer(minLength: 8)
-                HStack(spacing: 8) {
-                    if let word = readinessWord {
-                        Text(word)
-                            .font(StrandFont.caption.weight(.bold))
-                            .foregroundStyle(StrandPalette.chargeColor)
-                            .padding(.horizontal, 13)
-                            .padding(.vertical, 6)
-                            .background(Capsule().fill(StrandPalette.chargeColor.opacity(0.14))
-                                .overlay(Capsule().strokeBorder(StrandPalette.chargeColor.opacity(0.3), lineWidth: 1)))
-                    }
-                    HStack(spacing: 5) {
-                        Circle().fill(StrandPalette.chargeColor).frame(width: 6, height: 6)
-                        Text(chargeDisplay.stateLabel)
-                            .font(StrandFont.caption.weight(.bold))
-                            .foregroundStyle(StrandPalette.chargeColor)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Capsule().strokeBorder(StrandPalette.chargeColor.opacity(0.3), lineWidth: 1))
-                }
-                .fixedSize(horizontal: true, vertical: false)   // pills keep their natural width — no "Calibrating" wrap
-            }
-            .padding(.horizontal, 2)
-            .padding(.top, 4)
-
+        VStack(spacing: NoopMetrics.space2) {
             Button { withAnimation(.easeInOut(duration: 0.2)) { synthesisExpanded.toggle() } } label: {
                 card {
                     VStack(alignment: .leading, spacing: 8) {
@@ -1263,51 +1293,47 @@ struct LiquidTodayView: View {
                         Text(line).font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
                     }
                 }
-                // #706/#684: the same trends the HRV / Resting HR / Respiratory dashboard cards push. These
-                // rows show the SAME three vitals and had no way through, so this card was the one place on
-                // Today where a metric was a dead end. Routes taken from `liquidCard`'s own cases so the two
-                // surfaces cannot send the same vital to different trends.
-                vitalRow(String(localized: "Heart-rate variability"), unitText(hrv, "ms"),
-                         StrandPalette.metricCyan, fracOver(hrv, 120), route: .metric("hrv"))
-                vitalRow(String(localized: "Resting heart rate"), unitText(rhr, "bpm"),
-                         StrandPalette.metricRose, fracOver(rhr, 100), route: .metric("rhr"))
-                vitalRow(String(localized: "Breaths per minute"), unitText(resp, "rpm", decimals: 1),
-                         StrandPalette.accent, fracOver(resp, 24), route: .metric("resp_rate"))
+                // Health Stat Card (8617): three real vitals with their original trend destinations.
+                // Each field is resolved above once, including its existing per-field carry.
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(spacing: NoopMetrics.space4) { healthVitalCells(hrv: hrv, rhr: rhr, resp: resp) }
+                } else {
+                    HStack(alignment: .top, spacing: NoopMetrics.space3) {
+                        healthVitalCells(hrv: hrv, rhr: rhr, resp: resp)
+                    }
+                }
             }
         }
     }
 
-    /// A recovery-vital row, optionally pushing its own metric trend.
-    ///
-    /// `route: nil` renders exactly what shipped before - no link, no chevron - so a row that goes nowhere
-    /// never claims otherwise. `LiquidPressStyle` is not decoration: a bare `NavigationLink` applies the
-    /// default link chrome and would tint the whole row, which is the same reason `cardLink` carries it.
-    private func vitalRow(_ label: String, _ value: String, _ tint: Color, _ frac: Double?,
-                          route: TabRoute? = nil) -> some View {
-        Group {
-            if let route {
-                NavigationLink(value: route) { vitalRowBody(label, value, tint, frac, linked: true) }
-                    .buttonStyle(LiquidPressStyle())
-            } else {
-                vitalRowBody(label, value, tint, frac, linked: false)
-            }
-        }
+    @ViewBuilder
+    private func healthVitalCells(hrv: Double?, rhr: Double?, resp: Double?) -> some View {
+        healthVital(String(localized: "Heart-rate variability"), value: unitText(hrv, "ms"),
+                    tint: StrandPalette.metricCyan, fraction: fracOver(hrv, 120), route: .metric("hrv"))
+        healthVital(String(localized: "Resting heart rate"), value: unitText(rhr, "bpm"),
+                    tint: StrandPalette.metricRose, fraction: fracOver(rhr, 100), route: .metric("rhr"))
+        healthVital(String(localized: "Breaths per minute"), value: unitText(resp, "rpm", decimals: 1),
+                    tint: StrandPalette.accent, fraction: fracOver(resp, 24), route: .metric("resp_rate"))
     }
 
-    private func vitalRowBody(_ label: String, _ value: String, _ tint: Color, _ frac: Double?,
-                              linked: Bool) -> some View {
-        HStack(spacing: 12) {
-            // Same as cardLinkBody: without this the disc eats the row's NavigationLink tap.
-            LiquidVessel(value: frac, tint: tint, animated: false, tapPassesThrough: true)
-                .frame(width: 26, height: 26)
-            Text(label).font(StrandFont.subhead).foregroundStyle(StrandPalette.textSecondary)
-            Spacer()
-            Text(value).font(StrandFont.number(15)).foregroundStyle(StrandPalette.textPrimary)
-            if linked {
-                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(StrandPalette.textTertiary)
+    private func healthVital(_ label: String, value: String, tint: Color,
+                             fraction: Double?, route: TabRoute) -> some View {
+        NavigationLink(value: route) {
+            VStack(alignment: .leading, spacing: NoopMetrics.space2) {
+                Text(value).font(StrandFont.number(NoopMetrics.space5))
+                    .foregroundStyle(StrandPalette.textPrimary)
+                    .lineLimit(1).minimumScaleFactor(0.8)
+                Text(label).font(StrandFont.caption)
+                    .foregroundStyle(StrandPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(minHeight: NoopMetrics.controlHeight, alignment: .topLeading)
+                LiquidTube(frac: fraction ?? 0, tint: tint, animated: false)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(LiquidPressStyle())
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Key metrics grid
@@ -1354,7 +1380,7 @@ struct LiquidTodayView: View {
                     Text(String(localized: "Edit").uppercased())
                         .font(StrandFont.overlineScaled(11))
                         .tracking(1.0)
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Edit Key Metrics")
@@ -1470,21 +1496,26 @@ struct LiquidTodayView: View {
     private func ktile(_ label: String, icon: String, _ value: String, _ unit: String, _ tint: Color, _ frac: Double?,
                        key: String? = nil, detailMetric: MetricDescriptor? = nil, caption: String? = nil) -> some View {
         let displayValue = Self.tileDisplayValue(value, unit: unit)
-        let tile = VStack(alignment: .leading, spacing: 10) {
+        let tile = VStack(alignment: .leading, spacing: NoopMetrics.space3) {
             HStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(tint.opacity(0.72))
-                    .frame(width: 14)
-                Text(label.uppercased())
-                    .font(StrandFont.overlineScaled(10))
-                    .tracking(1.0)
-                    .foregroundStyle(StrandPalette.textTertiary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.82)
+                    .font(StrandFont.caption.weight(.semibold))
+                    .foregroundStyle(tint)
+                    .frame(width: NoopMetrics.space4)
+                Text(label)
+                    .font(StrandFont.caption.weight(.medium))
+                    .foregroundStyle(StrandPalette.textSecondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
+                if key != nil || detailMetric != nil {
+                    Image(systemName: "arrow.up.right")
+                        .font(StrandFont.footnote)
+                        .foregroundStyle(StrandPalette.textTertiary)
+                }
             }
             Text(verbatim: displayValue)
-                .font(StrandFont.number(24))
+                .font(StrandFont.number(NoopMetrics.space8))
                 .foregroundStyle(StrandPalette.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -1498,7 +1529,7 @@ struct LiquidTodayView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            LiquidTube(frac: frac ?? 0, tint: tint, height: 9, animated: false,
+            LiquidTube(frac: frac ?? 0, tint: tint, height: NoopMetrics.indicatorTrackHeight, animated: false,
                        showsHighlight: false, usesCleanFill: true)
             // #430 parity: DETAILED tiles grow the trend graph under the bar, tinted to the metric and
             // windowed to the editor's 1-week / 2-week / 1-month choice (the Android twin). A metric with no
@@ -1507,21 +1538,18 @@ struct LiquidTodayView: View {
             if keyMetricsDetailed {
                 let spark = key.map { windowedSpark($0) } ?? []
                 if spark.count >= 2 {
-                    Sparkline(values: spark,
-                              gradient: Gradient(colors: [tint.opacity(0.5), tint]))
-                        .frame(height: 22)
-                        .padding(.top, 6)
-                        .accessibilityHidden(true)
+                    NanashiMetricBars(values: spark, tint: tint)
+                        .padding(.top, NoopMetrics.space1)
                 } else {
-                    Color.clear.frame(height: 22).padding(.top, 6)
+                    Color.clear.frame(height: NoopMetrics.space8).padding(.top, NoopMetrics.space1)
                 }
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 14)
+        .padding(NoopMetrics.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(minHeight: keyMetricsDetailed ? 154 : 116, alignment: .topLeading)
-        .background(NoopPanelSurface(tint: tint, cornerRadius: 18, surfaceOpacity: cardOpacity))
+        .frame(minHeight: keyMetricsDetailed ? NoopMetrics.keyMetricTileHeight + NoopMetrics.space8 : NoopMetrics.keyMetricTileHeight,
+               alignment: .topLeading)
+        .background(NoopPanelSurface(cornerRadius: NoopMetrics.cardRadius, surfaceOpacity: cardOpacity))
         // #430 parity: tap -> the metric's trend detail (the same Explore dossier its MetricRow pushes,
         // closure-based NavigationLink per #38). A metric with no catalog entry stays inert.
         return Group {
@@ -1555,23 +1583,73 @@ struct LiquidTodayView: View {
         }
     }
 
+    /// Activity Card (1375): icon-led session header and three compact real metric columns.
+    /// Duration and average heart rate have no invented targets or completion rings.
     private func workoutCard(_ w: WorkoutRow) -> some View {
         card {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .firstTextBaseline) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(WorkoutSource.displaySport(w.sport)).font(StrandFont.number(15))
+            VStack(alignment: .leading, spacing: NoopMetrics.space4) {
+                HStack(spacing: NoopMetrics.space3) {
+                    Image(systemName: "figure.run").font(StrandFont.headline)
+                        .foregroundStyle(StrandPalette.effortColor)
+                        .frame(width: NoopMetrics.controlHeight, height: NoopMetrics.controlHeight)
+                        .background(StrandPalette.surfaceInset, in: Circle())
+                    VStack(alignment: .leading, spacing: NoopMetrics.spaceHalf) {
+                        Text(WorkoutSource.displaySport(w.sport)).font(StrandFont.headline)
                             .foregroundStyle(StrandPalette.textPrimary)
-                        Text(workoutSub(w)).font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
+                        Text(Date(timeIntervalSince1970: Double(w.startTs)), style: .time)
+                            .font(StrandFont.caption).foregroundStyle(StrandPalette.textSecondary)
                     }
-                    Spacer()
-                    (Text(effortText(w.strain)).font(StrandFont.number(15))
-                        + Text(" EFFORT").font(StrandFont.overlineScaled(9)))
-                        .foregroundStyle(StrandPalette.textPrimary)
+                    Spacer(minLength: NoopMetrics.space2)
+                    Image(systemName: "arrow.up.right").font(StrandFont.subhead)
+                        .foregroundStyle(StrandPalette.textSecondary)
                 }
-                LiquidTube(frac: (w.strain ?? 0) / 100, tint: StrandPalette.effortColor, height: 12, animated: false)
+                HStack(alignment: .top, spacing: NoopMetrics.space3) {
+                    workoutStat(String(localized: "Duration"),
+                                value: "\(Int((w.durationS ?? Double(max(w.endTs - w.startTs, 0))) / 60)) min",
+                                tint: StrandPalette.textSecondary)
+                    workoutStat(String(localized: "Heart rate"), value: w.avgHr.map { "\($0) bpm" } ?? Self.noValueDash,
+                                tint: StrandPalette.liquidHeart)
+                    workoutStat(String(localized: "Effort"), value: effortText(w.strain),
+                                tint: StrandPalette.effortColor, progress: frac(w.strain))
+                }
+                let extras = workoutExtraDetails(w)
+                if !extras.isEmpty {
+                    Rectangle().fill(StrandPalette.hairline).frame(height: NoopMetrics.hairlineWidth)
+                    Text(extras).font(StrandFont.caption).foregroundStyle(StrandPalette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
+    }
+
+    private func workoutStat(_ label: String, value: String, tint: Color,
+                             progress: Double? = nil) -> some View {
+        VStack(spacing: NoopMetrics.space2) {
+            ZStack {
+                if progress != nil {
+                    LiquidVessel(value: progress, tint: tint, animated: false)
+                } else {
+                    Circle().stroke(StrandPalette.hairline, lineWidth: NoopMetrics.spaceHalf)
+                        .padding(NoopMetrics.space1)
+                }
+                Text(value).font(StrandFont.number(NoopMetrics.space4))
+                    .foregroundStyle(StrandPalette.textPrimary).lineLimit(1).minimumScaleFactor(0.8)
+                    .padding(NoopMetrics.space2)
+            }
+            .frame(width: NoopMetrics.heroSecondaryGaugeDiameter, height: NoopMetrics.heroSecondaryGaugeDiameter)
+            Text(label).font(StrandFont.caption).foregroundStyle(StrandPalette.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func workoutExtraDetails(_ workout: WorkoutRow) -> String {
+        var details: [String] = []
+        if let distance = workout.distanceM, distance > 0 {
+            details.append(UnitFormatter.distanceFromMeters(distance, system: distanceUnitSystem))
+        }
+        if let energy = workout.energyKcal { details.append("\(Int(energy.rounded())) kcal") }
+        return details.joined(separator: " · ")
     }
 
     // MARK: - Data sources
@@ -1580,21 +1658,7 @@ struct LiquidTodayView: View {
         VStack(spacing: 8) {
             sectionHead("DATA SOURCES", trailing: "Provenance")
             NavigationLink(value: TabRoute.dataSources) {
-                card {
-                    VStack(spacing: 12) {
-                        HStack {
-                            Text("Synced from").font(StrandFont.subhead).foregroundStyle(StrandPalette.textSecondary)
-                            Spacer()
-                            HStack(spacing: 4) {
-                                Text("View sources").font(StrandFont.subhead).foregroundStyle(StrandPalette.textTertiary)
-                                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
-                                    .foregroundStyle(StrandPalette.textTertiary)
-                            }
-                        }
-                        LiquidStrapBatteryRow()
-                        LiquidSyncStatusRow()
-                    }
-                }
+                NanashiSourceStatusCard()
             }
             .buttonStyle(LiquidPressStyle())
         }
@@ -1607,30 +1671,35 @@ struct LiquidTodayView: View {
     /// Matches the Android twin, whose `SectionHeader` already takes `trailing: String? = null`.
     private func sectionHead(_ title: String, trailing: String? = nil) -> some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(LocalizedStringKey(title)).font(StrandFont.overline).tracking(1.6).foregroundStyle(StrandPalette.textTertiary)
+            Text(LocalizedStringKey(title)).font(StrandFont.headline).foregroundStyle(StrandPalette.textPrimary)
             Spacer()
             if let trailing {
                 Text(LocalizedStringKey(trailing)).font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
             }
         }
-        .padding(.horizontal, 2)
-        .padding(.top, 4)
+        .padding(.horizontal, NoopMetrics.spaceHalf)
+        .padding(.top, NoopMetrics.space1)
     }
 
     private func card<V: View>(@ViewBuilder _ content: () -> V) -> some View {
         content()
-            .padding(16)
+            .padding(NoopMetrics.cardPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(NoopPanelSurface(cornerRadius: 22, surfaceOpacity: cardOpacity))
+            .background(NoopPanelSurface(cornerRadius: NoopMetrics.cardRadius, surfaceOpacity: cardOpacity))
     }
 
     // MARK: - Data
 
-    private func load() async {
+    private func load(force: Bool = false) async {
+        guard !Task.isCancelled,
+              let ticket = presentationLoad.begin(key: presentationLoadKey, force: force) else { return }
+        defer { presentationLoad.finish(ticket) }
         // #989: today's hydration total + goal. One metricSeries row + a UserDefaults read, same as classic
         // TodayView.reloadHydration(). Cleared when the feature is off so the card can't show a stale total.
         if hydrationEnabled {
-            hydrationTotalML = await repo.hydrationTotal(day: Repository.localDayKey(Date()))
+            let total = await repo.hydrationTotal(day: Repository.localDayKey(Date()))
+            guard canPublish(ticket) else { return }
+            hydrationTotalML = total
             hydrationGoalML = repo.hydrationGoalML(profileSex: profile.sex)
         } else {
             hydrationTotalML = nil
@@ -1640,7 +1709,7 @@ struct LiquidTodayView: View {
         // readiness verdict. Both scan repo.days (up to 599 rows); doing it per-render was the stutter.
         let day = resolveDisplayDay()
         cachedDisplayDay = day
-        await reloadRRUnitPolicy()
+        guard await reloadRRUnitPolicy(ticket: ticket) else { return }
         cachedReadiness = ReadinessEngine.evaluate(days: repo.days, today: day?.day)
         // Prior-day vitals carry, resolved ONCE here (never in body). Bound to today's own key so it can't
         // echo today's still-forming row; only on today (a past day's own row is the whole story).
@@ -1681,6 +1750,7 @@ struct LiquidTodayView: View {
         let nextDayKey = Repository.localDayKey(cal.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart)
         let cycleMarkers = dayCycleMode == .sleepOnset
             ? await repo.exploreSeries(key: DayCycleIntelligenceIntegration.onsetKey, source: "my-whoop") : []
+        guard canPublish(ticket) else { return }
         let from = cycleMarkers.last(where: { $0.day == selectedDayKey }).map { Int($0.value) } ?? calendarFrom
         let toExclusive = cycleMarkers.last(where: { $0.day == nextDayKey }).map { Int($0.value) } ?? calendarTo
         let to = max(from, toExclusive - 1)
@@ -1698,6 +1768,7 @@ struct LiquidTodayView: View {
             // max, so the stored row simply won) which is why it went unnoticed. 200_000 is what every
             // other whole-window HR consumer already passes.
             let todayHr = await repo.hrSamples(from: from, to: to, limit: 200_000)
+            guard canPublish(ticket) else { return }
             // #2460: the manual HR-max override, then Tanaka, exactly as AnalyticsEngine resolves it
             // for the STORED day. These two numbers meet in `effectiveEffort`, which takes the larger,
             // so a live value on the formula's yardstick outvoted an override set because the real
@@ -1712,6 +1783,7 @@ struct LiquidTodayView: View {
                 StrainScorer.strain(todayHr, maxHR: maxHR, restingHR: restHR,
                                     method: method, sex: sex)
             }.value
+            guard canPublish(ticket) else { return }
         } else {
             liveStrainLocal = nil
         }
@@ -1741,8 +1813,12 @@ struct LiquidTodayView: View {
         async let restSourceA = repo.resolvedSeries(key: "sleep_performance", source: Repository.whoopSource,
                                                     from: sourceDayKey, to: sourceDayKey)
 
-        let restSeries = await restA
-        let stepsSeries = await stepsA
+        let (restSeries, stepsSeries, storedStress, appleRowsForSpark, spo2CandSeries, weightSeries,
+             fitnessSeries, vo2Series, vitalitySeries, hrBuckets, workoutRows,
+             chargeSource, effortSource, restSource) = await
+            (restA, stepsA, stressA, appleA, spo2CandA, weightA, fitA, vo2A, vitA, hrA, wkA,
+             chargeSourceA, effortSourceA, restSourceA)
+        guard canPublish(ticket) else { return }
         let restByDay = Dictionary(restSeries.map { ($0.day, $0.value) }, uniquingKeysWith: { _, last in last })
         // Selected day's Rest; tail fallback only at offset 0 (a past day with no row shows nothing) AND
         // only when the tail night is still fresh. #977: a live 5.0 whose sleep never scores (no overnight
@@ -1755,7 +1831,6 @@ struct LiquidTodayView: View {
             todayKey: selectedDayKey)
         // StressModel loops the full history to build its baseline — run it OFF the main actor so a big
         // history doesn't stutter the UI. Snapshot the inputs (value types) into the detached task.
-        let storedStress = await stressA
         let daysSnapshot = repo.days
 
         // #430 parity: the day-keyed series the DETAILED Key-Metrics tiles graph — a trailing CALENDAR
@@ -1770,10 +1845,8 @@ struct LiquidTodayView: View {
         // estimate) over the window, so a Health-Connect / Apple-only calorie user gets a trend too —
         // matching the imported-first VALUE. Union of imported days + strap-row days. Mirrors Android's
         // caloriesSpark (windowed caloriesByDay).
-        let appleRowsForSpark = await appleA
         // Queue 11a: SpO₂ candidate fallback — day-keyed for the tile's value lookup, windowed for its
         // detailed-mode sparkline below (same shape as `restByDay`/`kSparks["spo2"]` above).
-        let spo2CandSeries = await spo2CandA
         spo2CandidateByDay = Dictionary(spo2CandSeries.map { ($0.day, $0.value) }, uniquingKeysWith: { _, last in last })
         var winImportedKcal: [String: Double] = [:]
         for r in appleRowsForSpark where r.day >= sparkCutoff && r.day <= selectedDayKey {
@@ -1803,14 +1876,16 @@ struct LiquidTodayView: View {
                 .map { ($0.day, $0.value) },
             "sleep_performance": restSeries.filter { $0.day >= sparkCutoff && $0.day <= selectedDayKey }
                 .map { ($0.day, $0.value) },
-            "weight": (await weightA).filter { $0.day >= sparkCutoff && $0.day <= selectedDayKey },
+            "weight": weightSeries.filter { $0.day >= sparkCutoff && $0.day <= selectedDayKey },
         ]
-        stress = await Task.detached(priority: .utility) {
+        let stressScore = await Task.detached(priority: .utility) {
             StressModel(days: daysSnapshot, stored: storedStress)?.score
         }.value
-        fitnessAge = (await fitA).last?.value   // history-wide latest banked (not day-scoped)
-        vo2max = (await vo2A).last?.value        // #1391: latest banked VO₂max estimate
-        vitality = (await vitA).last?.value
+        guard canPublish(ticket) else { return }
+        stress = stressScore
+        fitnessAge = fitnessSeries.last?.value   // history-wide latest banked (not day-scoped)
+        vo2max = vo2Series.last?.value        // #1391: latest banked VO₂max estimate
+        vitality = vitalitySeries.last?.value
         // Steps is a DAILY metric, so key it to the SELECTED day (like restScore above), not the history-wide
         // latest. Without this, swiping to a past day with no strap step count showed today's estimate (the
         // `.last` value) instead of that day's. Mirrors the classic Today's stepsEstByDay[selectedDayKey].
@@ -1819,27 +1894,23 @@ struct LiquidTodayView: View {
         // Imported Apple Health steps for the SELECTED day (max across rows), the middle tier between the
         // measured strap count and the motion estimate. Health Connect is Android-only, so apple-health is
         // the sole import source on iOS. Mirrors Android `stepsForDay` (#377).
-        importedStepsDay = (await appleA).filter { $0.day == selectedDayKey }.compactMap { $0.steps }.max()
+        importedStepsDay = appleRowsForSpark.filter { $0.day == selectedDayKey }.compactMap { $0.steps }.max()
         // #616: same-day imported active energy — the calorie fallback when the strap banked no on-device
         // HR estimate for the day, so the tile/card/detail agree (imported-first, mirrors steps).
-        importedActiveKcalDay = (await appleA).filter { $0.day == selectedDayKey }.compactMap { $0.activeKcal }.max()
+        importedActiveKcalDay = appleRowsForSpark.filter { $0.day == selectedDayKey }.compactMap { $0.activeKcal }.max()
 
         // Weight for the SELECTED day: prefers a real Apple-Health reading (today's daily, else the
         // "weight" series' newest point so a sparse-but-recent value still renders). Falls back to the
         // user's profile weight in the renderer (weightTile).
-        let appleRows = await appleA
-        let weightSeries = await weightA
-        weightKg = appleRows.filter { $0.day == selectedDayKey }.compactMap { $0.weightKg }.max()
+        weightKg = appleRowsForSpark.filter { $0.day == selectedDayKey }.compactMap { $0.weightKg }.max()
             ?? weightSeries.last(where: { $0.day <= selectedDayKey })?.value
 
         // Awaited ONCE: the timestamps and the means have to come from the same read, or the segments
         // would describe a different series than the one drawn.
-        let hrBuckets = await hrA
         hrValues = hrBuckets.map { $0.bpm }
         hrSegments = hrGapSegments(bucketTs: hrBuckets.map { $0.ts }, bucketSeconds: 300)
-        workouts = (await wkA).filter { $0.startTs >= from && $0.startTs < to }
+        workouts = workoutRows.filter { $0.startTs >= from && $0.startTs < to }
 
-        let (chargeSource, effortSource, restSource) = await (chargeSourceA, effortSourceA, restSourceA)
         let sourceResolutions = [
             ("recovery", chargeSource),
             ("strain", effortSource),
@@ -1858,6 +1929,7 @@ struct LiquidTodayView: View {
                     day: winner.day,
                     metricKey: metric
                 )
+                guard canPublish(ticket) else { return }
             }
         }
         heroProviderByMetric = providers
@@ -1870,8 +1942,11 @@ struct LiquidTodayView: View {
         let sleepOrigin = String(localized: "Sleep")
         if HostedCardPrefs.decodeEnabled(hostedCardsRaw).contains(where: { $0.origin == sleepOrigin }) {
             let hostedSessions = await repo.allSleepSessions()
+            guard canPublish(ticket) else { return }
             let hostedHabitual = await repo.habitualMidsleepSec()
+            guard canPublish(ticket) else { return }
             let hostedMotion = await repo.sessionMotions(sessions: hostedSessions)
+            guard canPublish(ticket) else { return }
             hostedSleepModel = SleepModel.build(SleepModelInputs(
                 days: repo.days,
                 sleeps: repo.sleeps,
@@ -1889,6 +1964,7 @@ struct LiquidTodayView: View {
                 repo: repo,
                 personalBaseline: PuffinExperiment.stressPersonalBaselineEnabled
             )?.result
+            guard canPublish(ticket) else { return }
             hostedStressHours = result?.timeline ?? []
             hostedStressActivityMaskedHours = result?.activityMaskedHours ?? 0
         } else {
@@ -1896,25 +1972,36 @@ struct LiquidTodayView: View {
             hostedStressActivityMaskedHours = 0
         }
 
+        guard presentationLoad.complete(ticket, key: presentationLoadKey,
+                                        cancelled: Task.isCancelled) else { return }
         // First load done — bring the hero gauges + sky to life now the launch churn has settled.
         if !dataLoaded { withAnimation(.easeIn(duration: 0.4)) { dataLoaded = true } }
     }
 
     /// Re-read the indexed first-beat bounds on each load, so a new labelled sync clears the note.
-    private func reloadRRUnitPolicy() async {
-        guard let store = await repo.storeHandle() else {
+    private func reloadRRUnitPolicy(ticket: PresentationLoadState<PresentationLoadKey>.Ticket) async -> Bool {
+        let store = await repo.storeHandle()
+        guard canPublish(ticket) else { return false }
+        guard let store else {
             whoop5StrictRR = false
             firstRecordedRRDay = nil
             firstScorableRRDay = nil
-            return
+            return true
         }
         let owner = repo.deviceId
+        let strict = (try? await store.isWhoop5RRSource(deviceId: owner)) ?? false
+        guard canPublish(ticket) else { return false }
+        let firstRecorded = (try? await store.firstRecordedRRTimestamp(deviceId: owner)) ?? nil
+        guard canPublish(ticket) else { return false }
+        let firstScorable = (try? await store.firstScorableWhoop5RRTimestamp(deviceId: owner)) ?? nil
+        guard canPublish(ticket) else { return false }
         func dayKey(_ ts: Int?) -> String? {
             ts.map { Repository.localDayKey(Date(timeIntervalSince1970: TimeInterval($0))) }
         }
-        whoop5StrictRR = (try? await store.isWhoop5RRSource(deviceId: owner)) ?? false
-        firstRecordedRRDay = dayKey((try? await store.firstRecordedRRTimestamp(deviceId: owner)) ?? nil)
-        firstScorableRRDay = dayKey((try? await store.firstScorableWhoop5RRTimestamp(deviceId: owner)) ?? nil)
+        whoop5StrictRR = strict
+        firstRecordedRRDay = dayKey(firstRecorded)
+        firstScorableRRDay = dayKey(firstScorable)
+        return true
     }
 
     // MARK: - Derived (sync, off repo.today / repo.days)
@@ -2174,16 +2261,11 @@ private struct LiquidWordmark: View {
     @State private var dx = 0.0       // horizontal offset (shake)
     @State private var flip = 0.0     // y-axis 3D flip
     @State private var token = 0      // drives the tap haptic
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        HStack(spacing: 14) {
-            ForEach(Array("NOOP".enumerated()), id: \.offset) { _, ch in
-                Text(String(ch))
-                    .font(StrandFont.rounded(16, weight: .bold))
-                    .foregroundStyle(StrandPalette.textTertiary)
-            }
-        }
-        .shadow(color: .black.opacity(0.25), radius: 6, y: 1)
+        NanashiWordmark(size: NoopMetrics.space5)
+        .frame(minWidth: NoopButtonMetrics.minHitTarget, minHeight: NoopButtonMetrics.minHitTarget)
         .rotationEffect(.degrees(rot))
         .scaleEffect(x: scaleX, y: scaleY)
         .offset(x: dx)
@@ -2191,7 +2273,6 @@ private struct LiquidWordmark: View {
         .contentShape(Rectangle())
         .onTapGesture { playRandomEgg() }
         .liquidTapHaptic(trigger: token)
-        .frame(maxWidth: .infinity)
         .accessibilityHidden(true)
     }
 
@@ -2200,6 +2281,7 @@ private struct LiquidWordmark: View {
     /// which reads as a natural wobble without hand-authored keyframes.
     private func playRandomEgg() {
         token &+= 1
+        guard !reduceMotion else { return }
         switch Int.random(in: 0..<6) {
         case 0: // wiggle
             rot = -14
@@ -2227,7 +2309,7 @@ private struct LiquidWordmark: View {
 /// COUNTS UP to the value when data lands; tapping the gauge itself splashes (the number is
 /// hit-transparent so the tap reaches the vessel). The label row taps through to the scoring guide.
 private struct HeroScoreCell: View {
-    static let vesselDiameter: CGFloat = 96
+    static let vesselDiameter: CGFloat = NoopMetrics.heroSecondaryGaugeDiameter
 
     let label: String
     let score: Double?            // on whatever scale the caller passes (nil = no data yet)
@@ -2246,6 +2328,7 @@ private struct HeroScoreCell: View {
     /// the same score land on the identical dossier rather than diverging. The LABEL keeps its own job:
     /// it opens the scoring guide, which is this screen's only route to that explainer.
     var detailRoute: TabRoute? = nil
+    var surfaceOpacity: Double = 1
 
     /// The gauge, linked when there is somewhere to go.
     ///
@@ -2284,24 +2367,26 @@ private struct HeroScoreCell: View {
     }
 
     var body: some View {
-        VStack(spacing: 7) {
+        VStack(spacing: NoopMetrics.space2) {
             gaugeView
             Button(action: onGuide) {
                 HStack(spacing: 3) {
                     // #74: one line, shrink-to-fit rather than wrap under large Dynamic Type (mirrors the
                     // score number above) so CHARGE/EFFORT/REST never grow the hero card to two lines.
-                    Text(label.uppercased()).font(StrandFont.overline).tracking(1.6)
+                    Text(label).font(StrandFont.subhead.weight(.semibold))
                         .lineLimit(1).minimumScaleFactor(0.7)
-                    Image(systemName: "chevron.right").font(.system(size: 9, weight: .semibold)).opacity(0.6)
+                    Image(systemName: "chevron.right").font(StrandFont.footnote.weight(.semibold)).opacity(0.6)
                 }
-                // Theme-aware hero label (#1160): normal text token — readable on Dark and Light
-                // panel surfaces alike (was onDark* when the hero fill was pinned dark).
+                .frame(minHeight: NoopButtonMetrics.minHitTarget)
+                .contentShape(Rectangle())
                 .foregroundStyle(StrandPalette.textSecondary)
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("\(label), \(spokenScore). See how it is scored."))
         }
+        .padding(NoopMetrics.cardPadding)
         .frame(maxWidth: .infinity)
+        .background(NoopPanelSurface(cornerRadius: NoopMetrics.cardRadius, surfaceOpacity: surfaceOpacity))
     }
 }
 
@@ -2424,7 +2509,7 @@ private struct LiquidAddButton: View {
     var body: some View {
         Button { router.requestQuickActions() } label: {
             Image(systemName: "plus")
-                .font(.system(size: 16, weight: .bold))
+                .font(StrandFont.subhead.weight(.semibold))
                 .foregroundStyle(StrandPalette.textPrimary)
                 .frame(
                     width: NoopMetrics.compactControlSize,
@@ -2452,10 +2537,10 @@ private struct LiquidFullWidthNavigationAction: View {
                 .font(StrandFont.subhead.weight(.semibold))
             Spacer(minLength: NoopMetrics.space2)
             Image(systemName: "chevron.right")
-                .font(.system(size: 11, weight: .semibold))
+                .font(StrandFont.footnote.weight(.semibold))
                 .accessibilityHidden(true)
         }
-        .foregroundStyle(StrandPalette.accent)
+        .foregroundStyle(StrandPalette.accentInk)
         .padding(.horizontal, NoopButtonMetrics.hPadding)
         .frame(maxWidth: .infinity)
         .frame(height: NoopButtonMetrics.height)
@@ -2513,7 +2598,7 @@ private struct LiquidLiveHR: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.65)
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(StrandFont.footnote.weight(.semibold))
                         .foregroundStyle(tint)
                         .fixedSize()
                         .accessibilityHidden(true)
@@ -2523,7 +2608,7 @@ private struct LiquidLiveHR: View {
                 if isLive {
                     // Reuses the existing incoming-HR event pulse; no timer or continuous redraw loop.
                     Image(systemName: "heart.fill")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(StrandFont.footnote.weight(.semibold))
                         .foregroundStyle(tint)
                         .scaleEffect(beat ? 1.18 : 0.88)
                         .opacity(beat ? 1 : 0.62)
@@ -3029,55 +3114,22 @@ private struct LiquidBatteryButton: View {
 }
 
 private extension View {
-    /// The edge-to-edge photo is overlaid after the native button style so it can fill the face. Finish
-    /// the composed control with interactive system glass as the topmost visual layer; otherwise the
-    /// opaque photo would conceal the button style's refraction and highlight. macOS keeps the photo
-    /// as-is (Liquid Glass is iOS-only).
-    @ViewBuilder
-    func nativeLiquidGlassPhotoFinish() -> some View {
-        self.nativeLiquidGlassCircleFinish()
-    }
+    // Compatibility names preserve the existing controls; their source-derived finish is now flat.
+    func nativeLiquidGlassPhotoFinish() -> some View { self }
 
-    /// Platform-owned Home-header button chrome. iOS 26 supplies the interactive Liquid Glass button
-    /// material; macOS and older iOS keep the same circular geometry with a native system material.
-    @ViewBuilder
     func nativeLiquidGlassHeaderButton() -> some View {
-        self.nativeLiquidGlassButtonChrome(controlSize: .small) {
-            self
-                .buttonStyle(LiquidPressStyle())
-                .background(.ultraThinMaterial, in: Circle())
-                .overlay(Circle().strokeBorder(.white.opacity(0.16), lineWidth: 0.8))
-        }
-    }
-
-    /// Exact-bounds glass for the charge-to-sync morph. The same Capsule stretches only while its label
-    /// expands. Not `nativeLiquidGlassButtonChrome(capsule:)`: `.buttonBorderShape(.capsule)` applies the
-    /// system's capsule metrics, which pad wider than tall and render the compact 36-point state as a
-    /// pill — hence the manual, equal padding here, which keeps it circular.
-    ///
-    /// iOS 26 matches the sibling `.glass` circles, whose own `.small` chrome insets the label by the
-    /// same amount. The fallbacks add no padding: their siblings draw the material straight onto a
-    /// 36-point label, so a Capsule over the identical 36×36 frame is already that circle.
-    @ViewBuilder
-    func nativeLiquidGlassSyncButton() -> some View {
-        #if os(iOS)
-        if #available(iOS 26.0, *) {
-            self
-                .buttonStyle(.plain)
-                .padding(NoopMetrics.syncIndicatorGlassPadding)
-                .glassEffect(.regular.interactive(), in: Capsule())
-        } else {
-            self
-                .buttonStyle(LiquidPressStyle())
-                .background(.ultraThinMaterial, in: Capsule())
-                .overlay(Capsule().strokeBorder(.white.opacity(0.16), lineWidth: 0.8))
-        }
-        #else
         self
             .buttonStyle(LiquidPressStyle())
-            .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().strokeBorder(.white.opacity(0.16), lineWidth: 0.8))
-        #endif
+            .padding(NoopMetrics.space1)
+            .background(NoopPanelSurface(cornerRadius: NoopVisualStyle.compactRadius))
+            .contentShape(RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius))
+    }
+
+    func nativeLiquidGlassSyncButton() -> some View {
+        self
+            .buttonStyle(LiquidPressStyle())
+            .padding(NoopMetrics.space1)
+            .background(NoopPanelSurface(cornerRadius: NoopVisualStyle.compactRadius))
     }
 }
 
@@ -3171,8 +3223,7 @@ private struct LiquidStrapBatteryRow: View {
 //
 // The liquid Today is shared with the macOS target now (the mac split-view shell hosts it too). A few of
 // its chrome modifiers are iOS-only, so they are wrapped here: `topBarTrailing` + `navigationBarTitleDisplayMode`
-// don't exist on macOS, and `presentationCompactAdaptation` is an iOS phone-width concern. These keep the
-// exact iOS behaviour while giving macOS the platform-correct equivalent.
+// do not exist on macOS. These helpers retain the platform-correct sheet and cover equivalents.
 private extension View {
     /// A sheet's trailing "Done" button (inline title on iOS; the confirmation-action toolbar slot on macOS).
     @ViewBuilder func liquidSheetDoneChrome(done: @escaping () -> Void) -> some View {
@@ -3180,24 +3231,15 @@ private extension View {
         self.navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done", action: done).foregroundStyle(StrandPalette.accent)
+                    Button("Done", action: done).foregroundStyle(StrandPalette.accentInk)
                 }
             }
         #else
         self.toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Done", action: done).foregroundStyle(StrandPalette.accent)
+                Button("Done", action: done).foregroundStyle(StrandPalette.accentInk)
             }
         }
-        #endif
-    }
-
-    /// Keep a popover a popover in compact width (iOS 16.4+); a no-op on macOS where popovers never adapt.
-    @ViewBuilder func liquidPopoverAdaptation() -> some View {
-        #if os(iOS)
-        if #available(iOS 16.4, *) { self.presentationCompactAdaptation(.popover) } else { self }
-        #else
-        self
         #endif
     }
 
@@ -3214,5 +3256,25 @@ private extension View {
             LiveSessionView(onClose: { isPresented.wrappedValue = false })
         }
         #endif
+    }
+}
+
+
+/// Sync Status Toast (19146) adapted to the real source-status card.
+/// This leaf observes LiveState so heart-rate ticks do not invalidate the Today hierarchy.
+private struct NanashiSourceStatusCard: View {
+    @EnvironmentObject private var live: LiveState
+    private var status: NoopSyncStatus {
+        if live.backfilling { return .syncing }
+        return live.connected ? .connected : .disconnected
+    }
+
+    var body: some View {
+        NoopSyncStatusCard(title: String(localized: "View sources"),
+                           detail: String(localized: "Synced from"), status: status) {
+            Rectangle().fill(StrandPalette.hairline).frame(height: NoopMetrics.hairlineWidth)
+            LiquidStrapBatteryRow()
+            LiquidSyncStatusRow()
+        }
     }
 }

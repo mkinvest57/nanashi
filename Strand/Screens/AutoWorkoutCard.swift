@@ -46,7 +46,7 @@ struct AutoWorkoutCard: View {
                 HStack(spacing: NoopMetrics.space2) {
                     Image(systemName: "figure.run")
                         .font(.system(size: 18))
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     Text("Looks like a workout")
                         .font(StrandFont.headline)

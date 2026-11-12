@@ -1,0 +1,28 @@
+{
+  "component": {
+    "id": 8476,
+    "componentId": 5738,
+    "authorUserId": "user_2x2JiCtMc1r9JMcybepbMUCeZak",
+    "name": "Floating Dock Navigation",
+    "demoName": "default.tsx",
+    "description": "Floating Dock Navigation",
+    "previewUrl": "https://cdn.21st.dev/user_2x2JiCtMc1r9JMcybepbMUCeZak/floating-dock-navigation/default/preview.1786465999250.webp",
+    "installCommand": "npx shadcn@latest add \"https://21st.dev/r/erikvalencia1/floating-dock-navigation?api_key=$API_KEY_21ST\"",
+    "componentCode": "// Original floating dock navigation with smooth hover effects\n// Inspired by macOS dock with unique interactions\n\nimport { cn } from \"@/lib/utils\";\nimport { useState } from \"react\";\nimport { Home, Search, Bell, User, Settings, Mail } from \"lucide-react\";\n\ninterface NavItem {\n  icon: React.ReactNode;\n  label: string;\n  onClick?: () => void;\n}\n\nexport const FloatingDockNav = () => {\n  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);\n  const [activeIndex, setActiveIndex] = useState(0);\n\n  const navItems: NavItem[] = [\n    { icon: <Home size={20} />, label: \"Home\" },\n    { icon: <Search size={20} />, label: \"Search\" },\n    { icon: <Bell size={20} />, label: \"Notifications\" },\n    { icon: <Mail size={20} />, label: \"Messages\" },\n    { icon: <User size={20} />, label: \"Profile\" },\n    { icon: <Settings size={20} />, label: \"Settings\" },\n  ];\n\n  const getScale = (index: number) => {\n    if (hoveredIndex === null) return 1;\n    const distance = Math.abs(hoveredIndex - index);\n    if (distance === 0) return 1.4;\n    if (distance === 1) return 1.2;\n    if (distance === 2) return 1.1;\n    return 1;\n  };\n\n  return (\n    <div className=\"fixed bottom-8 left-1/2 -translate-x-1/2 z-50\">\n      <div className=\"bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-3 border border-gray-200/50\">\n        <div className=\"flex items-end gap-2\">\n          {navItems.map((item, index) => (\n            <button\n              key={index}\n              onMouseEnter={() => setHoveredIndex(index)}\n              onMouseLeave={() => setHoveredIndex(null)}\n              onClick={() => setActiveIndex(index)}\n              className={cn(\n                \"relative flex flex-col items-center justify-center\",\n                \"rounded-xl transition-all duration-300 ease-out\",\n                \"hover:bg-gray-100\",\n                activeIndex === index && \"bg-blue-50\"\n              )}\n              style={{\n                width: '48px',\n                height: '48px',\n                transform: `scale(${getScale(index)})`,\n                transformOrigin: 'bottom'\n              }}\n            >\n              <div className={cn(\n                \"transition-colors duration-200\",\n                activeIndex === index ? \"text-blue-600\" : \"text-gray-700\"\n              )}>\n                {item.icon}\n              </div>\n              \n              {/* Tooltip */}\n              {hoveredIndex === index && (\n                <div className=\"absolute bottom-full mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap\">\n                  {item.label}\n                  <div className=\"absolute top-full left-1/2 -translate-x-1/2 -mt-px\">\n                    <div className=\"border-4 border-transparent border-t-gray-900\" />\n                  </div>\n                </div>\n              )}\n\n              {/* Active indicator */}\n              {activeIndex === index && (\n                <div className=\"absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full\" />\n              )}\n            </button>\n          ))}\n        </div>\n      </div>\n    </div>\n  );\n};\n",
+    "demoCode": "import { FloatingDockNav } from \"@/components/ui/floating-dock-navigation\";\n\nexport default function DemoOne() {\n  return <FloatingDockNav />;\n}\n",
+    "registryDependencies": {
+      "filesWithRegistry": {},
+      "npmDependencies": {}
+    },
+    "isPublic": true,
+    "registryTeamId": null,
+    "registryUserId": null
+  },
+  "quota": {
+    "tier": "paid",
+    "remaining": null,
+    "perDay": null,
+    "resetAt": null,
+    "upgradeUrl": null
+  }
+}

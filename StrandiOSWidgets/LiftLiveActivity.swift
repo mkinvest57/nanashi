@@ -14,6 +14,7 @@ import StrandDesign
 /// content state, so the Lock Screen counts on its own between pushes. The app only sends a new
 /// state when something actually changes (stage, set, heart rate), never once a second to animate a
 /// number.
+@available(iOS 16.1, *)
 struct LiftLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LiftActivityAttributes.self) { context in
@@ -46,7 +47,7 @@ struct LiftLiveActivity: Widget {
                             .foregroundStyle(StrandPalette.textSecondary)
                         Spacer(minLength: 8)
                         clock(context.state, tint: tint)
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(StrandFont.number(15, weight: .semibold))
                     }
                 }
             } compactLeading: {
@@ -80,9 +81,9 @@ struct LiftLiveActivity: Widget {
     }
 
     /// The Lock Screen clock's face, shared by the clock and the hidden template that sizes it.
-    private static let clockFont = Font.system(size: 22, weight: .bold, design: .rounded)
+    private static let clockFont = StrandFont.number(22, weight: .bold)
     /// The Dynamic Island's compact face, shared by its heart rate, its clock and that clock's template.
-    private static let islandFont = Font.system(size: 13, weight: .semibold, design: .rounded)
+    private static let islandFont = StrandFont.number(13, weight: .semibold)
 
     /// Green while working, amber through the rest — the sheet's and the bar's colour language.
     private func tint(_ state: LiftActivityAttributes.ContentState) -> Color {

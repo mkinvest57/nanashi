@@ -123,7 +123,7 @@ struct SettingsView: View {
     @AppStorage(UnitPrefs.syncLiveActivityKey) private var syncLiveActivityEnabled = true
     @AppStorage(UnitPrefs.liftLiveActivityKey) private var liftLiveActivityEnabled = true
     @AppStorage(DayCycleMode.storageKey) private var dayCycleModeRaw = DayCycleMode.sleepOnset.rawValue
-    // Alternate app icon (iOS only) — false = Titanium (primary AppIcon), true = Blue Titanium
+    // Alternate app icon (iOS only) — graphite or deeper midnight, with the same NOOP glyph.
     // ("AppIcon-Navy"). Display-only preference; the live switch goes through setAlternateIconName.
     @AppStorage("appIcon.alt") private var useNavyIcon = false
     // Light/Dark/System theme. Read by both app roots' .preferredColorScheme; default follows the OS.
@@ -252,19 +252,21 @@ struct SettingsView: View {
     /// Persisted so it remembers the user's choice; mirrors the Android `noop.settingsAdvancedOpen` key.
     @AppStorage(SettingsDisclosureDefaults.advancedOpenKey) private var advancedOpen = SettingsDisclosureDefaults.advancedOpenDefault
 
+    @State private var sectionJumpID: String?
+    @State private var sectionJumpSignal = 0
+
     var body: some View {
         ScreenScaffold(title: "Settings",
-                       subtitle: "Your numbers, your strap, and how NOOP works. All on \(Platform.deviceNounPhrase).",
-                       // The day-of-sky liquid backdrop, matching Today / Health / Sleep / Trends / Devices:
-                       // a fixed, full-bleed time-of-day sky behind the scroll content (it does not scroll).
-                       // Settings' own frosted cards sit on the dark canvas below the sky band, unchanged.
-                       topBackground: liquidScaffoldSky()) {
+                       subtitle: "Your numbers, your strap, and how \(ProductBrand.name) works. All on \(Platform.deviceNounPhrase).",
+                       topBackground: liquidScaffoldSky(),
+                       scrollToID: sectionJumpID, scrollToSignal: sectionJumpSignal) {
             VStack(alignment: .leading, spacing: NoopMetrics.sectionSpacing) {
-                // Everyday sections stay expanded (S3): the ones a first-run user actually needs.
-                profileCard.staggeredAppear(index: 0)
-                unitsCard.staggeredAppear(index: 1)
-                appearanceCard.staggeredAppear(index: 2)
-                strapCard.staggeredAppear(index: 3)
+                sectionShortcuts
+                // Anchor jumps do not change any section's persisted expansion state.
+                profileCard.id(SettingsAnchor.profile.rawValue).staggeredAppear(index: 0)
+                unitsCard.id(SettingsAnchor.units.rawValue).staggeredAppear(index: 1)
+                appearanceCard.id(SettingsAnchor.appearance.rawValue).staggeredAppear(index: 2)
+                strapCard.id(SettingsAnchor.device.rawValue).staggeredAppear(index: 3)
                 #if os(iOS)
                 liveNotificationsCard.staggeredAppear(index: 3)
                 #endif
@@ -295,6 +297,19 @@ struct SettingsView: View {
                 aboutCard.staggeredAppear(index: 7)
             }
         }
+        #if DEBUG
+        .task {
+            let arguments = CommandLine.arguments
+            guard let screen = arguments.firstIndex(of: "--demo-screen"), screen + 1 < arguments.count,
+                  arguments[screen + 1] == "settings",
+                  let section = arguments.firstIndex(of: "--demo-settings-section"), section + 1 < arguments.count,
+                  let anchor = SettingsAnchor(rawValue: arguments[section + 1]) else { return }
+            // Wait for the real scaffold's anchors before using the same jump as its section buttons.
+            await Task.yield()
+            sectionJumpID = anchor.rawValue
+            sectionJumpSignal += 1
+        }
+        #endif
         .alert(backupAlertTitle, isPresented: $showBackupAlert) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -381,7 +396,7 @@ struct SettingsView: View {
                                    in: ProfileStore.dateOfBirthRange,
                                    displayedComponents: .date)
                             .labelsHidden()
-                            .tint(StrandPalette.accent)
+                            .tint(StrandPalette.accentInk)
                             .accessibilityLabel("Date of birth, age \(profile.age) years")
                     }
                 }
@@ -398,7 +413,7 @@ struct SettingsView: View {
                     // the labels are long (German "Nicht-binär") or Text Size is enlarged — the oversized
                     // Settings screen users reported. A menu is a compact button that fits any label length.
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("Sex")
                 }
                 rowDivider
@@ -673,8 +688,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
 
                 FormRow(label: "Scaling") {
                     Picker("Scaling", selection: Binding(
@@ -686,7 +701,7 @@ struct SettingsView: View {
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("Background scaling")
                 }
 
@@ -696,10 +711,10 @@ struct SettingsView: View {
                     Text("Remove image")
                 }
                 .buttonStyle(NoopButtonStyle(.tertiary))
-                .accessibilityHint("Removes the custom background and restores the day-cycle sky")
+                .accessibilityHint("Removes the custom background and restores the editorial canvas")
             }
 
-            Text("Optional. Use your own photo behind every tab, in place of the day-cycle sky. It stays on \(Platform.deviceNounPhrase) and is never uploaded. Pair it with Transparent cards above to let it show through.")
+            Text("Optional. Use your own photo behind every tab. It stays on \(Platform.deviceNounPhrase) and is never uploaded. Pair it with Transparent cards above to let it show through.")
                 .font(StrandFont.caption)
                 .foregroundStyle(StrandPalette.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -939,7 +954,7 @@ struct SettingsView: View {
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("Body measurement units")
                 }
                 rowDivider
@@ -950,7 +965,7 @@ struct SettingsView: View {
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("Exercise distance and pace units")
                 }
                 rowDivider
@@ -963,7 +978,7 @@ struct SettingsView: View {
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("Temperature unit")
                 }
                 rowDivider
@@ -977,7 +992,7 @@ struct SettingsView: View {
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("Skin temperature display")
                 }
                 rowDivider
@@ -990,7 +1005,7 @@ struct SettingsView: View {
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("Effort scale")
                 }
 
@@ -1007,8 +1022,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 .onChangeCompat(of: banisterEffortEnabled) { _ in
                     // Re-score immediately on the flip. The recipe changes stored Effort for EVERY day in
                     // the window, so without this the user waits up to 30 min for the next analyze loop
@@ -1046,7 +1061,7 @@ struct SettingsView: View {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text(verbatim: "\(s.current)")
                         .font(StrandFont.number(30))
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                     Text(s.current == 1 ? "day in a row" : "days in a row")
                         .font(StrandFont.footnote)
                         .foregroundStyle(StrandPalette.textTertiary)
@@ -1087,6 +1102,60 @@ struct SettingsView: View {
         )
     }
 
+    /// Native section navigation derived from the grouped command-search controls (27378).
+    private var sectionShortcuts: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: NoopMetrics.space2) {
+                ForEach(SettingsAnchor.allCases) { anchor in
+                    Button {
+                        sectionJumpID = anchor.rawValue
+                        sectionJumpSignal += 1
+                    } label: {
+                        Label(anchor.title, systemImage: anchor.icon)
+                            .font(StrandFont.footnote.weight(.semibold))
+                            .foregroundStyle(StrandPalette.textPrimary)
+                            .padding(.horizontal, NoopMetrics.space3)
+                            .frame(minHeight: NoopButtonMetrics.minHitTarget)
+                            .background(StrandPalette.surfaceRaised, in: Capsule())
+                            .overlay(Capsule().strokeBorder(StrandPalette.hairline, lineWidth: NoopMetrics.hairlineWidth))
+                    }
+                    .buttonStyle(LiquidPressStyle())
+                    .accessibilityIdentifier("noop.settings.jump.\(anchor.rawValue)")
+                }
+            }
+        }
+        .scrollBounceBasedOnSizeCompat(axes: .horizontal)
+        .accessibilityLabel(Text("Settings sections"))
+    }
+
+    private func appearanceChoices<Value: Hashable>(_ title: LocalizedStringKey,
+                                                     selection: Binding<Value>,
+                                                     options: [NoopRadioOption<Value>]) -> some View {
+        VStack(alignment: .leading, spacing: NoopMetrics.space3) {
+            Text(title).font(StrandFont.subhead.weight(.semibold)).foregroundStyle(StrandPalette.textPrimary)
+            NoopRadioGroup(selection: selection, options: options)
+        }
+        .padding(.vertical, NoopMetrics.space2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var themePresetChoices: some View {
+        VStack(alignment: .leading, spacing: NoopMetrics.space3) {
+            Text("Preset").font(StrandFont.subhead.weight(.semibold)).foregroundStyle(StrandPalette.textPrimary)
+            ForEach(ThemePreset.selectable) { preset in
+                NoopRadioCard(title: preset.label,
+                              isSelected: themePresetBinding.wrappedValue == preset) {
+                    themePresetBinding.wrappedValue = preset
+                }
+            }
+            if themePresetBinding.wrappedValue == .custom {
+                Text("Custom").font(StrandFont.footnote).foregroundStyle(StrandPalette.textSecondary)
+            }
+        }
+        .padding(.vertical, NoopMetrics.space2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     private var appearanceCard: some View {
         SettingsSection(
             icon: "circle.lefthalf.filled",
@@ -1106,11 +1175,11 @@ struct SettingsView: View {
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("Language")
                     .onChangeCompat(of: appLanguageRaw) { AppLanguage.apply($0) }
                 }
-                Text("Language changes take effect after you reopen NOOP.")
+                Text("Language changes take effect after you reopen \(ProductBrand.name).")
                     .font(StrandFont.footnote)
                     .foregroundStyle(StrandPalette.textTertiary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -1128,7 +1197,7 @@ struct SettingsView: View {
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("Clock")
                     // #1829: the resolved clock is memoised, so the write has to drop the memo or the
                     // picker would appear to do nothing until the app restarted.
@@ -1144,7 +1213,7 @@ struct SettingsView: View {
                 FormRow(label: "AI Coach") {
                     Toggle("", isOn: $coachEnabled)
                         .labelsHidden()
-                        .tint(StrandPalette.accent)
+                        .tint(StrandPalette.accentInk)
                         .accessibilityLabel("AI Coach")
                 }
                 .onChangeCompat(of: coachEnabled) { on in
@@ -1155,16 +1224,13 @@ struct SettingsView: View {
                 }
                 #if os(iOS)
                 rowDivider
-                // #1841: the same preference Android drives its own bar with, by name and meaning. Here
-                // the SYSTEM owns the behaviour — iOS 26 minimises the tab bar to a pill on scroll rather
-                // than sliding it away — so this asks for the platform's reading of the intent rather
-                // than reproducing ours. Below iOS 26 the modifier is inert and the row simply does
-                // nothing, which is why it is not offered there.
+                // The existing key now compacts the custom dock on iOS 26 and later.
+                // Earlier supported systems retain the always-visible expanded dock.
                 if #available(iOS 26.0, *) {
                     FormRow(label: "Hide bar when scrolling") {
                         Toggle("", isOn: $bottomBarAutoHide)
                             .labelsHidden()
-                            .tint(StrandPalette.accent)
+                            .tint(StrandPalette.accentInk)
                             .accessibilityLabel("Hide bar when scrolling")
                     }
                 }
@@ -1172,72 +1238,29 @@ struct SettingsView: View {
                 rowDivider
                 // Theme presets — one-tap bundles coordinating accent + chart world + backdrop + card
                 // opacity. Derived (no stored value): tweaking any control below flips this to Custom.
-                FormRow(label: "Preset") {
-                    Picker("Preset", selection: themePresetBinding) {
-                        ForEach(ThemePreset.allCases) { p in
-                            Text(p.label).tag(p)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
-                    .accessibilityLabel("Theme preset")
-                }
+                themePresetChoices
                 rowDivider
-                FormRow(label: "Theme") {
-                    Picker("Theme", selection: $appearanceRaw) {
-                        ForEach(AppearanceMode.allCases) { mode in
-                            Text(mode.label).tag(mode.rawValue)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
-                    .accessibilityLabel("Theme")
-                }
+                appearanceChoices("Theme", selection: $appearanceRaw,
+                                  options: AppearanceMode.allCases.map {
+                    NoopRadioOption(id: $0.rawValue, title: $0.label, systemImage: $0.symbol)
+                })
                 rowDivider   // #79: the segmented rows sat flush against each other (missing separator)
-                FormRow(label: "Chart colours") {
-                    // Default = NOOP's clean metric ramps; Classic = the throwback red→amber→green
-                    // readiness scale (cool→hot zones, green→red stress). Both schemes.
-                    Picker("Chart colours", selection: $chartStyleRaw) {
-                        ForEach(ChartStyle.allCases) { style in
-                            Text(style.label).tag(style.rawValue)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
-                    .accessibilityLabel("Chart colours")
-                }
+                appearanceChoices("Chart colours", selection: $chartStyleRaw,
+                                  options: ChartStyle.allCases.map {
+                    NoopRadioOption(id: $0.rawValue, title: $0.label)
+                })
                 rowDivider
-                FormRow(label: "Sleep chart") {
-                    // Classic = the per-stage timeline rows (default). Filled/Ribbon = the WHOOP-style
-                    // single stepped hypnogram, filled to the baseline or as a slim band. Display-only —
-                    // same stages either way; falls back to Classic on a night with no timestamped segments.
-                    Picker("Sleep chart", selection: $sleepChartStyleRaw) {
-                        ForEach(SleepChartStyle.allCases) { style in
-                            Text(style.label).tag(style.rawValue)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
-                    .accessibilityLabel("Sleep chart")
-                }
+                appearanceChoices("Sleep chart", selection: $sleepChartStyleRaw,
+                                  options: SleepChartStyle.allCases.map {
+                    NoopRadioOption(id: $0.rawValue, title: $0.label)
+                })
                 rowDivider
                 // Chrome accent colour — the links/buttons/selection tint only. The recovery/strain/sleep
                 // DATA colours follow "Chart colours" above, never this. Custom reveals a colour well.
-                FormRow(label: "Accent") {
-                    Picker("Accent", selection: $accentRaw) {
-                        ForEach(AccentColor.allCases) { c in
-                            Text(c.label).tag(c.rawValue)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
-                    .accessibilityLabel("Accent colour")
-                }
+                appearanceChoices("Accent", selection: $accentRaw,
+                                  options: AccentColor.allCases.map {
+                    NoopRadioOption(id: $0.rawValue, title: $0.label)
+                })
                 if AccentColor.resolve(accentRaw) == .custom {
                     rowDivider
                     FormRow(label: "Custom colour") {
@@ -1257,7 +1280,7 @@ struct SettingsView: View {
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("Trend chart style")
                 }
                 #if os(iOS)
@@ -1265,11 +1288,11 @@ struct SettingsView: View {
                 FormRow(label: "App icon") {
                     Picker("App icon", selection: $useNavyIcon) {
                         Text("Default").tag(false)
-                        Text("Navy").tag(true)
+                        Text("Midnight").tag(true)
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("App icon")
                     .onChangeCompat(of: useNavyIcon) { applyAppIcon($0) }
                 }
@@ -1284,9 +1307,9 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
-                Text("Holds the liquid gauges, the sky and the tilt response still, and turns off the motion sensor that drives them. Saves battery. Low Power Mode and the system Reduce Motion setting already do this.")
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
+                Text("Keeps progress and decorative motion still. Low Power Mode and the system Reduce Motion setting already do this.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -1296,13 +1319,13 @@ struct SettingsView: View {
                 // MARK: Day-cycle background — the time-of-day scene behind Today (#698). On by default.
                 // Off swaps it for the plain dark canvas for people who find the moving scene distracting.
                 Toggle(isOn: $showDayCycleBackground) {
-                    Text("Day-cycle background")
+                    Text("Editorial background")
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
-                Text("Shows a soft sunrise, day, dusk and night scene behind the Today screen. Turn it off for a plain dark canvas. Your cards stay exactly as readable.")
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
+                Text("Shows a subtle diagonal pattern behind the dashboard. Turn it off for a plain canvas.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -1312,15 +1335,15 @@ struct SettingsView: View {
                 // Card-transparency slider reveals it under every card (not just the hero). Opt-in, off by
                 // default; pairs with Card transparency below.
                 Toggle(isOn: $skyBehindCards) {
-                    Text("Sky behind cards")
+                    Text("Background behind cards")
                         .font(StrandFont.subhead)
                         // Greyed when day-cycle is off — the sky it extends isn't drawn then (Android parity).
                         .foregroundStyle(showDayCycleBackground ? StrandPalette.textPrimary : StrandPalette.textTertiary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 .disabled(!showDayCycleBackground)
-                Text("Extends the sky behind the whole Today screen, so lowering Card transparency lets it show through every card. Needs the day-cycle background on.")
+                Text("Extends the pattern behind every card. Needs the editorial background on.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -1338,8 +1361,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 Text("Let the background show through every card. Tune how much just below.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
@@ -1349,23 +1372,15 @@ struct SettingsView: View {
                 // MARK: Card transparency — fade every frosted card's glass toward the background. Reactive
                 // @AppStorage, so all cards (incl. the ones on this screen) update live as you drag. The
                 // slider shows TRANSPARENCY (0 = solid, 100 = clear); we store the OPACITY percent.
-                HStack {
-                    Text("Card transparency")
-                        .font(StrandFont.subhead)
-                        .foregroundStyle(StrandPalette.textPrimary)
-                    Spacer()
-                    Text("\(100 - cardOpacityPercent)%")
-                        .font(StrandFont.subhead)
-                        .foregroundStyle(StrandPalette.accent)
-                }
-                Slider(
+                NoopSlider(
                     value: Binding(
                         get: { Double(100 - cardOpacityPercent) },
                         set: { cardOpacityPercent = 100 - Int($0.rounded()) }
                     ),
-                    in: 0...100, step: 1
+                    in: 0...100, step: 1,
+                    label: String(localized: "Card transparency"), marks: [0, 50, 100],
+                    valueLabel: { "\(Int($0.rounded()))%" }
                 )
-                .tint(StrandPalette.accent)
                 Text("How see-through the cards (Heart Rate, Key Metrics, Recovery Vitals, …) are. Left = solid, right = clear.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
@@ -1441,7 +1456,7 @@ struct SettingsView: View {
                         .foregroundStyle(StrandPalette.textSecondary)
                     Spacer()
                     Button("Copy") { PlatformPasteboard.copy(live.exportableLogText()) }
-                        .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accent)
+                        .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accentInk)
                     Button("Save…") {
                         Task {
                             let extra = await DebugDataDiagnostics.dynamicLines(repo: model.repo)
@@ -1449,7 +1464,7 @@ struct SettingsView: View {
                                                   suggestedName: FileExport.timestampedName("noop-strap-log", ext: "txt"))
                         }
                     }
-                    .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accent)
+                    .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accentInk)
                 }
                 Text("Grab this when you report a bug. It tells me what the app saw. (The full live log is also on the Live screen.)")
                     .font(StrandFont.caption)
@@ -1590,8 +1605,8 @@ struct SettingsView: View {
                     .font(StrandFont.subhead)
                     .foregroundStyle(StrandPalette.textPrimary)
             }
-            .toggleStyle(.switch)
-            .tint(StrandPalette.accent)
+            .toggleStyle(NoopToggleStyle())
+            .tint(StrandPalette.accentInk)
             Text(detail)
                 .font(StrandFont.caption)
                 .foregroundStyle(StrandPalette.textTertiary)
@@ -1680,8 +1695,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 .accessibilityHint("Adds a water-log card to your dashboard")
 
                 Text("Adds a fluid log and an effort-adjusted daily goal. Log a sip, cup or bottle to fill your progress ring. Data stays on this device.")
@@ -1703,8 +1718,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 .accessibilityHint("Offers to save a workout when it spots sustained elevated heart rate")
 
                 Text("After a sync, NOOP looks over your recent heart rate for a sustained, raised stretch that looks like exercise and offers to save it. It only ever suggests. Nothing is saved until you tap Save, and you can dismiss any suggestion. Turning this off stops future suggestions but keeps your existing workout history. Deliberately conservative, so the odd workout may be missed. On \(Platform.deviceNounPhrase) only.")
@@ -1724,8 +1739,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 .accessibilityHint("Show a Today card reminding you to log your journal")
 
                 Text("Show a Today card reminding you to log your journal")
@@ -1740,8 +1755,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 .accessibilityHint("Stops the screen dimming while a workout is recording")
 
                 Text("Holds the screen awake while you're recording a workout, so your live heart rate stays visible without the device dimming. Only applies during a recording. The screen sleeps normally the rest of the time. Leaving it on does use a bit more battery, and means your unlocked screen stays visible for the whole workout, so flip it off if that's a concern.")
@@ -1769,8 +1784,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 .accessibilityHint("Stops the screen locking while your strap's history syncs")
 
                 Text("Holds the screen awake while NOOP pulls stored history from your strap, so you can watch a long sync finish without the phone locking. Only applies while a sync is running and NOOP is open. The screen sleeps normally the rest of the time. It uses a bit more battery while the screen stays on.")
@@ -1801,8 +1816,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 .onChangeCompat(of: continuousHrvEnabled) { on in model.ble.setKeepRealtimeForData(on) }
                 Text("Keeps the detailed beat-to-beat heart-rate stream running all day and night, not just while a live screen is open, so NOOP captures much more for overnight HRV, recovery and sleep. Uses more battery: your strap streams heart rate continuously while connected.")
                     .font(StrandFont.caption)
@@ -1816,8 +1831,8 @@ struct SettingsView: View {
                             .font(StrandFont.subhead)
                             .foregroundStyle(StrandPalette.textPrimary)
                     }
-                    .toggleStyle(.switch)
-                    .tint(StrandPalette.accent)
+                    .toggleStyle(NoopToggleStyle())
+                    .tint(StrandPalette.accentInk)
                     .onChangeCompat(of: continuousHrvOvernightOnly) { _ in
                         model.ble.setKeepRealtimeForData(PuffinExperiment.keepRealtimeForDataEnabled)
                     }
@@ -1839,7 +1854,7 @@ struct SettingsView: View {
                     }
                     .labelsHidden()
                     .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
                     .accessibilityLabel("HRV window")
                     .onChangeCompat(of: hrvWindowRaw) { _ in
                         // #201/#195: analyzeRecent re-scores the recent ~21 nights' avgHrv under the new
@@ -1871,24 +1886,24 @@ struct SettingsView: View {
         rawSensorDiagnosticsCard
     }
 
-    /// Opt-in liquid Today redesign (default ON in this build). Off falls back to the
+    /// Editorial Today layout (default ON in this build). Off falls back to the
     /// classic dashboard immediately, no rebuild. Same data either way.
     @AppStorage("noop.liquidTodayEnabled") private var liquidTodayEnabled = true
     private var liquidTodayCard: some View {
         SettingsSection(
-            icon: "drop.fill",
-            title: "Experimental · Liquid Today",
-            blurb: "A redesigned Today screen in the new liquid language: the scores as living liquid, a time-of-day sky, and a calmer layout. Same numbers, new look."
+            icon: "rectangle.grid.1x2.fill",
+            title: "Today",
+            blurb: "Choose the editorial dashboard or the classic layout. Both show the same data."
         ) {
             VStack(alignment: .leading, spacing: NoopMetrics.rowSpacing) {
                 Toggle(isOn: $liquidTodayEnabled) {
-                    Text("Liquid Today (prototype)")
+                    Text("Editorial dashboard")
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
-                Text("Replaces the Today tab with the prototype redesign. Turn it off any time to return to the classic dashboard. Reads the same live data from your strap.")
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
+                Text("Uses the editorial layout in Today. Turn it off to return to the classic dashboard.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -1912,8 +1927,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 Text("Silence-first strap coaching during workouts.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
@@ -1938,8 +1953,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 Text("A transparent cardiorespiratory recipe that recovers deep and REM better than the older V1 staging, and is now the default. It only changes how already-detected nights are split into stages (detection and scores are unchanged); turn it off to fall back to V1. Takes effect on the next nights staged.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
@@ -1953,8 +1968,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 Text("Reviews each scored wake block for real evidence of getting up (walking cadence, a change in body position) instead of just a heart-rate rise. A wake block with no locomotion and a stable posture — a hot night, a brief turn-over — is folded back into light sleep; a real get-up is left alone. Self-checks how much motion detail your strap actually recorded and stays off on a night that's too sparse to trust (older WHOOP 4.0 firmware, mainly). Off by default; takes effect on the next nights staged.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
@@ -1984,8 +1999,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 .onChangeCompat(of: spo2CandidateDisplayEnabled) { _ in
                     // Re-score immediately so the candidate is computed and persisted on this
                     // toggle flip — without this the user waits up to 15 min for the next analyze
@@ -2017,8 +2032,8 @@ struct SettingsView: View {
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textPrimary)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
+                .toggleStyle(NoopToggleStyle())
+                .tint(StrandPalette.accentInk)
                 Text("Your Oura ring only measures daytime heart rate while NOOP keeps it in that mode, and NOOP stops asking whenever the screen has been off for five minutes — which protects the ring's own sleep tracking at night, but also leaves a pocketed phone's day blank on the Heart Rate and HRV charts. On, NOOP keeps asking through the day and stops only for your usual night, learned from your sleep history (an hour before your typical bedtime to an hour after your usual wake), so the night is unchanged. Costs ring battery: the ring runs its own optical sensor all day. Until enough nights are learned it behaves as if off. Off by default.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
@@ -2235,7 +2250,7 @@ struct SettingsView: View {
                             .accessibilityHidden(true)
                     }
                     .font(StrandFont.subhead)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                 }
                 .buttonStyle(LiquidPressStyle())
                 .accessibilityLabel("Open Backup and Sync to a folder")
@@ -2344,7 +2359,7 @@ struct SettingsView: View {
         ) {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 10) {
-                    Text("NOOP")
+                    Text(ProductBrand.name)
                         .font(StrandFont.title2)
                         .foregroundStyle(StrandPalette.textPrimary)
                     StatePill("v\(bundleVersionString)", tone: .neutral, showsDot: false)
@@ -2362,7 +2377,7 @@ struct SettingsView: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: "questionmark.circle")
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                             .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 1) {
                             Text("How NOOP works")
@@ -2391,7 +2406,7 @@ struct SettingsView: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: "questionmark.circle")
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                             .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 1) {
                             Text("How your scores work")
@@ -2423,7 +2438,7 @@ struct SettingsView: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: "applewatch")
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                             .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 1) {
                             Text("About Apple Watch data")
@@ -2453,7 +2468,7 @@ struct SettingsView: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: "internaldrive")
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                             .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 1) {
                             Text("Storage")
@@ -2532,7 +2547,7 @@ struct SettingsView: View {
                                 .foregroundStyle(StrandPalette.textSecondary)
                         }
                     }
-                    .tint(StrandPalette.accent)
+                    .tint(StrandPalette.accentInk)
 
                     // Update available: show what's new, with a download straight to the release.
                     if case .available(let v, let url, let notes) = updateChecker.state {
@@ -2555,7 +2570,7 @@ struct SettingsView: View {
                                 }
                                 #if os(iOS)
                                 // #697/#horizontal-swipe parity, see ScreenScaffold.
-                                .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+                                .scrollBounceBasedOnSizeCompat(axes: .horizontal)
                                 #endif
                                 .frame(maxHeight: 150)
                             }
@@ -2579,10 +2594,10 @@ struct SettingsView: View {
                 Link(destination: URL(string: "https://github.com/ryanbr/noop")!) {
                     HStack(spacing: 10) {
                         Image(systemName: "chevron.left.forwardslash.chevron.right")
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                             .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 1) {
-                            Text("Project home & source")
+                            Text("Original NOOP project & source")
                                 .font(StrandFont.body)
                                 .foregroundStyle(StrandPalette.textPrimary)
                             Text("GitHub: code, releases, issues and the wiki.")
@@ -2598,7 +2613,12 @@ struct SettingsView: View {
                     }
                     .contentShape(Rectangle())
                 }
-                .accessibilityLabel("Project home and source code on GitHub")
+                .accessibilityLabel("Original NOOP project and source code on GitHub")
+
+                Text("Nanashi is derived from NOOP. Original project, license and contributor credits are preserved.")
+                    .font(StrandFont.footnote)
+                    .foregroundStyle(StrandPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text("A standalone companion for your WHOOP. Everything stays on this device: your history, your live stream, your numbers. Nothing is uploaded. NOOP is an independent, experimental project, not the WHOOP app.")
                     .font(StrandFont.subhead)
@@ -2629,6 +2649,7 @@ struct SettingsView: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Built on").strandOverline()
+                    attribution(repo: "ryanbr/noop", note: String(localized: "Original NOOP project"))
                     attribution(repo: "johnmiddleton12/my-whoop", note: String(localized: "WHOOP 4.0 protocol"))
                     attribution(repo: "b-nnett/goose", note: String(localized: "WHOOP 5.0 protocol"))
                 }
@@ -2644,7 +2665,7 @@ struct SettingsView: View {
         HStack(spacing: 8) {
             Image(systemName: "chevron.right")
                 .font(.system(size: 9, weight: .semibold))
-                .foregroundStyle(StrandPalette.accent)
+                .foregroundStyle(StrandPalette.accentInk)
                 .accessibilityHidden(true)
             Text(repo)
                 .font(StrandFont.mono(12))
@@ -2666,7 +2687,7 @@ struct SettingsView: View {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: "stethoscope")
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Diagnostics")
@@ -2698,7 +2719,7 @@ struct SettingsView: View {
         return VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: "iphone.gen3")
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                     .accessibilityHidden(true)
                 Text("Using NOOP on iPhone")
                     .font(StrandFont.subhead.weight(.semibold))
@@ -2782,12 +2803,7 @@ enum SettingsDisclosureDefaults {
     static let advancedOpenDefault = false
 }
 
-/// A collapsible group that tucks the lower-frequency settings sections behind one tap. It is NOT a
-/// section card itself (the cards it wraps keep their own `SettingsSection` chrome). It's just a
-/// header row + a default-collapsed reveal, modelled on the Test Centre "Advanced" group. Nothing is
-/// removed: collapsed simply means the wrapped sections aren't drawn until the row is tapped open.
-/// A custom header (not SwiftUI's `DisclosureGroup`) is used so it matches NOOP's near-black
-/// instrument look, which the system control's tint and inset don't.
+/// Advanced settings reveal adapted from Expandable Card (35717), retaining the existing binding.
 private struct SettingsDisclosureGroup<Content: View>: View {
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
@@ -2795,47 +2811,45 @@ private struct SettingsDisclosureGroup<Content: View>: View {
     @ViewBuilder var content: () -> Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: NoopMetrics.sectionSpacing) {
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() }
-            } label: {
-                HStack(alignment: .center, spacing: NoopMetrics.space3) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(title)
-                            .font(StrandFont.title2)
-                            .foregroundStyle(StrandPalette.textPrimary)
-                        Text(subtitle)
-                            .font(StrandFont.subhead)
-                            .foregroundStyle(StrandPalette.textSecondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .multilineTextAlignment(.leading)
-                    }
-                    Spacer(minLength: NoopMetrics.space2)
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(StrandPalette.textTertiary)
-                        .rotationEffect(.degrees(isExpanded ? 0 : -90))
-                        .accessibilityHidden(true)
-                }
-                .contentShape(Rectangle())
+        NoopExpandableCard(isExpanded: $isExpanded) {
+            VStack(alignment: .leading, spacing: NoopMetrics.space2) {
+                Text(title).font(StrandFont.title2).foregroundStyle(StrandPalette.textPrimary)
+                Text(subtitle).font(StrandFont.subhead).foregroundStyle(StrandPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.leading)
             }
-            .buttonStyle(LiquidPressStyle())
-            .accessibilityLabel(title)
-            .accessibilityValue(isExpanded ? "Expanded" : "Collapsed")
-            .accessibilityHint("Shows the advanced settings sections")
-            .accessibilityAddTraits(.isButton)
+        } content: {
+            VStack(alignment: .leading, spacing: NoopMetrics.sectionSpacing) { content() }
+        }
+        .accessibilityHint("Shows the advanced settings sections")
+    }
+}
 
-            if isExpanded {
-                content()
-            }
+private enum SettingsAnchor: String, CaseIterable, Identifiable {
+    case profile = "settings.profile", units = "settings.units"
+    case appearance = "settings.appearance", device = "settings.device"
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .profile: return String(localized: "Profile")
+        case .units: return String(localized: "Units")
+        case .appearance: return String(localized: "Appearance")
+        case .device: return String(localized: "Device")
+        }
+    }
+    var icon: String {
+        switch self {
+        case .profile: return "person.crop.circle"
+        case .units: return "ruler"
+        case .appearance: return "circle.lefthalf.filled"
+        case .device: return "sensor.tag.radiowaves.forward"
         }
     }
 }
 
 // MARK: - Section card
 
-/// A grouped settings card: a "Settings" overline + icon + title header, an explanatory blurb,
-/// then content. The surface stays neutral; accent blue is reserved for the icon and controls.
+/// Quiet preference groups adapted from 21st.dev's Preferences Card (30553).
 private struct SettingsSection<Content: View>: View {
     let icon: String
     let title: LocalizedStringKey
@@ -2845,16 +2859,22 @@ private struct SettingsSection<Content: View>: View {
     var body: some View {
         StrandCard(padding: NoopMetrics.space5) {
             VStack(alignment: .leading, spacing: NoopMetrics.space4) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Settings").strandOverline()
-                    HStack(spacing: NoopMetrics.space2 + 2) {
-                        Image(systemName: icon)
-                            .foregroundStyle(StrandPalette.accent)
-                            .accessibilityHidden(true)
-                        Text(title)
-                            .font(StrandFont.title2)
-                            .foregroundStyle(StrandPalette.textPrimary)
-                    }
+                HStack(spacing: NoopMetrics.space3) {
+                    Image(systemName: icon)
+                        .font(StrandFont.headline)
+                        .foregroundStyle(StrandPalette.accentInk)
+                        .frame(width: NoopMetrics.compactControlSize, height: NoopMetrics.compactControlSize)
+                        .background(StrandPalette.surfaceInset,
+                                    in: RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: NoopVisualStyle.compactRadius, style: .continuous)
+                                .strokeBorder(StrandPalette.hairline, lineWidth: NoopMetrics.hairlineWidth)
+                        }
+                        .accessibilityHidden(true)
+                    Text(title)
+                        .font(StrandFont.title2)
+                        .foregroundStyle(StrandPalette.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Text(blurb)
                     .font(StrandFont.subhead)
@@ -2923,7 +2943,7 @@ private struct DiagnosticsSheet: View {
             }
             #if os(iOS)
             // #697/#horizontal-swipe parity, see ScreenScaffold.
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
 
             Divider().overlay(StrandPalette.hairline)
@@ -3034,7 +3054,7 @@ struct StepsCalibrationSheet: View {
             }
             #if os(iOS)
             // #697/#horizontal-swipe parity, see ScreenScaffold.
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
             Divider().overlay(StrandPalette.hairline)
             footerBar
@@ -3165,7 +3185,7 @@ struct StepsCalibrationSheet: View {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text(String(format: "%.1f", coeff))
                             .font(StrandFont.number(30))
-                            .foregroundStyle(StrandPalette.accent)
+                            .foregroundStyle(StrandPalette.accentInk)
                         Text("steps per motion unit")
                             .font(StrandFont.footnote)
                             .foregroundStyle(StrandPalette.textTertiary)
@@ -3207,7 +3227,7 @@ struct StepsCalibrationSheet: View {
                                        need: StepsEstimateEngine.minCalibrationDays)
                         .headline)
                         .font(StrandFont.bodyNumber)
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                     Text("These are the days where your phone also counted steps, so NOOP can learn how your motion maps to steps. Or set the coefficient manually below.")
                         .font(StrandFont.footnote)
                         .foregroundStyle(StrandPalette.textTertiary)
@@ -3282,30 +3302,19 @@ struct StepsCalibrationSheet: View {
                     .foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(draftManual > 0 ? String(format: "%.1f", draftManual) : String(localized: "Auto"))
-                        .font(StrandFont.number(24))
-                        .foregroundStyle(draftManual > 0 ? StrandPalette.accent : StrandPalette.textSecondary)
-                    Text(draftManual > 0 ? "steps / motion unit" : "fit from your phone")
-                        .font(StrandFont.footnote)
-                        .foregroundStyle(StrandPalette.textTertiary)
-                    Spacer()
-                }
-
-                Slider(value: $draftManual, in: 0...sliderMax, step: 0.5) {
-                    Text("Manual steps coefficient")
-                } minimumValueLabel: {
-                    Text("Auto").font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
-                } maximumValueLabel: {
-                    Text("High").font(StrandFont.caption).foregroundStyle(StrandPalette.textTertiary)
-                } onEditingChanged: { editing in
-                    // Commit on release — snap a tiny drag back to 0 (auto) so "auto" is reachable.
+                NoopSlider(value: $draftManual, in: 0...sliderMax, step: 0.5,
+                           label: String(localized: "Manual steps coefficient"),
+                           marks: [0, sliderMax],
+                           valueLabel: { $0 > 0 ? String(format: "%.1f", $0) : String(localized: "Auto") },
+                           onEditingChanged: { editing in
+                    // Commit on release; a tiny draft still resolves to the existing automatic mode.
                     if !editing { profile.stepsManualCoefficient = draftManual < 0.5 ? 0 : draftManual }
-                }
-                .tint(StrandPalette.accent)
+                })
                 .accessibilityValue(draftManual > 0
                                     ? "\(String(format: "%.1f", draftManual)) steps per motion unit"
                                     : "Automatic")
+                Text(draftManual > 0 ? "steps / motion unit" : "fit from your phone")
+                    .font(StrandFont.footnote).foregroundStyle(StrandPalette.textTertiary)
 
                 // Live preview: a typical recent day re-estimated at the draft coefficient.
                 if let motion = sampleMotion {
@@ -3421,17 +3430,31 @@ struct StepsCalibrationSheet: View {
 private struct FormRow<Control: View>: View {
     let label: LocalizedStringKey
     @ViewBuilder var control: () -> Control
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
-        HStack(alignment: .center, spacing: NoopMetrics.space4) {
-            Text(label)
-                .font(StrandFont.body)
-                .foregroundStyle(StrandPalette.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            control()
-                .layoutPriority(1)
+        Group {
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: NoopMetrics.space3) {
+                    rowLabel
+                    control()
+                }
+            } else {
+                HStack(alignment: .center, spacing: NoopMetrics.space4) {
+                    rowLabel
+                    control().layoutPriority(1)
+                }
+            }
         }
-        .frame(minHeight: 32)
+        .frame(minHeight: NoopButtonMetrics.minHitTarget)
+    }
+
+    private var rowLabel: some View {
+        Text(label)
+            .font(StrandFont.body)
+            .foregroundStyle(StrandPalette.textPrimary)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

@@ -107,7 +107,7 @@ struct ScoringGuideView: View {
                 }
                 #if os(iOS)
                 // #697/#horizontal-swipe parity, see ScreenScaffold.
-                .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+                .scrollBounceBasedOnSizeCompat(axes: .horizontal)
                 #endif
                 .onAppear { jump(to: initialSection, using: proxy) }
             }

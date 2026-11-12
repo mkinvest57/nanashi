@@ -1,0 +1,132 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "10 result(s) across 21st.dev (metadata only).\n\n### [component] Notice Alert  [id: 19366]\nby corr\nA restrained alert wrapper with info, success, warning, primary, and destructive tones for inline notices and status messages.\npreview: https://cdn.21st.dev/corr/notice-alert/default/preview.1784723104620-22d682d0-eefc-4af7-8ae9-1855c45c3304.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/corr/notice-alert?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 19366 })\n\n### [component] Alert  [id: 3587]\nby sean0205\nDisplays a callout for user attention, such as a success message, warning, or error.\npreview: https://cdn.21st.dev/sean0205/alert-1/extended/preview.1751434599073.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/sean0205/alert-1?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 3587 })\n\n### [component] Alert Toast  [id: 8863]\nby lavikatiyar\nAlert Toast\nA responsive and theme-aware alert component designed to provide contextual feedback for different user actions. It includes variants for success, warning, info, and error states, with support for both filled and subtle visual styles.\npreview: https://cdn.21st.dev/lavikatiyar/alert-toast/default/preview.1760426253532.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/lavikatiyar/alert-toast?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 8863 })\n\n### [component] Promise Toast  [id: 24420]\nby cnippet-dev\nA button that triggers a promise-based toast notification, cycling through loading, success, and error states as an async task resolves.\npreview: https://cdn.21st.dev/cnippet.dev/promise-toast/default/preview.1786660993010-c3261deb-756b-476d-8ffa-bb9ca19cb35a.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/promise-toast?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 24420 })\n\n### [component] Alert  [id: 334]\nby serafimcloud\nAlert in shadcn/ui format\npreview: https://cdn.21st.dev/user_2nElBLvklOKlAURm6W1PTu6yYFh/alert/success-alert/preview.png?v=1\ninstall: npx shadcn@latest add \"https://21st.dev/r/serafimcloud/alert?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 334 })\n\n### [component] Toast  [id: 24297]\nby cnippet-dev\nStacked toast notification system with auto-dismiss timeouts, action buttons, status icons, and configurable positions built on Base UI.\npreview: https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/toast/default/preview.1786656804488.webp\ninstall: npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/toast?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 24297 })\n\n### [component] Alert  [id: 34379]\nby appica-dev\nA dismissible alert banner for surfacing status messages, warnings, or announcements with an icon, title, description, and optional actions.\npreview: https://cdn.21st.dev/appica-dev/alert/variants/preview.1790796911650-a4139923-6257-47dd-82db-0a5c2ac6fcad.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/appica-dev/alert?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 34379 })\n\n### [component] Animated Toast  [id: 28242]\nby dev.shejanmahamud\nA set of animated toast notification components (success/error/warning/info variants, undo, promise-based, stacked, and minimal styles) for showing transient feedback in a React app.\npreview: https://cdn.21st.dev/dev.shejanmahamud/animated-toast/animated-toast-promise-demo/preview.1789957029966-c2c6a637-430f-44ac-a21c-f008f9fef933.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/dev.shejanmahamud/animated-toast?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 28242 })\n\n### [component] Sync Status Toast  [id: 19146]\nby shadcnspace\nA custom Sonner toast notification that displays repository sync status with branch info and action buttons.\npreview: https://cdn.21st.dev/shadcnspace/sonner-05/default/preview.1783695087058.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcnspace/sonner-05?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 19146 })\n\n### [component] Alert  [id: 1170]\nby shadcn\nDisplays a callout for user attention.\npreview: https://cdn.21st.dev/user_shadcn/alert/default/preview.png\ninstall: npx shadcn@latest add \"https://21st.dev/r/shadcn/alert?api_key=$API_KEY_21ST\"\n→ get the code: get_component({ id: 1170 })\n\nMetadata is free. get_component (the code) is the PAID step - on the free tier it uses your daily retrieval quota (see get_usage)."
+    }
+  ],
+  "structuredContent": {
+    "results": [
+      {
+        "type": "component",
+        "id": 19366,
+        "name": "Notice Alert",
+        "description": "A restrained alert wrapper with info, success, warning, primary, and destructive tones for inline notices and status messages.",
+        "previewUrl": "https://cdn.21st.dev/corr/notice-alert/default/preview.1784723104620-22d682d0-eefc-4af7-8ae9-1855c45c3304.png",
+        "videoUrl": "https://cdn.21st.dev/corr/notice-alert/default/video.1784723104620-22d682d0-eefc-4af7-8ae9-1855c45c3304.mp4",
+        "author": "corr",
+        "authorImage": "https://github.com/lcorrigan704.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/corr/notice-alert?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@corr/components/notice-alert"
+      },
+      {
+        "type": "component",
+        "id": 3587,
+        "name": "Alert",
+        "description": "Displays a callout for user attention, such as a success message, warning, or error.",
+        "previewUrl": "https://cdn.21st.dev/sean0205/alert-1/extended/preview.1751434599073.png",
+        "videoUrl": null,
+        "author": "sean0205",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2wpPk1CyWKAxM46S7k5UoCQhmqF/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/sean0205/alert-1?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@sean0205/components/alert-1"
+      },
+      {
+        "type": "component",
+        "id": 8863,
+        "name": "Alert Toast",
+        "description": "Alert Toast\nA responsive and theme-aware alert component designed to provide contextual feedback for different user actions. It includes variants for success, warning, info, and error states, with support for both filled and subtle visual styles.",
+        "previewUrl": "https://cdn.21st.dev/lavikatiyar/alert-toast/default/preview.1760426253532.png",
+        "videoUrl": "https://cdn.21st.dev/lavikatiyar/alert-toast/default/video.1760426253532.mp4",
+        "author": "lavikatiyar",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18zMmpLc3RWclVqVjg4ZjFISXBzMjVhS1RGeloifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/lavikatiyar/alert-toast?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@lavikatiyar/components/alert-toast"
+      },
+      {
+        "type": "component",
+        "id": 24420,
+        "name": "Promise Toast",
+        "description": "A button that triggers a promise-based toast notification, cycling through loading, success, and error states as an async task resolves.",
+        "previewUrl": "https://cdn.21st.dev/cnippet.dev/promise-toast/default/preview.1786660993010-c3261deb-756b-476d-8ffa-bb9ca19cb35a.png",
+        "videoUrl": null,
+        "author": "cnippet-dev",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_36Tbt0v8JdD4jEycmBFhR8tojnR/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/promise-toast?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@cnippet-dev/components/promise-toast"
+      },
+      {
+        "type": "component",
+        "id": 334,
+        "name": "Alert",
+        "description": "Alert in shadcn/ui format",
+        "previewUrl": "https://cdn.21st.dev/user_2nElBLvklOKlAURm6W1PTu6yYFh/alert/success-alert/preview.png?v=1",
+        "videoUrl": "",
+        "author": "serafimcloud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ybkVsQk9lMnU2VHVQTmZWaDNZWTZ0UG05OXQifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/serafimcloud/alert?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@serafimcloud/components/alert"
+      },
+      {
+        "type": "component",
+        "id": 24297,
+        "name": "Toast",
+        "description": "Stacked toast notification system with auto-dismiss timeouts, action buttons, status icons, and configurable positions built on Base UI.",
+        "previewUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/toast/default/preview.1786656804488.webp",
+        "videoUrl": "https://cdn.21st.dev/user_36Tbt0v8JdD4jEycmBFhR8tojnR/toast/default/video.1786656781108.mp4",
+        "author": "cnippet-dev",
+        "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_36Tbt0v8JdD4jEycmBFhR8tojnR/avatar.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/cnippet-dev/toast?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@cnippet-dev/components/toast"
+      },
+      {
+        "type": "component",
+        "id": 34379,
+        "name": "Alert",
+        "description": "A dismissible alert banner for surfacing status messages, warnings, or announcements with an icon, title, description, and optional actions.",
+        "previewUrl": "https://cdn.21st.dev/appica-dev/alert/variants/preview.1790796911650-a4139923-6257-47dd-82db-0a5c2ac6fcad.png",
+        "videoUrl": null,
+        "author": "appica-dev",
+        "authorImage": "https://avatars.githubusercontent.com/u/280778463?v=4",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/appica-dev/alert?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@appica-dev/components/alert"
+      },
+      {
+        "type": "component",
+        "id": 28242,
+        "name": "Animated Toast",
+        "description": "A set of animated toast notification components (success/error/warning/info variants, undo, promise-based, stacked, and minimal styles) for showing transient feedback in a React app.",
+        "previewUrl": "https://cdn.21st.dev/dev.shejanmahamud/animated-toast/animated-toast-promise-demo/preview.1789957029966-c2c6a637-430f-44ac-a21c-f008f9fef933.png",
+        "videoUrl": "https://cdn.21st.dev/dev.shejanmahamud/animated-toast/animated-toast-promise-demo/video.1789957029966-c2c6a637-430f-44ac-a21c-f008f9fef933.mp4",
+        "author": "dev.shejanmahamud",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zMklBWlhiYWVIdkJFNjByVDdqSW5mUDJZdmoifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/dev.shejanmahamud/animated-toast?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@dev.shejanmahamud/components/animated-toast"
+      },
+      {
+        "type": "component",
+        "id": 19146,
+        "name": "Sync Status Toast",
+        "description": "A custom Sonner toast notification that displays repository sync status with branch info and action buttons.",
+        "previewUrl": "https://cdn.21st.dev/shadcnspace/sonner-05/default/preview.1783695087058.png",
+        "videoUrl": "https://cdn.21st.dev/shadcnspace/sonner-05/default/video.1783695087058.mp4",
+        "author": "shadcnspace",
+        "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zOHFBT3VLQWpSb3c5SjlUdGttSGhYZnBiZ28ifQ",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcnspace/sonner-05?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcnspace/components/sonner-05"
+      },
+      {
+        "type": "component",
+        "id": 1170,
+        "name": "Alert",
+        "description": "Displays a callout for user attention.",
+        "previewUrl": "https://cdn.21st.dev/user_shadcn/alert/default/preview.png",
+        "videoUrl": null,
+        "author": "shadcn",
+        "authorImage": "https://github.com/shadcn-ui.png",
+        "installCommand": "npx shadcn@latest add \"https://21st.dev/r/shadcn/alert?api_key=$API_KEY_21ST\"",
+        "url": "https://21st.dev/@shadcn/components/alert"
+      }
+    ]
+  }
+}

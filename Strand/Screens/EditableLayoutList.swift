@@ -205,7 +205,7 @@ private struct EditableLayoutRow: View {
                 Button(configurationLabel, action: onConfigure)
                     .buttonStyle(.plain)
                     .font(StrandFont.caption.weight(.semibold))
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                     .accessibilityLabel(String(localized: "Edit \(title)"))
             }
 

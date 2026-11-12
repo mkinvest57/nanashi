@@ -293,7 +293,7 @@ struct JournalLogCard: View {
         VStack(alignment: .leading, spacing: NoopMetrics.gap) {
             Text("Rename item").font(StrandFont.headline)
             TextField("Display name", text: $renameDraft)
-                .textFieldStyle(.roundedBorder)
+                .textFieldStyle(NoopTextFieldStyle())
             Text("History stays under the original question so WHOOP imports still line up.")
                 .font(StrandFont.footnote)
                 .foregroundStyle(StrandPalette.textTertiary)
@@ -319,7 +319,7 @@ struct JournalLogCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 TextField("Add a custom item…", text: $customDraft)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(NoopTextFieldStyle())
                 pillButton(customIsNumeric ? "Number" : "Yes/No", selected: customIsNumeric) {
                     customIsNumeric.toggle()
                 }
@@ -414,7 +414,7 @@ private struct NumericLogField: View {
 
     var body: some View {
         TextField(placeholder, text: $text)
-            .textFieldStyle(.roundedBorder)
+            .textFieldStyle(NoopTextFieldStyle())
             .multilineTextAlignment(.center)
             .font(StrandFont.number(15))
             .onAppear { text = value.map(Self.format) ?? "" }

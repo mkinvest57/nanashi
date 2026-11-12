@@ -198,7 +198,7 @@ struct AddDeviceWizard: View {
             }
             #if os(iOS)
             // #697/#horizontal-swipe parity, see ScreenScaffold.
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -380,7 +380,7 @@ struct AddDeviceWizard: View {
             HStack(spacing: 14) {
                 Image(systemName: icon)
                     .font(StrandFont.title2)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                     .frame(width: 30)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 3) {
@@ -411,7 +411,7 @@ struct AddDeviceWizard: View {
                 HStack(spacing: 14) {
                     Image(systemName: typeIcon(type))
                         .font(.system(size: 30))
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     Text(typeTitle(type)).font(StrandFont.title2)
                         .foregroundStyle(StrandPalette.textPrimary)
@@ -437,7 +437,7 @@ struct AddDeviceWizard: View {
                         HStack(alignment: .top, spacing: 10) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(StrandFont.subhead)
-                                .foregroundStyle(StrandPalette.accent)
+                                .foregroundStyle(StrandPalette.accentInk)
                                 .accessibilityHidden(true)
                             Text(line)
                                 .font(StrandFont.body)
@@ -538,7 +538,7 @@ struct AddDeviceWizard: View {
                 HStack(spacing: 14) {
                     Image(systemName: "circle.circle")
                         .font(.system(size: 30))
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     Text("Oura ring").font(StrandFont.title2)
                         .foregroundStyle(StrandPalette.textPrimary)
@@ -629,7 +629,7 @@ struct AddDeviceWizard: View {
         }
         .font(StrandFont.subhead)
         .buttonStyle(.plain)
-        .foregroundStyle(StrandPalette.accent)
+        .foregroundStyle(StrandPalette.accentInk)
         .accessibilityLabel("Keep the Oura app instead, import a file")
 
         // Tertiary: Advanced power-user key path (no reset, Oura app keeps working).
@@ -638,7 +638,7 @@ struct AddDeviceWizard: View {
         }
         .font(StrandFont.footnote)
         .buttonStyle(.plain)
-        .foregroundStyle(StrandPalette.accent)
+        .foregroundStyle(StrandPalette.accentInk)
         .accessibilityLabel("Advanced. I already have my ring's key.")
     }
 
@@ -676,7 +676,7 @@ struct AddDeviceWizard: View {
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(StrandFont.subhead)
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     Text(line)
                         .font(StrandFont.body)
@@ -767,7 +767,7 @@ struct AddDeviceWizard: View {
         }
         .font(StrandFont.footnote)
         .buttonStyle(.plain)
-        .foregroundStyle(StrandPalette.accent)
+        .foregroundStyle(StrandPalette.accentInk)
     }
 
     // MARK: Step 3 (Oura) - pick the ring
@@ -806,7 +806,7 @@ struct AddDeviceWizard: View {
                 HStack(spacing: 10) {
                     Image(systemName: "circle.circle")
                         .font(.system(size: 22))
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     Text(gen.displayName).font(StrandFont.headline)
                         .foregroundStyle(StrandPalette.textPrimary)
@@ -939,7 +939,7 @@ struct AddDeviceWizard: View {
                 } label: {
                     Text("Use file import")
                         .font(StrandFont.headline)
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
                         .background(StrandPalette.surfaceInset,
@@ -1668,7 +1668,7 @@ private struct ScanStatusBar: View {
             Button("Rescan", action: onRescan)
                 .font(StrandFont.subhead)
                 .buttonStyle(.plain)
-                .foregroundStyle(StrandPalette.accent)
+                .foregroundStyle(StrandPalette.accentInk)
         }
     }
 }

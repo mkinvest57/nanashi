@@ -452,7 +452,7 @@ struct LiveView: View {
         let parts = [String(localized: "\(mins) min"), row.avgHr.map { String(localized: "\($0) avg bpm") },
                      row.strain.map { String(localized: "effort \(UnitFormatter.effortDisplay($0, scale: effortScale))") }].compactMap { $0 }
         return HStack(spacing: 8) {
-            Image(systemName: "checkmark.circle.fill").foregroundStyle(StrandPalette.accent)
+            Image(systemName: "checkmark.circle.fill").foregroundStyle(StrandPalette.accentInk)
             Text("Workout saved · \(parts.joined(separator: " · "))")
                 .font(StrandFont.footnote).foregroundStyle(StrandPalette.textSecondary)
             Spacer(minLength: 0)
@@ -519,7 +519,7 @@ struct LiveView: View {
     private func standardHRNote(_ detail: String) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: "antenna.radiowaves.left.and.right")
-                .foregroundStyle(StrandPalette.accent)
+                .foregroundStyle(StrandPalette.accentInk)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 3) {
                 Text("Standard HR mode (low bandwidth)")
@@ -574,7 +574,7 @@ struct LiveView: View {
 
     private var whoop5PairingNote: some View {
         HStack(alignment: .top, spacing: 8) {
-            Image(systemName: "info.circle").foregroundStyle(StrandPalette.accent)
+            Image(systemName: "info.circle").foregroundStyle(StrandPalette.accentInk)
             Text("WHOOP 5.0/MG pairs with one app at a time. If a scan finds nothing, unpair it in the official WHOOP app and fully close that app, then Scan again.")
                 .font(StrandFont.footnote)
                 .foregroundStyle(StrandPalette.textSecondary)
@@ -594,7 +594,7 @@ struct LiveView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 10) {
                     Image(systemName: "antenna.radiowaves.left.and.right")
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Start a live stream")
@@ -627,7 +627,7 @@ struct LiveView: View {
             HStack(spacing: 12) {
                 Image(systemName: "badge.plus.radiowaves.right")
                     .font(StrandFont.headline)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Manage devices")
@@ -695,7 +695,7 @@ struct LiveView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 10) {
                     Image(systemName: "antenna.radiowaves.left.and.right")
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(LiveRingCopy.status(ringPhase, streaming: false))
@@ -1288,9 +1288,9 @@ private struct LiveLogCard: View {
                 // Export the log so people can attach it to a bug report (issue #17 — macOS users
                 // had no way to share it). Copy → clipboard; Save… → a .txt file.
                 Button("Copy") { copyStrapLog() }
-                    .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accent)
+                    .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accentInk)
                 Button("Save…") { saveStrapLog() }
-                    .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accent)
+                    .buttonStyle(.plain).font(StrandFont.mono).foregroundStyle(StrandPalette.accentInk)
             }
             if scenePhase == .background {
                 // Same height so returning to the app does not shift the card's layout.
@@ -1304,9 +1304,9 @@ private struct LiveLogCard: View {
             Divider().overlay(StrandPalette.hairline)
             NavigationLink(destination: TestCentreView()) {
                 HStack(spacing: 8) {
-                    Image(systemName: "testtube.2").foregroundStyle(StrandPalette.accent)
+                    Image(systemName: "testtube.2").foregroundStyle(StrandPalette.accentInk)
                     Text("Open Test Centre to report a bug").font(StrandFont.mono)
-                        .foregroundStyle(StrandPalette.accent)
+                        .foregroundStyle(StrandPalette.accentInk)
                     Spacer()
                     Image(systemName: "chevron.right").foregroundStyle(StrandPalette.textSecondary)
                 }
@@ -1348,7 +1348,7 @@ private struct LiveLogCard: View {
                 }
             }
             #if os(iOS)
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
             .frame(height: 200)
             // On `logRevision`, not `log.count` (#2547). The revision is monotonic and ticks exactly once per

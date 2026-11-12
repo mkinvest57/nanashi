@@ -168,7 +168,7 @@ struct AutomationsView: View {
                     model.moments.removeAll()
                     UserDefaults.standard.removeObject(forKey: "moments")
                 }
-                .buttonStyle(.plain).font(StrandFont.caption).foregroundStyle(StrandPalette.accent)
+                .buttonStyle(.plain).font(StrandFont.caption).foregroundStyle(StrandPalette.accentInk)
             }
             ForEach(Array(model.moments.suffix(5).reversed().enumerated()), id: \.offset) { _, d in
                 Text(Self.momentFormatter.string(from: d))
@@ -486,7 +486,7 @@ struct AutomationsView: View {
 
     private func shortcutField(_ placeholder: String, text: Binding<String>) -> some View {
         TextField(placeholder, text: text)
-            .textFieldStyle(.roundedBorder)
+            .textFieldStyle(NoopTextFieldStyle())
             .font(StrandFont.body)
             .frame(maxWidth: 320)
     }
@@ -540,7 +540,7 @@ private struct Section2<Content: View>: View {
                         if active {
                             Text("ON").font(StrandFont.overline)
                                 .tracking(StrandFont.overlineTracking)
-                                .foregroundStyle(StrandPalette.accent)
+                                .foregroundStyle(StrandPalette.accentInk)
                         }
                     }
                     HStack(spacing: 10) {
@@ -570,7 +570,7 @@ private struct ToggleRow: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
-            Toggle("", isOn: $isOn).labelsHidden().toggleStyle(.switch).tint(StrandPalette.accent)
+            Toggle("", isOn: $isOn).labelsHidden().toggleStyle(NoopToggleStyle()).tint(StrandPalette.accent)
                 .accessibilityLabel(label)
         }
         .frame(minHeight: 42).padding(.vertical, 4)

@@ -2,49 +2,92 @@ import SwiftUI
 
 // MARK: - NOOP visual foundation
 //
-// These tokens describe the visual treatment used by NOOP's existing views. They deliberately
-// contain no navigation, state, or domain semantics: screens keep their current hierarchy and data
-// bindings, while cards, gauges, typography, and chrome share one maintainable source of truth.
+// Nanashi Cold Glass adapts the retrieved 21st Harbor Blue theme by serafimcloud.
+// The pale chart-5 becomes the dark-mode chrome accent; physiological colors stay separate.
 
 public enum NoopVisualStyle {
-    // Neutral, low-chroma surfaces sampled from the supplied dark-mode reference.
-    public static let canvas = Color(light: "#F3F4F6", dark: "#1D1E23")
-    public static let surface = Color(light: "#FFFFFF", dark: "#2A2C34")
-    public static let surfaceTop = Color(light: "#FFFFFF", dark: "#30323B")
-    public static let surfaceBottom = Color(light: "#F4F5F7", dark: "#282A31")
-    public static let inset = Color(light: "#E8E9ED", dark: "#23252C")
+    public static let canvas = Color(light: "#F1F5F9", dark: "#0F172A")
+    public static let surface = Color(light: "#FFFFFF", dark: "#1E293B")
+    public static let surfaceTop = Color(light: "#FFFFFF", dark: "#334155")
+    public static let surfaceBottom = Color(light: "#F1F5F9", dark: "#0F172A")
+    public static let input = Color(light: "#F1F5F9", dark: "#0F172A")
+    public static let inset = input
+    public static let secondarySurface = Color(light: "#DCE6F9", dark: "#1E293B")
+    public static let onSecondary = Color(light: "#194391", dark: "#DCE6F9")
+    public static let mutedSurface = Color(light: "#F1F5F9", dark: "#1E293B")
+    public static let hoverSurface = Color(light: "#DCE6F9", dark: "#334155")
+    public static let onHover = Color(light: "#194391", dark: "#F8FAFC")
 
-    public static let border = Color(light: "#D8DAE0", dark: "#373A44")
-    public static let borderHighlight = Color(light: "#FFFFFF", dark: "#4B4E59")
-    public static let divider = Color(light: "#E4E5E9", dark: "#383A43")
+    public static let border = Color(light: "#E2E8F0", dark: "#334155")
+    public static let borderHighlight = Color(light: "#A5C2F9", dark: "#94A3B8")
+    public static let divider = border
 
-    public static let primaryText = Color(light: "#17181C", dark: "#F7F7FA")
-    public static let secondaryText = Color(light: "#555861", dark: "#C3C4CA")
-    public static let tertiaryText = Color(light: "#7D808A", dark: "#7D7F88")
+    public static let primaryText = Color(light: "#0F172A", dark: "#F8FAFC")
+    public static let secondaryText = Color(light: "#64748B", dark: "#94A3B8")
+    public static let tertiaryText = secondaryText
 
-    public static let mint = Color(light: "#149A78", dark: "#69DDB8")
-    public static let mintDeep = Color(light: "#0D765C", dark: "#13A982")
-    public static let mintGlow = Color(light: "#38C99E", dark: "#54E6BD")
+    // Source theme primary/foreground roles. Legacy names retain source compatibility.
+    public static let primary = Color(light: "#194391", dark: "#BFDBFE")
+    public static let primaryPressed = Color(light: "#194391", dark: "#93C5FD")
+    public static var primaryInk: Color { StrandPalette.accentInk }
+    public static let onPrimary = Color(light: "#FFFFFF", dark: "#0F172A")
+    public static let brandAccent = primary
+    public static let brandViolet = brandAccent
+    public static let invertedSurface = Color(hex: "#0F172A")
+    public static let invertedBorder = Color(hex: "#334155")
+    public static let onInverted = Color(hex: "#F8FAFC")
+    public static let onInvertedMuted = Color(hex: "#94A3B8")
+    // Selection on fixed graphite surfaces has its own foreground pair in both appearances.
+    public static let invertedSelection = Color(hex: "#BFDBFE")
+    public static let onInvertedSelection = Color(hex: "#0F172A")
+    public static let mint = primary
+    public static let mintDeep = primary
+    public static let mintGlow = primaryPressed
+    public static let brandGraphite = invertedSurface
+    public static let brandAmber = primary
+    public static let brandBorder = invertedBorder
+    public static let shadow = Color(hex: "#000000")
+    public static let dockShadow = shadow.opacity(0.18)
+    public static let controlHighlight = Color(hex: "#FFFFFF")
+    public static let glassLight = Color(hex: "#BFDBFE")
+    public static let glassMidtone = Color(hex: "#7CA3F5")
+    public static let backdropPatternOpacity: Double = 0
+    public static let toggleThumb = Color(hex: "#FFFFFF")
+    public static let onAmber = onPrimary
+    public static let onDestructive = Color(hex: "#FFFFFF")
 
-    public static let cardRadius: CGFloat = 22
+    public static let cardRadius: CGFloat = 24
     public static let compactRadius: CGFloat = 16
     public static let pillRadius: CGFloat = 999
     public static let pagePadding: CGFloat = 16
     public static let cardPadding: CGFloat = 16
     public static let itemGap: CGFloat = 12
-    public static let sectionGap: CGFloat = 26
+    public static let sectionGap: CGFloat = 24
 }
 
-/// Shared card/panel treatment: a solid surface on iOS, gradient and soft elevation elsewhere.
-/// `tint` is intentionally faint so metric identity never turns the whole card into a coloured tile.
+/// Static optical geometry adapted from 21st Glass Card (28259, educalvolpz).
+/// Native material replaces web displacement; sharp layered rims preserve the pane's thickness.
+public enum NoopGlassMetrics {
+    public static let rimInset: CGFloat = 2.5
+    public static let rimWidth: CGFloat = 0.75
+    public static let specularRadius: CGFloat = 260
+    public static let shadowRadius: CGFloat = 16
+    public static let elevatedShadowRadius: CGFloat = 24
+    public static let shadowOffset: CGFloat = 8
+    public static let backdropRadius: CGFloat = 580
+    public static let controlShadowRadius: CGFloat = 5
+    public static let controlShadowOffset: CGFloat = 3
+}
+
+/// Glass Card (21st 28259): a frosted face, polished inner rim and directional cold light.
+/// Its SVG refraction and pointer tracking become static native material for phone efficiency.
 public struct NoopPanelSurface: View {
     public var tint: Color?
     public var cornerRadius: CGFloat
     public var elevated: Bool
     public var surfaceOpacity: Double
-    #if !os(iOS)
     @Environment(\.colorScheme) private var scheme
-    #endif
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     public init(
         tint: Color? = nil,
@@ -60,73 +103,104 @@ public struct NoopPanelSurface: View {
 
     public var body: some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-        #if os(iOS)
-        // Scrolling stacks contain many panels. Layered translucent gradients and blurred shadows
-        // multiply their compositing work, so iOS uses one theme-aware fill and a thin tinted rim.
-        // This changes decorative depth only; card geometry and the design-system colors stay the same.
-        shape
-            .fill(NoopVisualStyle.surface)
-            .overlay(shape.strokeBorder(
-                tint?.opacity(0.14) ?? NoopVisualStyle.borderHighlight.opacity(elevated ? 0.9 : 0.65),
-                lineWidth: 0.8
-            ))
-            .opacity(surfaceOpacity)
-        #else
-        shape
-            .fill(
-                LinearGradient(
-                    colors: [NoopVisualStyle.surfaceTop, NoopVisualStyle.surfaceBottom],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-            .overlay {
-                if let tint {
-                    shape.fill(
-                        LinearGradient(
-                            colors: [tint.opacity(0.055), tint.opacity(0.012), .clear],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                }
+        ZStack {
+            if reduceTransparency {
+                shape.fill(NoopVisualStyle.surface)
+            } else {
+                shape.fill(.ultraThinMaterial)
+                shape.fill(NoopVisualStyle.surface.opacity(scheme == .dark ? 0.64 : 0.58))
+                shape.fill(LinearGradient(
+                    colors: [NoopVisualStyle.controlHighlight.opacity(scheme == .dark ? 0.075 : 0.48),
+                             .clear, NoopVisualStyle.surfaceBottom.opacity(0.18)],
+                    startPoint: .topLeading, endPoint: .bottomTrailing
+                ))
+                shape.fill(RadialGradient(
+                    colors: [(tint ?? NoopVisualStyle.glassLight).opacity(scheme == .dark ? 0.09 : 0.10), .clear],
+                    center: .topTrailing, startRadius: 0, endRadius: NoopGlassMetrics.specularRadius
+                ))
             }
-            .overlay(
-                shape.strokeBorder(
-                    LinearGradient(
-                        colors: [NoopVisualStyle.borderHighlight.opacity(0.72), NoopVisualStyle.border.opacity(0.52)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
-                    lineWidth: 0.8
-                )
+            shape.strokeBorder(
+                LinearGradient(stops: [
+                    .init(color: NoopVisualStyle.controlHighlight.opacity(scheme == .dark ? 0.48 : 0.95), location: 0),
+                    .init(color: NoopVisualStyle.glassLight.opacity(0.12), location: 0.38),
+                    .init(color: NoopVisualStyle.border.opacity(0.70), location: 0.65),
+                    .init(color: NoopVisualStyle.glassLight.opacity(scheme == .dark ? 0.28 : 0.55), location: 1)
+                ], startPoint: .topLeading, endPoint: .bottomTrailing),
+                lineWidth: NoopMetrics.lineWidth
             )
-            .shadow(
-                color: scheme == .dark ? .black.opacity(elevated ? 0.34 : 0.18) : .black.opacity(0.10),
-                radius: elevated ? 18 : 9,
-                x: 0,
-                y: elevated ? 10 : 5
+            shape.inset(by: NoopGlassMetrics.rimInset).strokeBorder(
+                LinearGradient(colors: [NoopVisualStyle.controlHighlight.opacity(scheme == .dark ? 0.10 : 0.65),
+                                        .clear, NoopVisualStyle.controlHighlight.opacity(0.04)],
+                               startPoint: .top, endPoint: .bottom),
+                lineWidth: NoopGlassMetrics.rimWidth
             )
-            .opacity(surfaceOpacity)
-        #endif
+        }
+        .shadow(color: NoopVisualStyle.shadow.opacity(scheme == .dark ? 0.20 : 0.07),
+                radius: elevated ? NoopGlassMetrics.elevatedShadowRadius : NoopGlassMetrics.shadowRadius,
+                x: 0, y: NoopGlassMetrics.shadowOffset)
+        .opacity(reduceTransparency ? 1 : min(1, max(0, surfaceOpacity)))
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
-/// Shared edge-to-edge chrome for sheet and split-view headers. Unlike a card it has no
-/// rounded outline or elevation, but it uses the same top-lit surface ramp and divider token.
+/// Glass Button (21st 4922, jahed): a luminous rounded face with opposing edge reflections.
+/// Selection increases the cold tint without changing the control's bounds.
+public struct NoopGlassControlSurface: View {
+    public var cornerRadius: CGFloat
+    public var isSelected: Bool
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    public init(cornerRadius: CGFloat = NoopVisualStyle.compactRadius, isSelected: Bool = false) {
+        self.cornerRadius = cornerRadius
+        self.isSelected = isSelected
+    }
+
+    public var body: some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        ZStack {
+            if reduceTransparency {
+                shape.fill(isSelected ? NoopVisualStyle.secondarySurface : NoopVisualStyle.surface)
+            } else {
+                shape.fill(.thinMaterial)
+                shape.fill((isSelected ? NoopVisualStyle.primary : NoopVisualStyle.surface)
+                    .opacity(isSelected ? 0.16 : 0.48))
+                shape.fill(LinearGradient(colors: [NoopVisualStyle.controlHighlight.opacity(scheme == .dark ? 0.10 : 0.50),
+                                                  .clear, NoopVisualStyle.controlHighlight.opacity(0.035)],
+                                          startPoint: .topLeading, endPoint: .bottomTrailing))
+            }
+            shape.strokeBorder(LinearGradient(
+                colors: [NoopVisualStyle.controlHighlight.opacity(scheme == .dark ? 0.40 : 0.95),
+                         NoopVisualStyle.border.opacity(0.45),
+                         NoopVisualStyle.glassLight.opacity(isSelected ? 0.45 : 0.18)],
+                startPoint: .topLeading, endPoint: .bottomTrailing),
+                lineWidth: NoopMetrics.lineWidth)
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Shared frosted chrome for sheet and split-view headers.
 public struct NoopChromeSurface: View {
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     public init() {}
 
     public var body: some View {
-        LinearGradient(
-            colors: [NoopVisualStyle.surfaceTop, NoopVisualStyle.surfaceBottom],
-            startPoint: .top,
-            endPoint: .bottom
-        )
+        ZStack {
+            if reduceTransparency {
+                NoopVisualStyle.surface
+            } else {
+                Rectangle().fill(.regularMaterial)
+                NoopVisualStyle.surface.opacity(0.40)
+            }
+        }
         .overlay(alignment: .bottom) {
             Rectangle()
                 .fill(NoopVisualStyle.divider)
-                .frame(height: 0.5)
+                .frame(height: NoopGlassMetrics.rimWidth)
         }
     }
 }

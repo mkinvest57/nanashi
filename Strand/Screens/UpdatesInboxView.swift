@@ -91,7 +91,7 @@ struct UpdatesInboxView: View {
             }
             #if os(iOS)
             // #697/#horizontal-swipe parity, see ScreenScaffold.
-            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .scrollBounceBasedOnSizeCompat(axes: .horizontal)
             #endif
         }
     }
@@ -230,7 +230,7 @@ private struct UpdateRow: View {
                             .font(StrandFont.subhead)
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(StrandPalette.accent)
+                    .foregroundStyle(StrandPalette.accentInk)
                 }
             }
         }

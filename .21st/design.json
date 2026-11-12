@@ -1,0 +1,359 @@
+{
+  "schemaVersion": 1,
+  "product": "Nanashi native SwiftUI",
+  "direction": "Nanashi — Cold Glass demo",
+  "scope": "A new native simulator preview for user review in Device Hub. iPhone installation is explicitly out of scope until the user approves the result.",
+  "baseline": {
+    "installed": "Nanashi 12.1.0 build 441; no physical-device change authorized in this iteration",
+    "sourceSnapshot": "build/nanashi-coldglass/before-coldglass-source.tar.gz",
+    "historicalDecision": ".21st/history/obsidian-before-coldglass-2026-10-26.json",
+    "cancelledWork": "Noir minéral/build442 was rejected and rolled back; it is not the current design or an installed release."
+  },
+  "palette": {
+    "sourceTheme": "c6cd78bb-c040-494f-a826-daebf3d48870",
+    "sourceName": "Harbor Blue",
+    "light": {
+      "canvas": "#F1F5F9",
+      "surface": "#FFFFFF",
+      "text": "#0F172A",
+      "muted": "#64748B",
+      "border": "#E2E8F0",
+      "accent": "#194391",
+      "onAccent": "#FFFFFF"
+    },
+    "dark": {
+      "canvas": "#0F172A",
+      "surface": "#1E293B",
+      "text": "#F8FAFC",
+      "muted": "#94A3B8",
+      "border": "#334155",
+      "accent": "#BFDBFE",
+      "onAccent": "#0F172A"
+    },
+    "adaptations": [
+      "Light canvas uses source muted role for white-glass separation.",
+      "Dark accent uses source chart-5 to keep small selected controls legible.",
+      "Physiological colors remain unchanged; custom user accent choices remain supported."
+    ]
+  },
+  "type": {
+    "body": "Native SF sans with Dynamic Type",
+    "numbers": "Tabular numeric variants",
+    "adaptation": "Native system fonts replace source web Inter/JetBrains Mono; no font network loading."
+  },
+  "geometry": {
+    "cards": "24pt continuous corners with material, directional highlight, inset rim and shallow lifted shadow.",
+    "controls": "Pill primary/secondary buttons; 16pt input and segmented-control corners; at least 44 pt interactive targets.",
+    "dock": "Stable-width glass rail and clear labeled destinations; finite selected plate motion.",
+    "background": "Static broad top-right cold light; no perpetual decorative animation or image download."
+  },
+  "signatures": [
+    "Frosted cold-glass face with polished opposing edge highlights.",
+    "Compact score hierarchy with recorded-data detail and reachable actions.",
+    "Glass selected plates and pill controls with consistent press feedback."
+  ],
+  "motion": {
+    "navigation": "Finite source-derived selected-plate spring; Reduce Motion disables positional effects.",
+    "controls": "Finite press/focus/disclosure feedback; no pointer movement needed on iPhone.",
+    "background": "Static gradients only; no rendering clock.",
+    "accessibility": "Opaque surface fallback when Reduce Transparency is enabled."
+  },
+  "sources": [
+    30553,
+    7716,
+    25311,
+    1435,
+    35007,
+    26923,
+    19177,
+    28963,
+    7841,
+    8617,
+    1375,
+    18010,
+    19169,
+    19143,
+    29486,
+    23565,
+    35040,
+    17933,
+    19366,
+    19146,
+    31360,
+    35717,
+    27378,
+    23173,
+    30542,
+    28259,
+    4922,
+    7878,
+    38323
+  ],
+  "coverage": [
+    {
+      "family": "shared cards, chrome and backdrop",
+      "sources": [
+        28259
+      ],
+      "state": "Compiled and visually reviewed on core screens in dark/light simulator views."
+    },
+    {
+      "family": "buttons, fields and choices",
+      "sources": [
+        4922,
+        23565,
+        17933,
+        35040,
+        35007,
+        26923
+      ],
+      "state": "source adaptations retained and glass material integrated"
+    },
+    {
+      "family": "iPhone navigation and Activity sections",
+      "sources": [
+        7878,
+        19177
+      ],
+      "state": "Implemented; tab navigation, search-to-Devices, period retention and large-text dock exercised."
+    },
+    {
+      "family": "Today dashboard",
+      "sources": [
+        25311,
+        28963,
+        1375,
+        7841,
+        8617
+      ],
+      "state": "retained sourced compositions with new compact hierarchy"
+    },
+    {
+      "family": "Sleep comparison and navigation",
+      "sources": [
+        25311,
+        28259,
+        28963,
+        7841,
+        30553
+      ],
+      "state": "Implemented; comparison date/delta interaction, selected-night retention, hidden-Stages navigation, reset order and 17 focused Sleep tests passed."
+    },
+    {
+      "family": "Coach conversation and composer",
+      "sources": [
+        38323,
+        4922
+      ],
+      "state": "Implemented; local stream/Stop/Retry/history-follow and initial transcript placement exercised; async regression tests passed."
+    },
+    {
+      "family": "Explorer, settings, onboarding and feedback",
+      "sources": [
+        30553,
+        27378,
+        1435,
+        19366,
+        19146,
+        31360,
+        35717,
+        19143,
+        29486
+      ],
+      "state": "Retained source-derived controls share revised material; Explorer search-to-Devices exercised. Other retained flows are compile-covered, not exhaustively retested."
+    }
+  ],
+  "sourceBoundary": "All newly introduced visual patterns use retrieved 21st sources. This is a native SwiftUI adaptation, not unchanged React code. OS permission dialogs, keyboard, navigation sheets, SF Symbols and existing physiological charts retain native/product provenance; there is no assertion that every OS control originates in 21st.",
+  "functionality": {
+    "new": "Compare two recorded nights locally, with explicit dates, missing-data handling and factual differences.",
+    "repairs": [
+      "Stable selected-night identity through synchronization.",
+      "Historical details use the selected night rather than latest-night fallback.",
+      "Trends invalidation after same-day corrections.",
+      "Coach stream-follow behavior and asynchronous state races."
+    ],
+    "constraint": "No new physiological formula, migration, backend service or telemetry."
+  },
+  "preserve": [
+    "Existing metrics, stored history and physiology calculations",
+    "Application identifiers, Keychain and Health protection behavior",
+    "SideStore copy and daily 9 am automation on the untouched iPhone",
+    "Native deployment compatibility and rootShellBoundary startup guards"
+  ],
+  "previewEvidence": {
+    "actualCode": "Cached source and demos exist for all new components and full Harbor Blue CSS.",
+    "catalog": "Root inspected 28259/3206/4567/7878 previews; Coach agent inspected 38323. Glass Button 4922 was read in actual source/demo; no catalog preview claim.",
+    "adaptationLimits": "No SVG spatial refraction, CSS runtime, browser wrapper or pointer-tracked shine. Native material and static optical layers preserve the visible glass structure."
+  },
+  "acceptedUserPreferences": [
+    {
+      "scope": "current iteration",
+      "preference": "Preview a visibly better cold-glass app in Device Hub before deciding about installation."
+    },
+    {
+      "scope": "design provenance",
+      "preference": "21st.dev is the exclusive source for new visual patterns; preserve source character and record adaptations."
+    },
+    {
+      "scope": "product behavior",
+      "preference": "Useful major improvements are welcome if lightweight; avoid unnecessary dependencies and preserve efficient local processing."
+    }
+  ],
+  "rejected": [
+    {
+      "name": "Noir minéral/build442",
+      "reason": "User rejected visual quality; cancelled and source fully rolled back."
+    },
+    {
+      "name": "Unchanged web component claim",
+      "reason": "The app is native SwiftUI; adaptations must be named honestly."
+    },
+    {
+      "name": "Perpetual glass animation or embedded WebGL",
+      "reason": "Phone efficiency and legible health data take priority."
+    }
+  ],
+  "brand": {
+    "displayName": "Nanashi",
+    "mark": "Larger bold white N inside one open cold-glass arc; dotted orbit and satellite removed. Native mark and iOS icons share NanashiIdentity vector constants.",
+    "storageIdentity": "existing bundle, app group, preference, database and backup IDs preserved",
+    "upstreamAttribution": "NOOP remains credited in About and LICENSE",
+    "iconEvidence": [
+      "build/nanashi-coldglass/icon-primary-48.png",
+      "build/nanashi-coldglass/icon-navy-48.png"
+    ]
+  },
+  "status": "Cold Glass simulator preview implemented. Awaiting user visual review; no physical iPhone installation or approval.",
+  "validation": {
+    "status": "Final iOS and macOS app builds passed; selected tests and representative Device Hub checks passed. User review pending.",
+    "package": {
+      "scope": "StrandDesign",
+      "result": "134/134 methods passed with process-scoped English locale; original French-host run exposed five English-string assertions in one existing test. No product code or global language preferences were changed.",
+      "log": "build/nanashi-coldglass/design-en-hosted.log",
+      "limitations": "Compiled package test bundle; final native app compilation validates later visual-only changes."
+    },
+    "device": "No physical iPhone test or install in this iteration.",
+    "demoData": "Synthetic demo fixtures only; no personal health-data export.",
+    "appTests": {
+      "result": "86 unique selected app methods passed across this iteration. Final focused run: 43/43, zero failures. Original locale-sensitive English-only assertions passed in a process-scoped English rerun; Coach lifecycle test fixtures now use localized headers while retaining exact body/identity assertions.",
+      "logs": [
+        "build/nanashi-coldglass/mac-tests.log",
+        "build/nanashi-coldglass/mac-charge-en-args.log",
+        "build/nanashi-coldglass/mac-tests-reviewed.log"
+      ],
+      "scope": "Coach lifecycle/concurrent restoration/model refresh/scroll policy; historical-night selection and comparison; sleep carry/debt; score routes and saved layout."
+    },
+    "ios": {
+      "result": "BUILD SUCCEEDED",
+      "target": "NOOPiOS, Debug, arm64 iOS Simulator",
+      "log": "build/nanashi-coldglass/ios-build-delivery.log",
+      "device": "Nanashi Cold Glass — iPhone 13 simulator, iOS 27"
+    },
+    "hygiene": {
+      "i18n": "Tools/i18n_audit.py --ci HEAD passed using bundled Python; build/nanashi-coldglass/i18n-audit-delivery.log",
+      "docComments": "Tools/doc_comment_lint.py passed",
+      "whitespace": "git diff --check passed"
+    },
+    "runtime": {
+      "passed": [
+        "Dark iPhone 13: current Day hierarchy, Sleep duration/times, night comparison and changing selected comparison date",
+        "Historical night survives tab retap/refresh; date navigation works when Stages is hidden",
+        "Customize Sleep reset and displayed order agree",
+        "Activity Workouts 30-day period retained across Trends switch and return",
+        "Explorer search opens Devices; keyboard hides dock",
+        "Coach synthetic failure/retry, cancellation and history reading during streamed response",
+        "Coach opens existing transcript at the latest response; follow-up prompts displayed in French",
+        "Largest OS text setting: corrected source badge, fully readable dock and stacked Day actions",
+        "Light 375x667: Sleep content and night selector remain usable",
+        "Final Coach composer placeholder contrast and keyboard layout; intentional active-tab retap returns to history top without automatic follow fighting it"
+      ],
+      "limits": [
+        "Synthetic fixture data and local prewritten Coach replies; no live provider request",
+        "Representative viewport/AX-label checks, not a full VoiceOver audit",
+        "Existing root Dynamic Type cap retained; largest OS setting tested within that app cap",
+        "No physical strap, iPhone, Health writes, SideStore installation or renewal changes"
+      ],
+      "captures": [
+        "build/nanashi-coldglass/captures/home-dark.png",
+        "build/nanashi-coldglass/captures/home-large-reviewed.png",
+        "build/nanashi-coldglass/captures/sleep-dark.png",
+        "build/nanashi-coldglass/captures/compare-dark.png",
+        "build/nanashi-coldglass/captures/coach-dark.png",
+        "build/nanashi-coldglass/captures/sleep-small-light.png",
+        "build/nanashi-coldglass/captures/coach-keyboard.png"
+      ]
+    },
+    "macOS": {
+      "result": "BUILD SUCCEEDED",
+      "target": "Strand, Debug, arm64 macOS",
+      "log": "build/nanashi-coldglass/mac-build-delivery.log"
+    }
+  },
+  "presenceRevision": {
+    "status": "Implemented, compiled and reviewed in Device Hub; user visual review pending",
+    "sourceIds": [
+      23625,
+      7878,
+      28259,
+      30553
+    ],
+    "navigation": "Activity rail overlays its scroll content; non-Coach dock height is measured into content padding, not assumed safe-area forwarding.",
+    "ai": "Separate default-off foreground opt-in; one bounded contextual batch, no fixed corner bubble; selected provider and model; local labelled demo fixtures.",
+    "docs": "docs/NANASHI_PRESENCE.md",
+    "tests": "108 selected macOS app test methods passed with zero failures. Final iOS and macOS builds succeeded; translation audit, source hygiene and diff whitespace checks passed.",
+    "runtime": {
+      "activity": "Floating rail reviewed at initial and end-of-scroll positions; 30-day filter retained across Trends round-trip.",
+      "explorer": "Final Settings row clears the measured dock; reviewed on iPhone 13 dark and 375x667 light with large text.",
+      "presence": "Inline local fixtures viewed on Activity, Trends, Explorer, Sleep and Settings; dismissal and settings opt-in toggled. No fixed corner overlay.",
+      "catalogue": "Offline OpenAI model picker and manual refresh state reviewed without credentials; network pagination and race behavior covered by intercepted fixtures.",
+      "limits": "End-of-scroll positions reached through an explicit DEBUG-only simulator fixture because CUA gesture dispatch was unavailable; no manual-swipe or physical-device claim. Real-provider generated remarks were not exercised.",
+      "delivery": "Latest simulator app left open on Activity without the end-of-scroll fixture; physical iPhone, SideStore and renewal unchanged."
+    }
+  },
+  "fluencyRevision": {
+    "status": "Implemented; app builds/tests passed; existing SideStore update being prepared",
+    "sourceIds": [
+      7878,
+      30553,
+      23625,
+      28259
+    ],
+    "navigation": "One persistent glass dock outside TabView; only the indicator animates. No whole-tab spring, duplicate per-tab dock or press-scale competition. Rounded, nonanimated height feedback. Scroll geometry disabled when minimization is off.",
+    "presence": "Credential-availability metadata cached by connection revision, never the secret. Revision-only signatures replace formatted biometric context in rendering. Repeated idle transitions do not publish. Foreground cancellation owned at app and page level.",
+    "loading": "Completed same-input Day and Workouts loads reused on quick revisits for up to 30 seconds. Explicit refresh and changed data invalidate; cancelled or superseded loads cannot publish stale sections.",
+    "aiUX": "One Remarks in the app control in Coach and first in settings. Model and Advanced sections collapsed; default model preselected. Existing explicit data consent preserved; missing consent requires a named-provider confirmation.",
+    "tests": "70 selected app tests passed on final code. iOS Simulator build succeeded; optimized iPhone Release build 444 succeeded. Translation/source-comment/whitespace gates passed.",
+    "runtime": "Eight simulator tab changes retain the same dock accessibility elements; settings toggle off/on exercised. Synthetic data only. navigation-after.mp4 recorded; no physical frame-rate measurement claimed. Keyboard screenshot confirms composer remains visible and persistent dock hides while typing."
+  },
+  "interactionRevision": {
+    "build": 445,
+    "userIssues": [
+      "Crushed native calendar popover on iPhone",
+      "Oversized fixed Coach composer",
+      "Slow tab changes and invisible/fragile inline AI"
+    ],
+    "direction": "Keep Cold Glass sources; correct mobile sizing, compact floating composer and avoid unnecessary presentation work.",
+    "sources": [
+      31360,
+      38323,
+      23625,
+      7878
+    ],
+    "implementation": [
+      "Viewport-sized native calendar sheet",
+      "Measured floating one-row composer",
+      "Dated local AI cache and prepared follow-up",
+      "Stable page factories and genuinely lazy chart sections"
+    ],
+    "status": "Final simulator and physical Release builds, targeted macOS tests and simulator interaction checks passed; SideStore import opened, installation confirmation pending",
+    "validation": {
+      "simulatorBuild": "build/nanashi-interaction/ios-sim-keyboard-final.log: BUILD SUCCEEDED for the final build 445 sources.",
+      "applicationTests": "99 targeted macOS app tests passed with zero failures in mac-tests-delivery.log. A subsequent 31-test macOS run passed with zero failures in mac-tests-keyboard-final.log, covering Coach scroll following/state races and sleep comparison/result changes. These are separate runs, not a claim of 130 distinct tests.",
+      "calendar": "Seven readable columns reviewed on the iPhone 13 dark simulator and 375x667 light simulator with large text. Cancel retained the selected day; selecting 24 October dismissed the sheet and displayed Saturday 24 October after the input relay was restored. Date-offset and logical-day tests passed. Captures: calendar-iphone13.png, calendar-small-light-large.png and calendar-selection-final.png in build/nanashi-interaction/captures/.",
+      "coach": "Compact floating composer and expanded prepared draft reviewed in simulator captures. The inline observation action prepared a Coach draft without sending a chat message. Final keyboard review passed after restoring the simulator input relay: the full final paragraph and privacy note clear the composer in coach-keyboard-final.png. Scrolling toward older messages reveals Latest Response; hiding and reopening the keyboard retains the Coach heading and first older message rather than forcing a scroll to the bottom.",
+      "navigation": "A simulator tab round-trip retained the selected 25–26 October sleep night and its 6 h 56 min duration after visiting Activity. Activity retained its Trends section, and its Sessions section retained the 30-day filter after returning.",
+      "physicalDelivery": "The final physical Release build passed in iphone-release-final-445.log. Package 445 was transferred and its SideStore import opened; installation confirmation is pending."
+    },
+    "limits": "No measured physical frame-rate result or physical-device end-to-end review. Synthetic simulator observations do not verify live-provider quality. SideStore import is not installation confirmation. Private data and signing identities unchanged."
+  }
+}

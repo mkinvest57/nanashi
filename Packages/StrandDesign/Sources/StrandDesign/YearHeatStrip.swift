@@ -5,10 +5,11 @@ import SwiftUI
 
 // MARK: - Year Heat Strip (§9.4 Trends)
 //
-// A GitHub-style year grid: columns = weeks, rows = weekdays. Each cell is tinted
+// HeatCalendar (21st 30542): columns = weeks, rows = weekdays. Each cell is tinted
 // by that day's recovery score via the signature recovery gradient. Empty days
 // (no data) render as a faint inset square. Hover shows a tooltip via SwiftUI's
-// built-in help.
+// built-in help. Tapping pins a whole week on its faint plate; tapping it again releases it.
+// Recovery is not an additive activity count, so the footer shows the selected day's actual score.
 
 /// A day's recovery datum for the heat strip.
 public struct RecoveryDay: Identifiable, Sendable {
@@ -44,11 +45,11 @@ public struct YearHeatStrip: View {
 
     public init(
         days: [RecoveryDay],
-        cellSize: CGFloat = 12,
-        spacing: CGFloat = 3,
+        cellSize: CGFloat = NoopMetrics.heatCellSize,
+        spacing: CGFloat = NoopMetrics.heatCellSpacing,
         showsMonthLabels: Bool = true,
         showsHover: Bool = true,
-        valueFormat: @escaping (Double) -> String = { "Recovery \(Int($0.rounded()))" }
+        valueFormat: @escaping (Double) -> String = YearHeatStrip.localizedRecoveryValue
     ) {
         let sorted = days.sorted { $0.date < $1.date }
         self.days = sorted
@@ -60,12 +61,21 @@ public struct YearHeatStrip: View {
         self.weeks = YearHeatStrip.buildWeeks(from: sorted)
     }
 
+    /// Localized default value label; specialized hosts can keep supplying their own formatter.
+    public static func localizedRecoveryValue(_ score: Double) -> String {
+        String(localized: "Recovery", bundle: .module) + " \(Int(score.rounded()))"
+    }
+
     // The grid layout constants used both for drawing and hover hit-testing.
-    private let gutterWidth: CGFloat = 24
-    private let monthLabelHeight: CGFloat = 10
+    private let gutterWidth: CGFloat = NoopMetrics.heatGutterWidth
+    private let monthLabelHeight: CGFloat = NoopMetrics.heatMonthLabelHeight
 
     /// Hovered cell as (weekIndex, row), or nil.
     @State private var hoverCell: (week: Int, row: Int)? = nil
+    @State private var pinnedCell: (week: Int, row: Int)? = nil
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ObservedObject private var motion = NoopMotionState.shared
+    private var poseStill: Bool { motion.poseStill(reduceMotion) }
 
     // A fixed Monday-first Gregorian calendar, stored once as a constant rather than a computed
     // property. `buildWeeks()` runs on every render (including each hover, which mutates @State)
@@ -130,6 +140,39 @@ public struct YearHeatStrip: View {
     private let rowLabels = ["Mon", "", "Wed", "", "Fri", "", "Sun"]
 
     public var body: some View {
+        VStack(alignment: .leading, spacing: NoopMetrics.space3) {
+            calendarGrid
+            if let summary = selectedSummary {
+                Text(summary)
+                    .font(StrandFont.footnote).monospacedDigit()
+                    .foregroundStyle(StrandPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        // One element for the entire strip, including its selected value; no per-day AX subtree.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(axSummary))
+        .accessibilityValue(Text(selectedSummary ?? ""))
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: selectAdjacentWeek(1)
+            case .decrement: selectAdjacentWeek(-1)
+            @unknown default: break
+            }
+        }
+        .accessibilityAction(named: Text(String(localized: "Previous week", bundle: .module))) {
+            selectAdjacentWeek(-1)
+        }
+        .accessibilityAction(named: Text(String(localized: "Next week", bundle: .module))) {
+            selectAdjacentWeek(1)
+        }
+        .accessibilityAction(named: Text(String(localized: "Clear selection", bundle: .module))) {
+            pinnedCell = nil
+            hoverCell = nil
+        }
+    }
+
+    @ViewBuilder private var calendarGrid: some View {
         // `weeks` is the layout built ONCE in init (see the stored property), not rebuilt per body eval.
         // Total drawn size, so the hover overlay can be laid over the grid and
         // a tooltip can be clamped within bounds.
@@ -150,7 +193,7 @@ public struct YearHeatStrip: View {
                     ForEach(Array(weeks.enumerated()), id: \.element.id) { weekIndex, week in
                         if let label = week.monthLabel, !label.isEmpty {
                             Text(label)
-                                .font(.system(size: 8))
+                                .font(StrandFont.overlineScaled(NoopMetrics.heatAxisLabelSize))
                                 .foregroundStyle(StrandPalette.textTertiary)
                                 .fixedSize()
                                 .offset(x: gridOriginX + CGFloat(weekIndex) * (cellSize + spacing))
@@ -163,7 +206,7 @@ public struct YearHeatStrip: View {
                 VStack(alignment: .trailing, spacing: spacing) {
                     ForEach(0..<7, id: \.self) { r in
                         Text(rowLabels[r])
-                            .font(.system(size: 8))
+                            .font(StrandFont.overlineScaled(NoopMetrics.heatAxisLabelSize))
                             .foregroundStyle(StrandPalette.textTertiary)
                             .frame(width: gutterWidth, height: cellSize, alignment: .trailing)
                     }
@@ -172,8 +215,13 @@ public struct YearHeatStrip: View {
                 ForEach(Array(weeks.enumerated()), id: \.element.id) { weekIndex, week in
                     VStack(spacing: spacing) {
                         ForEach(0..<7, id: \.self) { row in
-                            cell(week.cells[row], isHovered: isHovered(weekIndex, row))
+                            cell(week.cells[row], week: weekIndex, row: row)
                         }
+                    }
+                    .background {
+                        RoundedRectangle(cornerRadius: NoopMetrics.heatWeekRadius)
+                            .fill(StrandPalette.textPrimary.opacity(pinnedCell?.week == weekIndex ? 0.06 : 0))
+                            .padding(-spacing / 2)
                     }
                 }
             }
@@ -181,6 +229,12 @@ public struct YearHeatStrip: View {
         .frame(width: gridWidth, height: gridHeight, alignment: .topLeading)
         .overlay(hoverOverlay(weeks: weeks, gridSize: CGSize(width: gridWidth, height: gridHeight)))
         .contentShape(Rectangle())
+        .simultaneousGesture(SpatialTapGesture(coordinateSpace: .local).onEnded { tap in
+            guard let hit = cellIndex(at: tap.location, weekCount: weeks.count),
+                  weeks[hit.week].cells[hit.row] != nil else { return }
+            // The tap selects real stored dates only; empty padding has no invented day or score.
+            pinnedCell = pinnedCell?.week == hit.week ? nil : hit
+        })
         .onContinuousHover(coordinateSpace: .local) { phase in
             guard showsHover else { return }
             switch phase {
@@ -190,12 +244,29 @@ public struct YearHeatStrip: View {
                 hoverCell = nil
             }
         }
-        // ONE collapsed VoiceOver element for the whole calendar. The 365 coloured cells are pure shapes
-        // (hover is dead on touch), and emitting one a11y node PER scored day (the old `cell` did) built
-        // an O(days) semantics subtree the accessibility walk re-copied on every scroll — a #707 OOM
-        // contributor. `children: .ignore` collapses the grid to this single summary at O(1) node cost.
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(axSummary))
+        .animation(poseStill ? nil : StrandMotion.fade, value: pinnedCell?.week)
+    }
+
+    private func selectAdjacentWeek(_ direction: Int) {
+        let availableRows = weeks.map { week in
+            week.cells.indices.filter { week.cells[$0] != nil }
+        }
+        guard let selection = HeatCalendarSelection.adjacent(
+            current: pinnedCell, direction: direction, availableRows: availableRows
+        ) else { return }
+        pinnedCell = selection
+        hoverCell = nil
+    }
+
+    private var selectedSummary: String? {
+        guard let pinnedCell, pinnedCell.week < weeks.count,
+              let day = weeks[pinnedCell.week].cells[pinnedCell.row] else { return nil }
+        return daySummary(day)
+    }
+
+    private func daySummary(_ day: RecoveryDay) -> String {
+        let value = day.score.map(valueFormat) ?? String(localized: "No data", bundle: .module)
+        return DateFormatterCache.day.string(from: day.date) + " · " + value
     }
 
     /// A spoken one-line summary of the whole strip for VoiceOver.
@@ -250,40 +321,60 @@ public struct YearHeatStrip: View {
 
     @ViewBuilder
     private func hoverOverlay(weeks: [Week], gridSize: CGSize) -> some View {
-        if showsHover, let h = hoverCell, h.week < weeks.count,
-           let day = weeks[h.week].cells[h.row], let score = day.score {
+        if let h = (showsHover ? hoverCell : nil) ?? pinnedCell, h.week < weeks.count,
+           let day = weeks[h.week].cells[h.row] {
             let center = cellCenter(week: h.week, row: h.row)
+            let value = day.score.map(valueFormat) ?? String(localized: "No data", bundle: .module)
+            let date = DateFormatterCache.day.string(from: day.date)
+            let label = day.score.map { date + " · " + StrandPalette.recoveryState($0) } ?? date
             ZStack(alignment: .topLeading) {
                 // subtle highlight ring on the hovered cell
-                RoundedRectangle(cornerRadius: 3, style: .continuous)
-                    .stroke(StrandPalette.hairlineStrong, lineWidth: 1.5)
-                    .frame(width: cellSize + 3, height: cellSize + 3)
+                RoundedRectangle(cornerRadius: NoopMetrics.heatCellRadius, style: .continuous)
+                    .stroke(StrandPalette.hairlineStrong, lineWidth: NoopMetrics.lineWidth)
+                    .frame(width: cellSize + spacing, height: cellSize + spacing)
                     .position(center)
                 PositionedTooltip(
                     anchor: center,
                     container: gridSize,
                     tooltip: ChartTooltip(
-                        value: valueFormat(score),
-                        label: "\(DateFormatterCache.day.string(from: day.date)) · \(StrandPalette.recoveryState(score))",
-                        accent: StrandPalette.recoveryColor(score)
+                        value: value,
+                        label: label,
+                        accent: day.score.map { StrandPalette.recoveryColor($0) } ?? StrandPalette.textSecondary
                     )
                 )
             }
-            .animation(StrandMotion.fade, value: h.week)
-            .animation(StrandMotion.fade, value: h.row)
+            .animation(poseStill ? nil : StrandMotion.fade, value: h.week)
+            .animation(poseStill ? nil : StrandMotion.fade, value: h.row)
             .allowsHitTesting(false)
         }
     }
 
+    private func cellLift(week: Int, row: Int) -> CGFloat {
+        guard !poseStill, let hoverCell else { return 1 }
+        let distance = max(abs(hoverCell.week - week), abs(hoverCell.row - row))
+        switch distance {
+        case 0: return NoopMetrics.heatHoveredScale
+        case 1: return NoopMetrics.heatNeighborScale
+        case 2: return NoopMetrics.heatOuterScale
+        default: return 1
+        }
+    }
+
     @ViewBuilder
-    private func cell(_ day: RecoveryDay?, isHovered: Bool) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 2.5)
+    private func cell(_ day: RecoveryDay?, week: Int, row: Int) -> some View {
+        let hovered = isHovered(week, row)
+        let shape = RoundedRectangle(cornerRadius: NoopMetrics.heatCellRadius)
         if let day, let score = day.score {
             shape
                 .fill(StrandPalette.recoveryColor(score))
+                .overlay(shape.strokeBorder(StrandPalette.textPrimary.opacity(
+                    hovered ? 0.40 : (pinnedCell?.week == week ? 0.14 : 0.07)), lineWidth: NoopMetrics.lineWidth))
                 .frame(width: cellSize, height: cellSize)
-                .opacity(isHovered ? 1.0 : (hoverCell == nil ? 1.0 : 0.78))
-                .help("\(DateFormatterCache.day.string(from: day.date)) · recovery \(Int(score.rounded()))")
+                .opacity(hovered ? 1.0 : (hoverCell == nil ? 1.0 : 0.78))
+                .scaleEffect(cellLift(week: week, row: row))
+                .animation(poseStill ? nil : .spring(response: 0.26, dampingFraction: 0.9), value: hoverCell?.week)
+                .animation(poseStill ? nil : .spring(response: 0.26, dampingFraction: 0.9), value: hoverCell?.row)
+                .help(daySummary(day))
                 // No per-cell a11y element: the whole strip is one collapsed VoiceOver element (see the
                 // `children: .ignore` summary on the body), so per-day detail no longer builds an O(days)
                 // semantics subtree. The `.help` above stays — it's a macOS pointer tooltip, not an a11y node.
@@ -297,6 +388,27 @@ public struct YearHeatStrip: View {
                 .fill(Color.clear)
                 .frame(width: cellSize, height: cellSize)
         }
+    }
+}
+
+/// Resolves a neighboring week to an actual cell, retaining the weekday where possible.
+private enum HeatCalendarSelection {
+    static func adjacent(current: (week: Int, row: Int)?, direction: Int,
+                         availableRows: [[Int]]) -> (week: Int, row: Int)? {
+        guard !availableRows.isEmpty, direction != 0 else { return nil }
+        let step = direction > 0 ? 1 : -1
+        let base = current?.week ?? (step > 0 ? -1 : availableRows.count)
+        let start = min(max(base + step, 0), availableRows.count - 1)
+        let boundary = step > 0 ? availableRows.count - 1 : 0
+        let preferredRow = current?.row ?? (step > 0 ? 0 : 6)
+        for week in stride(from: start, through: boundary, by: step) {
+            if let row = availableRows[week].min(by: {
+                abs($0 - preferredRow) < abs($1 - preferredRow)
+            }) {
+                return (week, row)
+            }
+        }
+        return nil
     }
 }
 

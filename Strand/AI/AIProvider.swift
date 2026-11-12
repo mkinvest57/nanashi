@@ -22,57 +22,40 @@ enum AIProvider: String, CaseIterable, Identifiable {
 
     var defaultModel: String {
         switch self {
-        case .openAI:    return "gpt-5-mini"
-        case .anthropic: return "claude-sonnet-4-6"
-        case .gemini:    return "gemini-flash-latest"   // stable alias → current Flash, no version churn (#400)
+        case .openAI:    return "gpt-6-luna"
+        case .anthropic: return "claude-sonnet-5-5"
+        case .gemini:    return "gemini-3.8-flash"
         case .custom:    return ""   // the user picks the model their server serves
         }
     }
 
-    /// Models offered in the picker. A "Custom…" path in the UI lets the user pick any id beyond
-    /// these, and `refreshModels()` can merge the provider's live list.
+    /// Offline suggestions verified against the providers' official model indexes on 2026-10-27.
+    /// A successful live catalogue replaces these suggestions; an existing selection never changes.
+    /// Sources: developers.openai.com/api/docs/models, platform.claude.com/docs/en/models/overview,
+    /// ai.google.dev/gemini-api/docs/models. Listing does not guarantee access or quota for a key.
     var modelOptions: [String] {
         switch self {
         case .openAI:
-            // Pinned ids, not aliases: OpenAI has no stable per-tier "-latest" alias the way Gemini
-            // does (#400), so this list is bumped by hand. `refreshModels()` merges the live /models
-            // catalogue, which stays the authority for anything released after this.
-            //
-            // The reasoning tiers (o3, o4-mini) and the GPT-5 family reject `temperature` and
-            // `max_tokens`. Nothing special is needed for them here: the request path sends the
-            // classic parameters, and on a 400 naming one of them retries with
-            // `max_completion_tokens` and no temperature (see AiCoach's modernParams leg). The cost
-            // is one extra round trip on the first message, not a per-model table to maintain.
             return [
-                "gpt-5",
-                "gpt-5-mini",
-                "gpt-5-nano",
-                "gpt-4.1",
-                "gpt-4.1-mini",
-                "gpt-4.1-nano",
-                "gpt-4o",
-                "gpt-4o-mini",
-                "o3",
-                "o4-mini"
+                "gpt-6-luna",
+                "gpt-6.1-sol",
+                "gpt-6.1-terra",
+                "gpt-6-astra"
             ]
         case .anthropic:
             return [
-                "claude-opus-4-8",
-                "claude-sonnet-4-6",
-                "claude-haiku-4-5-20251001",
-                "claude-3-7-sonnet-latest",
-                "claude-3-5-sonnet-latest",
-                "claude-3-5-haiku-latest",
-                "claude-3-opus-latest"
+                "claude-sonnet-5-5",
+                "claude-haiku-5-5",
+                "claude-opus-5-5",
+                "claude-fable-5-1"
             ]
         case .gemini:
-            // Stable `-latest` ALIASES, not pinned versions (#400): they always resolve to the current
-            // stable model in each tier, so Gemini's rapid releases never need a code bump. `refreshModels()`
-            // still merges the live `/models` catalogue, so a user with a key can pin a concrete version.
+            // Explicit stable versions. Google's `-latest` aliases can move to preview/experimental
+            // models, so they are offered only when returned live or explicitly entered by the user.
             return [
-                "gemini-pro-latest",
-                "gemini-flash-latest",
-                "gemini-flash-lite-latest"
+                "gemini-3.8-flash",
+                "gemini-4-argon",
+                "gemini-3.5-flash-lite"
             ]
         case .custom:
             return []   // populated from the server's /models (refreshModels) or typed in
@@ -313,12 +296,14 @@ extension AIProviderClient {
 
 /// Execute a request, map HTTP status codes to `AICoachError`, return the decoded JSON object.
 func performRequest(_ req: URLRequest, session: URLSession) async throws -> [String: Any] {
+    try Task.checkCancellation()
     let data: Data
     let response: URLResponse
 
     do {
         (data, response) = try await session.data(for: req)
     } catch {
+        if Task.isCancelled || (error as? URLError)?.code == .cancelled { throw CancellationError() }
         throw AICoachError.network(error.localizedDescription)
     }
 
@@ -373,12 +358,14 @@ func emptyReplyError(_ json: [String: Any]) -> AICoachError {
 func performStreamingRequest(
     _ req: URLRequest,
     session: URLSession,
-    onLine: (String) -> Void
+    onLine: (String) throws -> Void
 ) async throws {
+    try Task.checkCancellation()
     let bytes: (URLSession.AsyncBytes, URLResponse)
     do {
         bytes = try await session.bytes(for: req)
     } catch {
+        if Task.isCancelled || (error as? URLError)?.code == .cancelled { throw CancellationError() }
         throw AICoachError.network(error.localizedDescription)
     }
 
@@ -386,24 +373,31 @@ func performStreamingRequest(
         throw AICoachError.network("no HTTP response")
     }
 
-    switch http.statusCode {
-    case 200...299:
-        // Read line-by-line from the SSE byte stream. `URLSession.AsyncBytes` splits on \n.
-        for try await line in bytes.0.lines {
-            if let payload = SseDeltas.dataPayload(fromLine: line) {
-                onLine(payload)
+    do {
+        switch http.statusCode {
+        case 200...299:
+            // Read line-by-line from the SSE byte stream. `URLSession.AsyncBytes` splits on \n.
+            for try await line in bytes.0.lines {
+                if let payload = SseDeltas.dataPayload(fromLine: line) {
+                    try Task.checkCancellation()
+                    try onLine(payload)
+                    if SseDeltas.isDone(payload) { return }
+                }
             }
+        case let status where AICoachError.isKeyRejection(status):
+            throw AICoachError.badKey
+        case 429:
+            var body = ""
+            for try await line in bytes.0.lines { body += line }
+            throw AICoachError.rateLimited(providerErrorMessage(from: Data(body.utf8)))
+        default:
+            // For non-200, the body is a (non-streaming) error JSON — collect it and surface the message.
+            var body = ""
+            for try await line in bytes.0.lines { body += line }
+            throw AICoachError.server(http.statusCode, providerErrorMessage(from: Data(body.utf8)))
         }
-    case let status where AICoachError.isKeyRejection(status):
-        throw AICoachError.badKey
-    case 429:
-        var body = ""
-        for try await line in bytes.0.lines { body += line }
-        throw AICoachError.rateLimited(providerErrorMessage(from: Data(body.utf8)))
-    default:
-        // For non-200, the body is a (non-streaming) error JSON — collect it and surface the message.
-        var body = ""
-        for try await line in bytes.0.lines { body += line }
-        throw AICoachError.server(http.statusCode, providerErrorMessage(from: Data(body.utf8)))
+    } catch {
+        if Task.isCancelled || (error as? URLError)?.code == .cancelled { throw CancellationError() }
+        throw error
     }
 }

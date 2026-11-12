@@ -23,7 +23,51 @@ import UIKit
 @MainActor
 final class SyncLiveActivityController {
     static let shared = SyncLiveActivityController()
+    private let implementation: (any SyncLiveActivityDriving)?
 
+    private init() {
+        if #available(iOS 16.2, *) {
+            implementation = SupportedSyncLiveActivityController()
+        } else {
+            implementation = nil
+        }
+    }
+
+    var holdsBackNewBanner: () -> Bool {
+        get { implementation?.holdsBackNewBanner ?? { false } }
+        set { implementation?.holdsBackNewBanner = newValue }
+    }
+
+    func attach(to live: LiveState) {
+        implementation?.attach(to: live)
+    }
+
+    func startFromShortcut(live: LiveState) {
+        implementation?.startFromShortcut(live: live)
+    }
+
+    func shortcutDidNotStart() {
+        implementation?.shortcutDidNotStart()
+    }
+
+    func reconcile(live: LiveState) {
+        implementation?.reconcile(live: live)
+    }
+}
+
+@MainActor
+private protocol SyncLiveActivityDriving: AnyObject {
+    var holdsBackNewBanner: () -> Bool { get set }
+    func attach(to live: LiveState)
+    func startFromShortcut(live: LiveState)
+    func shortcutDidNotStart()
+    func reconcile(live: LiveState)
+}
+
+/// Keeps sync activity adoption, updates and cleanup on iOS 16.2 and later.
+@available(iOS 16.2, *)
+@MainActor
+private final class SupportedSyncLiveActivityController: SyncLiveActivityDriving {
     private var activity: Activity<SyncActivityAttributes>?
     private var cancellables: Set<AnyCancellable> = []
     /// For the strap log: a refused `Activity.request` must say so, or "no island" has no evidence.
@@ -47,7 +91,7 @@ final class SyncLiveActivityController {
     /// shortcut started still updates and ends as before.
     var holdsBackNewBanner: () -> Bool = { false }
 
-    private init() {}
+    init() {}
 
     func attach(to live: LiveState) {
         self.live = live
