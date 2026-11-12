@@ -69,6 +69,16 @@ android/app/release/
 # ── Misc / secrets (never commit) ───────────────────────────────
 *.log
 .env
+.env.*
+!.env.example
+node_modules/
+.vercel/
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+*-service-account.json
+firebase-admin*.json
 # Deployment credentials (PAT / signing / endpoints) — never commit. `.env` above
 # won't match `deploy.env`, so list it (and any `deploy.env.<stage>`) explicitly.
 deploy.env
@@ -118,3 +128,5 @@ tools/linux-capture/*.db
 tools/linux-capture/*.db-wal
 tools/linux-capture/*.db-shm
 tools/linux-capture/captures/
+.vercel
+.env*

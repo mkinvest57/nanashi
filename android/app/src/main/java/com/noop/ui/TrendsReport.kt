@@ -302,7 +302,7 @@ object TrendsReportRenderer {
 
         val left = MARGIN + 16f
         var ty = cardTop + 26f
-        text(canvas, "NOOP", left, ty, 11f, sansBold, ACCENT, letterSpacing = 0.12f)
+        text(canvas, "NANASHI", left, ty, 11f, sansBold, ACCENT, letterSpacing = 0.12f)
         textRight(canvas, range.longName.uppercase(), PAGE_W - MARGIN - 16f, ty, 10f, sansBold, TEXT_TERTIARY)
         ty += 30f
         text(canvas, "Trends report", left, ty, 26f, sansBold, TEXT_PRIMARY)

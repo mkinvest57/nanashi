@@ -1,0 +1,271 @@
+name: Nanashi release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Marketing version, matching both platforms (for example 12.1.0)'
+        required: true
+        type: string
+      ios_build:
+        description: 'New iOS build number, greater than the last published iOS build'
+        required: true
+        type: string
+      android_build:
+        description: 'New Android versionCode, greater than the last published Android build'
+        required: true
+        type: string
+      website_url:
+        description: 'Public production website HTTPS origin, without a trailing slash'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nanashi-release
+  cancel-in-progress: false
+
+env:
+  NANASHI_VERSION: ${{ inputs.version }}
+  NANASHI_IOS_BUILD: ${{ inputs.ios_build }}
+  NANASHI_ANDROID_BUILD: ${{ inputs.android_build }}
+  NANASHI_WEBSITE: ${{ inputs.website_url }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Validate release inputs and tools
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from urllib.parse import urlsplit
+          assert os.environ['GITHUB_REF'] == 'refs/heads/main', 'Dispatch releases from main'
+          assert re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', os.environ['NANASHI_VERSION'])
+          for key in ('NANASHI_IOS_BUILD', 'NANASHI_ANDROID_BUILD'):
+              assert re.fullmatch(r'[1-9][0-9]*', os.environ[key])
+              assert int(os.environ[key]) <= 2100000000
+          u = urlsplit(os.environ['NANASHI_WEBSITE'])
+          assert u.scheme == 'https' and u.hostname and u.path in ('', '/') and not u.username and not u.query and not u.fragment
+          PY
+          python3 -m unittest Tools.nanashi_release_tests
+
+  ios:
+    needs: validate
+    runs-on: macos-26
+    timeout-minutes: 90
+    env:
+      NANASHI_BUILD: ${{ inputs.ios_build }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Generate project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Build iPhone Release and test shared macOS app
+        run: |
+          xcodebuild -project Strand.xcodeproj -scheme NOOPiOS -configuration Release \
+            -destination 'generic/platform=iOS' -derivedDataPath build/nanashi-ios \
+            BUNDLE_ID_PREFIX=com.rayanmakhlouf.noopdev \
+            MARKETING_VERSION="$NANASHI_VERSION" CURRENT_PROJECT_VERSION="$NANASHI_BUILD" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY='' build
+          xcodebuild -project Strand.xcodeproj -scheme Strand -configuration Debug \
+            -destination 'platform=macOS' -derivedDataPath build/nanashi-tests \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO test
+      - name: Package and inspect unprovisioned IPA
+        run: |
+          set -euo pipefail
+          mkdir -p build/nanashi-package/Payload dist
+          APP=build/nanashi-ios/Build/Products/Release-iphoneos/Nanashi.app
+          test -d "$APP/PlugIns/NanashiWidgets.appex"
+          ditto "$APP" build/nanashi-package/Payload/Nanashi.app
+          APP=build/nanashi-package/Payload/Nanashi.app
+          rm -rf "$APP/Watch"
+          Tools/prepare-ios-sideload-app.sh "$APP" "$APP/PlugIns/NanashiWidgets.appex"
+          IPA="Nanashi-ios-v${NANASHI_VERSION}-b${NANASHI_BUILD}.ipa"
+          (cd build/nanashi-package && /usr/bin/zip -qr "../../dist/$IPA" Payload)
+          python3 Tools/nanashi_release.py inspect-ios --ipa "dist/$IPA" --output dist/ios.metadata.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nanashi-ios
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  android:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      NANASHI_BUILD: ${{ inputs.android_build }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/wrapper-validation@v5
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Install matching SDK tools
+        # AGP 8.5 uses Build-Tools 34 for compilation; 35 supplies the artifact inspector.
+        run: sdkmanager 'platforms;android-35' 'build-tools;34.0.0' 'build-tools;35.0.0'
+      - name: Configure private release signing
+        env:
+          KEYSTORE_B64: ${{ secrets.NANASHI_ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.NANASHI_ANDROID_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.NANASHI_ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.NANASHI_ANDROID_KEY_PASSWORD }}
+        run: |
+          python3 - <<'PY'
+          import base64, os
+          from pathlib import Path
+          required = ('KEYSTORE_B64', 'STORE_PASSWORD', 'KEY_ALIAS', 'KEY_PASSWORD')
+          if any(not os.environ.get(k) for k in required):
+              raise SystemExit('Missing private Nanashi Android signing secrets; no debug-key fallback is allowed.')
+          if os.environ['KEY_ALIAS'].lower() == 'androiddebugkey':
+              raise SystemExit('A debug signing key cannot be used for publication.')
+          def prop(value):
+              raw = value.encode('utf-16-be')
+              return ''.join('\\u' + raw[i:i+2].hex() for i in range(0, len(raw), 2))
+          key = Path(os.environ['RUNNER_TEMP']) / 'nanashi-release.keystore'
+          key.write_bytes(base64.b64decode(os.environ['KEYSTORE_B64'], validate=True))
+          key.chmod(0o600)
+          settings = {'storeFile': str(key), 'storePassword': os.environ['STORE_PASSWORD'],
+                      'keyAlias': os.environ['KEY_ALIAS'], 'keyPassword': os.environ['KEY_PASSWORD']}
+          target = Path('android/keystore.properties')
+          target.write_text(''.join(k + '=' + prop(v) + '\n' for k, v in settings.items()))
+          target.chmod(0o600)
+          PY
+      - name: Test and build Nanashi signed release
+        working-directory: android
+        run: |
+          ./gradlew testFullDebugUnitTest assembleFullRelease --no-build-cache --rerun-tasks \
+            -PnanashiApplicationId=com.rayanmakhlouf.nanashi \
+            -PnanashiVersionName="$NANASHI_VERSION" -PnanashiVersionCode="$NANASHI_BUILD"
+      - name: Inspect signed APK
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          APK="dist/Nanashi-android-v${NANASHI_VERSION}-b${NANASHI_BUILD}.apk"
+          cp android/app/build/outputs/apk/full/release/app-full-release.apk "$APK"
+          python3 Tools/nanashi_release.py inspect-android --apk "$APK" \
+            --aapt2 "$ANDROID_HOME/build-tools/35.0.0/aapt2" \
+            --apksigner "$ANDROID_HOME/build-tools/35.0.0/apksigner" --output dist/android.metadata.json
+      - name: Remove signing material
+        if: always()
+        run: rm -f android/keystore.properties "$RUNNER_TEMP/nanashi-release.keystore"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nanashi-android
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [ios, android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nanashi-*
+          path: dist
+          merge-multiple: true
+      - name: Generate manifests from verified binaries
+        run: |
+          set -euo pipefail
+          TAG="v${NANASHI_VERSION}"
+          EXTRA=()
+          test ! -f web/public/altstore-source.json || EXTRA+=(--previous-source web/public/altstore-source.json)
+          test ! -f web/public/releases.json || EXTRA+=(--previous-catalog web/public/releases.json)
+          python3 Tools/nanashi_release.py generate \
+            --ipa "dist/Nanashi-ios-v${NANASHI_VERSION}-b${NANASHI_IOS_BUILD}.ipa" \
+            --apk "dist/Nanashi-android-v${NANASHI_VERSION}-b${NANASHI_ANDROID_BUILD}.apk" \
+            --ios-metadata dist/ios.metadata.json --android-metadata dist/android.metadata.json \
+            --base-url "$NANASHI_WEBSITE" --repository "https://github.com/$GITHUB_REPOSITORY" \
+            --tag "$TAG" --source-sha "$GITHUB_SHA" --output-dir dist/public "${EXTRA[@]}"
+          cp LICENSE NOTICE ATTRIBUTION.md dist/
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          repo = os.environ['GITHUB_REPOSITORY']
+          text = f'''Nanashi {os.environ['NANASHI_VERSION']} (iOS {os.environ['NANASHI_IOS_BUILD']}, Android {os.environ['NANASHI_ANDROID_BUILD']})
+
+          Personal, noncommercial adaptation of [NOOP](https://github.com/ryanbr/noop) by @ryanbr / NoopApp. Required Notice: Copyright 2026 NoopApp. See the attached LICENSE, NOTICE and ATTRIBUTION.md.
+
+          iPhone: install the IPA with SideStore and retain its widget extension. The app identity and shared group match existing Nanashi installations. An Apple account and initial SideStore setup are required; free provisioning still expires after seven days and must refresh successfully.
+
+          Android: install the privately signed APK. Keep the existing app installed when updating. The signing certificate fingerprint and checksums are in releases.json and SHA256SUMS.txt.
+
+          Validation: iOS Release compilation, macOS app tests, Android JVM tests and Release build, IPA capability/signature checks, APK signing verification, and artifact-bound metadata validation. This workflow does not perform real-phone, Bluetooth strap, Health permission or SideStore renewal tests.
+
+          Source commit: {os.environ['GITHUB_SHA']}
+          Website: {os.environ['NANASHI_WEBSITE']}
+          '''
+          Path('dist/RELEASE_NOTES.md').write_text(text)
+          PY
+      - name: Publish complete release then update site catalog
+        run: |
+          set -euo pipefail
+          TAG="v${NANASHI_VERSION}"
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "$GITHUB_SHA" || {
+            echo 'main changed during the build; rerun from its current head.'; exit 1;
+          }
+          if git rev-parse --verify "$TAG^{commit}" >/dev/null 2>&1; then
+            test "$(git rev-parse "$TAG^{commit}")" = "$GITHUB_SHA" || {
+              echo 'This tag already identifies different source; choose a new version.'; exit 1;
+            }
+          fi
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            test "$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = true || {
+              echo 'This version is already public; published binaries are immutable.'; exit 1;
+            }
+            test "$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json targetCommitish --jq .targetCommitish)" = "$GITHUB_SHA" || {
+              echo 'The existing draft targets different source; do not replace its artifacts.'; exit 1;
+            }
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file dist/RELEASE_NOTES.md
+          else
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "Nanashi ${NANASHI_VERSION}" --notes-file dist/RELEASE_NOTES.md --draft
+          fi
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+            dist/*.ipa dist/*.apk dist/public/*.json dist/public/SHA256SUMS.txt \
+            dist/LICENSE dist/NOTICE dist/ATTRIBUTION.md
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          mkdir -p web/public
+          cp dist/public/releases.json dist/public/altstore-source.json web/public/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add web/public/releases.json web/public/altstore-source.json
+          git commit -m "Publish Nanashi ${NANASHI_VERSION} installation catalog"
+          git push origin HEAD:main
+      # GitHub's default token does not trigger other GitHub workflows. Vercel's external
+      # Git integration should deploy the catalog commit; otherwise use its deploy hook.
+      - name: Trigger configured Vercel deploy hook
+        env:
+          DEPLOY_HOOK: ${{ secrets.NANASHI_VERCEL_DEPLOY_HOOK }}
+        run: |
+          python3 - <<'PY'
+          import os, urllib.request
+          hook = os.environ.get('DEPLOY_HOOK')
+          if hook:
+              try:
+                  with urllib.request.urlopen(urllib.request.Request(hook, method='POST'), timeout=30) as response:
+                      if response.status >= 300:
+                          raise ValueError()
+              except Exception:
+                  raise SystemExit('Vercel deploy hook failed; inspect the deployment dashboard (hook URL omitted).')
+          else:
+              print('No deploy hook configured; verify the Vercel Git integration deploys the catalog commit.')
+          PY

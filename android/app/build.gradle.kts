@@ -23,11 +23,11 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.noop.whoop"
+        applicationId = providers.gradleProperty("nanashiApplicationId").getOrElse("com.rayanmakhlouf.nanashi")
         minSdk = 26
         targetSdk = 34
-        versionCode = 558
-        versionName = "12.1.0"
+        versionCode = providers.gradleProperty("nanashiVersionCode").map(String::toInt).getOrElse(559)
+        versionName = providers.gradleProperty("nanashiVersionName").getOrElse("12.1.1")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -81,10 +81,12 @@ android {
             }
             // Real release key when keystore.properties is present. The debug-key fallback is allowed
             // only for explicit fork/staging artifacts that install under their own application id.
-            signingConfig = if (keystorePropsFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
+            signingConfig = when {
+                keystorePropsFile.exists() -> signingConfigs.getByName("release")
+                isStagingRelease -> signingConfigs.getByName("debug")
+                // Aggregate tasks such as assemble/build must never silently sign a release
+                // with the shared debug key when no private release credentials exist.
+                else -> null
             }
             // Fork staging release: built with -PstagingRelease (the fork testing-build CI only), the
             // release APK gets its own id/name so it installs BESIDE both the official app and the

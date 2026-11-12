@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Release metadata is intentionally public. No user or health data belongs here.
+    // Publishing uses IAM-authorized administration, never a browser write grant.
+    match /catalogue/stable {
+      allow get: if true;
+      allow list, create, update, delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

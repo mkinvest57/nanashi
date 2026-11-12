@@ -1136,7 +1136,7 @@ fun RecoveryRing(
         startDeg = -90f,
         spanDeg = 288f,
         coreDot = Palette.gold,
-        wordmark = "NOOP",
+        wordmark = "NANASHI",
         modifier = modifier,
     )
 }
