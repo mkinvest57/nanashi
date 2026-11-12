@@ -27,7 +27,8 @@ final class AppLanguageTests: XCTestCase {
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
         AppLanguage.apply(AppLanguage.german.rawValue, defaults: defaults)
-        XCTAssertEqual(defaults.stringArray(forKey: "AppleLanguages"), ["de"])
+        // Launch arguments can override reads without changing what the app persisted.
+        XCTAssertEqual(defaults.persistentDomain(forName: suiteName)?["AppleLanguages"] as? [String], ["de"])
 
         AppLanguage.apply(AppLanguage.system.rawValue, defaults: defaults)
         // Read the suite's OWN persisted domain, not object(forKey:): the latter falls through to
