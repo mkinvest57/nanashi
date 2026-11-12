@@ -3767,7 +3767,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Text("Nanashi", style = NoopType.title2, color = Palette.textPrimary)
+                    Text(uiString(R.string.app_name), style = NoopType.title2, color = Palette.textPrimary)
                     StatePill("v${BuildConfig.VERSION_NAME}", tone = StrandTone.Neutral, showsDot = false)
                 }
 

@@ -233,6 +233,10 @@ val syncRoomSchemaSnapshot = tasks.register<Sync>("syncRoomSchemaSnapshot") {
 }
 
 tasks.withType<Test>().configureEach {
+    // English presentation fixtures use the same locale as CI regardless of the host Mac's locale.
+    // These properties apply only to forked JVM tests; the app keeps the user's selected locale.
+    systemProperty("user.language", "en")
+    systemProperty("user.country", "US")
     // How SchemaOracleTest finds the schema. Depending on the Sync task gives both ORDERING (the compile
     // chain alone only guarantees the app CLASSES exist, which a cache hit can satisfy without the
     // schema being materialised) and a stable, singly-owned directory to read.
