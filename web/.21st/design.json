@@ -83,6 +83,11 @@
     {
       "decision": "Use static CSS adaptations of three retrieved 21st components, sharing the native app palette. No motion library required.",
       "reason": "Retain cold-glass character with small runtime and stable keyboard interactions."
+    },
+    {
+      "decision": "Prioritize a direct SideStore install link for returning iPhone users; separate one-time setup from updates. Detect the phone platform with a manual override, keep technical options collapsed, and hand desktop visitors to a QR plus a copyable link.",
+      "reason": "The user found installation too complicated. Reuse the existing 21st-derived glass surfaces and controls without an onboarding library or claims that the browser can detect installation success.",
+      "grounding": "Reviewed search results Minimal Welcome Onboarding 29517, Onboarding Checklist 5587 and Onboarding Steps with Progress 29458. No code was retrieved or incorporated from these results; the installed GlassPanel, GlassLink and PlatformTabs primitives remain the component sources."
     }
   ],
   "evidence": [],

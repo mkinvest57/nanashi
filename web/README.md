@@ -1,6 +1,6 @@
 # Nanashi web
 
-A small, static React site for Nanashi releases, installation instructions and project attribution. Vercel project root: `web`. Build command: `npm run build`. Output: `dist`. Native apps remain in the repository root; this site is not a web port of the app.
+A small, static React site for Nanashi releases, installation instructions and project attribution. Deploy with the Vercel CLI from `web/`; the linked project's root directory is `.`. Build command: `npm run build`. Output: `dist`. Native apps remain in the repository root; this site is not a web port of the app.
 
 ## Development
 
@@ -15,6 +15,22 @@ npm run test:e2e
 ```
 
 Playwright uses installed Google Chrome when `PLAYWRIGHT_CHANNEL=chrome` is set; otherwise it uses its managed Chromium. Browser tests exercise platform selection, keyboard tabs, release availability, checksums, retry and narrow layouts. Unit tests cover untrusted release metadata and Firebase fallback/cancellation. No test calls an AI provider or uploads health records.
+
+## Installation experience
+
+The phone's browser hints select the iPhone or Android guide; visitors can change that selection. This does not detect whether Nanashi or SideStore is installed. On an iPhone with SideStore configured, the primary action opens the validated IPA directly with the documented `sidestore://install?url=...` scheme. Adding the update source is optional and appears in the help disclosure, alongside manual files and checksums. A separate first-installation path explains the one-time SideStore preparation.
+
+The website never launches an iOS scheme from an Android browser or computer. Computers show a static QR code and a copyable link to `https://nanashi-mk.vercel.app/#installer`. Android has a single primary download action. Post-click instructions explain the native confirmation; they never claim that installation succeeded or that the local VPN is connected. Browser tests prevent native protocol launches and check the direct action even when source metadata is absent.
+
+The QR image is generated locally, with no external QR service or client library:
+
+```sh
+python3 -m venv ../build/nanashi-qr-tools
+../build/nanashi-qr-tools/bin/pip install qrcode==8.2
+../build/nanashi-qr-tools/bin/python scripts/generate-install-qr.py
+```
+
+Its decoded destination was independently checked before publication. No app credentials, device state or personal information are encoded in it.
 
 ## Release catalogue
 
@@ -31,7 +47,7 @@ Playwright uses installed Google Chrome when `PLAYWRIGHT_CHANNEL=chrome` is set;
 
 A published `latest` contains `version`, `releaseURL`, `publishedAt` and optional `ios` / `android` artifacts. Each artifact requires `version`, `build` (string or integer), `downloadURL` (HTTPS), `size` (positive bytes), `sha256` (64 hexadecimal characters). iOS additionally requires the preserved `bundleIdentifier` (`com.rayanmakhlouf.noopdev.noop`) and `minOSVersion`. Android requires `applicationId` (`com.rayanmakhlouf.nanashi`) and `minSDK`. Each artifact version must agree with the release version. Extra generator metadata is ignored, not rendered as HTML.
 
-Optional `sideStore.sourceURL` is a public HTTPS source manifest. The client derives `sidestore://source?url=...` itself and only exposes it when an eligible iOS artifact exists. The source manifest is published as `/altstore-source.json`; it is not needed for Android-only releases.
+Optional `sideStore.sourceURL` is a public HTTPS source manifest. The client derives `sidestore://source?url=...` itself and only exposes it on an iPhone when an eligible iOS artifact exists. The direct installation action derives its URL from the verified artifact independently of source metadata. The source manifest is published as `/altstore-source.json`; it is not needed for Android-only releases.
 
 ### Optional Firebase mirror
 
