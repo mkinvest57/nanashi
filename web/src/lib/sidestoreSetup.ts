@@ -1,5 +1,7 @@
 export const SETUP_STORAGE_KEY = 'nanashi.sidestore.setup.v1'
 export const SETUP_GUIDE_URL = 'https://nanashi-mk.vercel.app/installation-sidestore'
+export const SETUP_IPHONE_URL = `${SETUP_GUIDE_URL}?step=prepare#setup-step-heading`
+export const SETUP_AUTOMATION_URL = `${SETUP_GUIDE_URL}?step=automation#setup-step-heading`
 
 export const SETUP_STEPS = [
   { id: 'computer', title: 'Préparer l’ordinateur', short: 'Ordinateur' },
@@ -8,6 +10,7 @@ export const SETUP_STEPS = [
   { id: 'prepare', title: 'Préparer l’iPhone', short: 'iPhone' },
   { id: 'activate', title: 'Activer SideStore', short: 'Activation' },
   { id: 'nanashi', title: 'Installer Nanashi', short: 'Nanashi' },
+  { id: 'automation', title: 'Automatiser le renouvellement', short: 'Auto' },
 ] as const
 
 export type StepId = typeof SETUP_STEPS[number]['id']
@@ -24,6 +27,12 @@ const isStepId = (value: unknown): value is StepId => SETUP_STEPS.some(step => s
 
 export function initialSetupProgress(computer: SetupComputer = 'mac'): SetupProgress {
   return { version: 1, step: 'computer', computer, confirmed: [] }
+}
+
+/** A shared link selects a step; it never confirms actions on another device. */
+export function setupProgressFromURL(progress: SetupProgress, search: string): SetupProgress {
+  const step = new URLSearchParams(search).get('step')
+  return isStepId(step) ? { ...progress, step } : progress
 }
 
 export function readSetupProgress(storage: ProgressStorage | null, fallbackComputer: SetupComputer = 'mac'): SetupProgress {
@@ -61,5 +70,6 @@ export const SETUP_LINKS = {
   itunesStore: 'https://apps.microsoft.com/store/detail/9PB2MZ1ZMB1S',
   appleDevices: 'https://apps.microsoft.com/detail/9np83lwlpz9k',
   localDevVPN: 'https://apps.apple.com/app/localdevvpn/id6755608044',
+  shortcut: 'https://www.icloud.com/shortcuts/2afd063477f048f0a16f04c268ce9655',
   iloaderSource: 'https://github.com/nab138/iloader',
 } as const

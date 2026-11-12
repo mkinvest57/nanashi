@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { detectPhonePlatform, sideStoreInstallURL } from './installation'
+import { altStoreInstallURL, detectPhonePlatform, sideStoreInstallURL } from './installation'
 
 describe('phone handoff', () => {
   it.each([
@@ -31,5 +31,19 @@ describe('direct SideStore install link', () => {
 
   it.each(['', '/Nanashi.ipa', 'javascript:alert(1)', 'http://example.com/Nanashi.ipa', 'https://user:password@example.com/Nanashi.ipa'])('does not make an install action from an invalid or insecure download (%s)', value => {
     expect(sideStoreInstallURL(value)).toBeNull()
+  })
+})
+
+describe('AltStore Classic installation', () => {
+  it('selects Classic instead of PAL and preserves the complete IPA URL', () => {
+    const download = 'https://github.com/mkinvest57/nanashi/releases/download/v12.1.1/Nanashi.ipa?download=1&name=a%20b'
+    const link = new URL(altStoreInstallURL(download)!)
+    expect(link.protocol).toBe('altstore-classic:')
+    expect(link.hostname).toBe('install')
+    expect([...link.searchParams.keys()]).toEqual(['url'])
+    expect(link.searchParams.get('url')).toBe(download)
+  })
+  it.each(['', 'http://example.com/app.ipa', 'javascript:alert(1)', 'https://user:password@example.com/app.ipa'])('rejects invalid download %s', value => {
+    expect(altStoreInstallURL(value)).toBeNull()
   })
 })

@@ -1,7 +1,7 @@
-# SideStore installation guide sources
+# Nanashi installation sources
 
 Verified on 2026-11-12. These references support the first-party French guide at
-`/installation-sidestore`; they are not a requirement for users to leave the guide
+`/installation-sidestore` and `/installation-nanashi`; they are not a requirement for users to leave the guide
 and read another manual. The guide paraphrases the process and retains the names
 of native controls so they can be found on the user's device.
 
@@ -56,3 +56,16 @@ Initial self-refresh is separate from installing Nanashi and from configuring a
 daily automation. A future iOS update or invalid pairing can require a computer
 again. Preserve the existing Nanashi app and backup before any troubleshooting
 that could change its identity; never recommend deleting it as a routine fix.
+
+## Ready shortcut and installer preview
+
+- [Owner-shared shortcut](https://www.icloud.com/shortcuts/2afd063477f048f0a16f04c268ce9655), inspected 2026-11-12: three actions, no credential fields. Its SideStore AppIntent descriptor is tied to the original signing team. No universal rebinding is claimed.
+- [Apple sharing](https://support.apple.com/en-hk/guide/shortcuts/apdf01f8c054/ios): a recipient confirms adding the shortcut.
+- [Apple 27 changes](https://support.apple.com/en-us/149045): shared shortcuts can include automation triggers. The export's time alone does not prove activation or daily repetition.
+- [AltStore official Classic catalogue](https://cdn.altstore.io/file/altstore/apps.json): version 2.3.3, build 75, iOS 17.4 minimum. The actual official IPA was downloaded and its metadata and SHA-256 verified.
+- [AltStore Remote setup](https://github.com/altstoreio/FAQ/blob/main/altstore-classic/remote-altservers.md): LocalDevVPN, connected Wi-Fi, association and Apple sign-in remain necessary.
+- [Classic URL schemes](https://github.com/altstoreio/AltStore/blob/v2.3/AltStore/SceneDelegate.swift): `altstore-classic://install?url=...` avoids ambiguity with AltStore PAL.
+- [Native background refresh](https://github.com/altstoreio/AltStore/blob/v2.3/AltStore/AppDelegate.swift): iOS schedules the background work; the website cannot guarantee an execution time.
+- [Nanashi Installer source and verification](https://github.com/mkinvest57/nanashi-installer): independent MIT-based iloader adaptation; existing licenses and attribution preserved. Preview status must remain visible until physical acceptance checks pass.
+
+No shortcut was executed, Apple account authenticated, certificate revoked, app migrated or phone installation validated by these website checks.

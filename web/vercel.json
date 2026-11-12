@@ -4,6 +4,8 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/installation-nanashi", "destination": "/index.html" },
+    { "source": "/installation-nanashi/", "destination": "/index.html" },
     { "source": "/installation-sidestore", "destination": "/index.html" },
     { "source": "/installation-sidestore/", "destination": "/index.html" }
   ],

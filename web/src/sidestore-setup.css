@@ -67,6 +67,11 @@
 .ss-handoff p { color: var(--muted); font-size: .75rem; line-height: 1.8; margin-top: var(--space-2); }
 .ss-share-url { color: var(--muted); font-size: .6875rem; overflow-wrap: anywhere; display: block; padding-block: var(--space-2); min-height: 44px; }
 .ss-handoff .ss-copy-status { color: var(--accent); margin: 0; }
+.ss-prepare-handoff { max-width: none; margin: 0 0 var(--space-6); padding: var(--space-5); background: var(--surface-deep); border-color: var(--rim-bright); }
+.ss-prepare-handoff > img { width: 168px; height: 168px; }
+.ss-prepare-handoff h3 { color: var(--text); font-size: 1.125rem; line-height: 1.4; }
+.ss-prepare-handoff .text-button { text-align: left; }
+.ss-shortcut-handoff { margin-top: var(--space-5); }
 .ss-copy-status:empty { display: none; }
 .ss-footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); margin-top: var(--space-12); padding-block: var(--space-6); border-top: 1px solid var(--border); font-size: .6875rem; color: var(--muted); }
 .ss-footer a { display: inline-flex; align-items: center; min-height: 44px; flex-shrink: 0; }
@@ -85,7 +90,7 @@
   .ss-stage { grid-column: 1; grid-row: 2; }
   .ss-save-controls { grid-column: 1; grid-row: 3; }
   .ss-progress { margin-bottom: var(--space-3); }
-  .ss-step-nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; }
+  .ss-step-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
   .ss-step-nav button { flex-direction: column; justify-content: center; min-width: 0; padding: var(--space-2) 0; gap: 0; }
   .ss-step-label { display: none; }
   .ss-reset { padding-block: var(--space-2); }
@@ -101,4 +106,8 @@
   .ss-actions { gap: var(--space-2); }
   .ss-continue { width: 100%; padding-inline: var(--space-4); }
   .ss-content .glass-link { padding-inline: var(--space-4); }
+}
+@media (max-width: 760px) {
+  .ss-prepare-handoff { flex-direction: column; margin: 0 0 var(--space-5); }
+  .ss-prepare-handoff > img { width: 168px; height: 168px; max-width: 100%; }
 }

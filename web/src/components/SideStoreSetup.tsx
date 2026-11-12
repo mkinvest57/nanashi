@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Check, ChevronDown, Copy, Download, Laptop, Rota
 import { GlassLink, GlassPanel } from './Glass'
 import { detectPhonePlatform } from '../lib/installation'
 import {
-  initialSetupProgress, readSetupProgress, saveSetupProgress, SETUP_GUIDE_URL, SETUP_LINKS, SETUP_STEPS,
+  initialSetupProgress, readSetupProgress, saveSetupProgress, setupProgressFromURL, SETUP_AUTOMATION_URL, SETUP_GUIDE_URL, SETUP_IPHONE_URL, SETUP_LINKS, SETUP_STEPS,
 } from '../lib/sidestoreSetup'
 import type { SetupComputer, StepId } from '../lib/sidestoreSetup'
 import '../sidestore-setup.css'
@@ -24,11 +24,13 @@ function DownloadLink({ href, children, primary = true }: { href: string; childr
 }
 
 export default function SideStoreSetup() {
-  const [progress, setProgress] = useState(() => readSetupProgress(browserStorage(), /Win/.test(navigator.userAgent) ? 'windows' : 'mac'))
+  const [progress, setProgress] = useState(() => setupProgressFromURL(
+    readSetupProgress(browserStorage(), /Win/.test(navigator.userAgent) ? 'windows' : 'mac'), window.location.search))
   const [saved, setSaved] = useState(true)
   const [copyStatus, setCopyStatus] = useState('')
+  const [phoneCopyStatus, setPhoneCopyStatus] = useState('')
   const headingRef = useRef<HTMLHeadingElement>(null)
-  const shouldFocus = useRef(false)
+  const shouldFocus = useRef(new URLSearchParams(window.location.search).get('step') === progress.step)
   const phone = detectPhonePlatform(navigator)
   const index = SETUP_STEPS.findIndex(step => step.id === progress.step)
   const current = SETUP_STEPS[index]
@@ -37,6 +39,13 @@ export default function SideStoreSetup() {
   const allConfirmed = progress.confirmed.length === SETUP_STEPS.length
 
   useEffect(() => { setSaved(saveSetupProgress(browserStorage(), progress)) }, [progress])
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    if (url.searchParams.has('step')) {
+      url.searchParams.delete('step')
+      window.history.replaceState(window.history.state, '', url)
+    }
+  }, [])
   useEffect(() => {
     if (shouldFocus.current) {
       headingRef.current?.focus()
@@ -78,6 +87,13 @@ export default function SideStoreSetup() {
       await navigator.clipboard.writeText(SETUP_GUIDE_URL)
       setCopyStatus('Lien copié.')
     } catch { setCopyStatus('La copie est indisponible. Vous pouvez sélectionner le lien ci-dessous.') }
+  }
+
+  async function copyPhoneStep() {
+    try {
+      await navigator.clipboard.writeText(SETUP_IPHONE_URL)
+      setPhoneCopyStatus('Lien vers cette étape copié.')
+    } catch { setPhoneCopyStatus('Vous pouvez copier l’adresse du lien ci-dessous.') }
   }
 
   return <div className="ss-page">
@@ -152,6 +168,16 @@ export default function SideStoreSetup() {
           </div>}
 
           {current.id === 'prepare' && <div className="ss-content">
+            {phone === 'ios' ? <div className="ss-checkpoint"><Smartphone size={20} aria-hidden="true" /><p>Vous avez ouvert le guide sur votre iPhone. Suivez les réglages ci-dessous, puis revenez ici pour continuer.</p></div>
+              : <section className="ss-handoff ss-prepare-handoff" aria-labelledby="ss-iphone-handoff-title">
+                <img src="/sidestore-iphone-qr.svg" alt="QR code pour ouvrir l’étape Préparer l’iPhone sur votre iPhone" width="168" height="168" />
+                <div><h3 id="ss-iphone-handoff-title">Ouvrez maintenant ce site sur votre iPhone</h3>
+                  <p>Scannez ce QR code avec l’appareil photo de l’iPhone, puis touchez le lien affiché. Le guide s’ouvrira directement à cette étape pour continuer.</p>
+                  <button className="text-button" type="button" onClick={copyPhoneStep}><Copy size={15} aria-hidden="true" />Copier le lien de cette étape</button>
+                  <p className="ss-copy-status" role="status">{phoneCopyStatus}</p>
+                  <a className="ss-share-url" href={SETUP_IPHONE_URL}>Ouvrir cette étape sur l’iPhone</a>
+                </div>
+              </section>}
             <p>Autorisez SideStore, puis préparez sa connexion locale.</p>
             <ol className="ss-instructions">
               <li><strong>Faites confiance au développeur.</strong><p>Réglages → Général → VPN et gestion de l’appareil → le profil de votre compte Apple → Faire confiance. Si iOS propose « Autoriser et redémarrer », suivez cette demande.</p></li>
@@ -174,7 +200,25 @@ export default function SideStoreSetup() {
             <GlassLink href="/#installer" className="primary">Installer Nanashi<ArrowRight size={17} aria-hidden="true" /></GlassLink>
             <ol className="ss-instructions"><li>Gardez l’iPhone connecté au Wi-Fi et LocalDevVPN actif.</li><li>Dans SideStore, validez <strong>Install</strong>.</li><li>Si le choix du widget apparaît, sélectionnez <strong lang="en">Keep App Extensions (Register App ID for Each Extension)</strong>.</li></ol>
             <Help title="Nanashi est déjà installée sur cet iPhone ?"><p>Ne désinstallez pas Nanashi. Faites d’abord une sauvegarde récente depuis l’app et mettez à jour la copie existante avec le même compte SideStore. Si une deuxième copie apparaît, n’effacez pas l’ancienne : son historique n’est pas automatiquement transféré.</p></Help>
-            <Help title="Prévoir le renouvellement quotidien"><p>Si un renouvellement automatique est déjà configuré, conservez-le. Sinon, dans Raccourcis, créez un raccourci avec ces actions :</p><ol><li>LocalDevVPN → <strong>Enable / Activer</strong>.</li><li>Attendre <strong>5 secondes</strong>.</li><li>SideStore → <strong>Refresh All Apps</strong>.</li></ol><p>Exécutez-le une fois pour vérifier qu’il fonctionne. Créez ensuite une automatisation quotidienne à une heure où l’iPhone est connecté au Wi-Fi, par exemple 9 h, avec « Exécuter immédiatement » ; sur un ancien iOS, désactivez « Demander avant d’exécuter ».</p><p>L’iPhone doit être sur le Wi-Fi à l’heure choisie. La signature gratuite dure 7 jours : ce raccourci facilite son renouvellement, mais une erreur de connexion peut encore demander une intervention. Dans ce cas, ouvrez SideStore pour renouveler manuellement. Le renouvellement de signature ne télécharge pas une nouvelle version de Nanashi.</p></Help>
+            <p className="ss-note">Une fois Nanashi installée, continuez : la dernière étape ajoute le raccourci de renouvellement.</p>
+          </div>}
+
+          {current.id === 'automation' && <div className="ss-content">
+            <p>Ajoutez le raccourci prêt à l’emploi. Il active <strong>LocalDevVPN</strong>, attend <strong>5 secondes</strong>, puis demande à SideStore de <strong>renouveler toutes les apps</strong>, dont Nanashi.</p>
+            {phone !== 'ios' && <section className="ss-handoff ss-prepare-handoff ss-shortcut-handoff" aria-labelledby="ss-shortcut-handoff-title">
+              <img src="/sidestore-automation-qr.svg" alt="QR code pour ouvrir l’installation du raccourci sur l’iPhone" width="168" height="168" />
+              <div><h3 id="ss-shortcut-handoff-title">Installez le raccourci sur votre iPhone</h3><p>Scannez ce code avec l’iPhone pour retrouver cette dernière étape et son bouton d’installation.</p><a className="ss-share-url" href={SETUP_AUTOMATION_URL}>Ouvrir cette étape sur l’iPhone</a></div>
+            </section>}
+            <GlassLink href={SETUP_LINKS.shortcut} className="primary">Installer le raccourci<Download size={17} aria-hidden="true" /></GlassLink>
+            <p className="ss-caption">Le lien Apple ouvre <strong>Refresh All Apps</strong>. Confirmez « Ajouter le raccourci » dans Raccourcis. Aucun identifiant Apple n’est demandé sur ce site.</p>
+            <ol className="ss-instructions">
+              <li><strong>Essayez-le une fois.</strong><p>Avec l’iPhone connecté au Wi-Fi, lancez le raccourci ajouté et acceptez les autorisations demandées. Vérifiez dans SideStore → My Apps que les compteurs ont été renouvelés.</p></li>
+              <li><strong>Confirmez le renouvellement quotidien.</strong><p>Dans Raccourcis, vérifiez l’horaire de l’automatisation importée, choisissez <strong>Tous les jours</strong> et <strong>Exécuter immédiatement</strong>, puis activez-la. Choisissez une heure où l’iPhone est sur le Wi-Fi, par exemple <strong>9 h</strong>.</p></li>
+            </ol>
+            <Help title="SideStore affiche une action inconnue ?"><p>Sur un autre compte Apple, iOS peut ne pas reconnaître l’action SideStore du raccourci partagé. Il suffit de remplacer cette action une fois :</p><ol><li>Ouvrez le raccourci <strong>Refresh All Apps</strong> avec le bouton <strong>…</strong>.</li><li>Supprimez uniquement l’action SideStore non reconnue, en laissant LocalDevVPN et l’attente de 5 secondes.</li><li>Recherchez <strong>SideStore</strong> dans les actions et ajoutez <strong>Refresh All Apps</strong> à la fin. Enregistrez, puis réessayez.</li></ol><p>Si l’action n’est pas proposée, ouvrez d’abord SideStore et terminez son premier renouvellement, puis revenez dans Raccourcis.</p></Help>
+            <Help title="Aucun horaire n’apparaît ?"><p>Les anciennes versions d’iOS n’importent pas la programmation avec le raccourci. Une seule configuration est nécessaire :</p><ol><li>Dans Raccourcis → <strong>Automatisation</strong> → <strong>+</strong>, choisissez <strong>Heure de la journée</strong>.</li><li>Choisissez votre heure, <strong>Tous les jours</strong>, puis <strong>Exécuter immédiatement</strong>. Sur un ancien iOS, désactivez <strong>Demander avant d’exécuter</strong>.</li><li>Sélectionnez le raccourci <strong>Refresh All Apps</strong> que vous venez d’ajouter. Si iOS affiche un éditeur d’actions, ajoutez <strong>Exécuter le raccourci</strong> et choisissez-le.</li></ol></Help>
+            <Help title="Un renouvellement est déjà configuré ?"><p>Gardez votre automatisation actuelle si elle fonctionne. N’ajoutez pas une deuxième programmation quotidienne pour la même tâche. Vous pouvez passer cette étape.</p></Help>
+            <p className="ss-note">Gardez le Wi-Fi disponible à l’heure choisie. Une erreur Apple ou VPN peut encore demander de rouvrir SideStore. Le renouvellement prolonge la signature ; il ne télécharge pas les nouvelles versions de Nanashi.</p>
             {allConfirmed && <p className="ss-complete" role="status"><Check size={17} aria-hidden="true" />Guide marqué comme terminé. Vous pouvez revenir à n’importe quelle étape.</p>}
           </div>}
 
@@ -191,13 +235,13 @@ export default function SideStoreSetup() {
         </div>
       </div>
 
-      <section className="ss-handoff" aria-labelledby="ss-handoff-title">
+      {current.id !== 'prepare' && <section className="ss-handoff" aria-labelledby="ss-handoff-title">
         {!phone && <img src="/sidestore-setup-qr.svg" alt="QR code pour ouvrir ce guide sur l’iPhone" width="112" height="112" />}
         <div><h2 id="ss-handoff-title">Continuer sur un autre appareil</h2><p>{!phone ? 'Scannez ce code avec l’iPhone, ou copiez le lien. ' : 'Copiez ce lien pour retrouver le guide sur votre ordinateur. '}Sur l’autre appareil, choisissez l’étape où vous en êtes : la progression ne se synchronise pas.</p>
           <button className="text-button" type="button" onClick={copyGuide}><Copy size={15} aria-hidden="true" />Copier le lien du guide</button>
           <p className="ss-copy-status" role="status">{copyStatus}</p><a className="ss-share-url" href={SETUP_GUIDE_URL}>{SETUP_GUIDE_URL}</a>
         </div>
-      </section>
+      </section>}
     </main>
     <footer className="ss-footer ss-shell"><div><p>Ce guide ne reçoit aucun identifiant Apple et ne collecte aucune donnée de santé.</p><a href={SETUP_LINKS.iloaderSource} target="_blank" rel="noopener noreferrer">iloader · projet officiel</a></div><a href="/">Retour au site Nanashi</a></footer>
   </div>

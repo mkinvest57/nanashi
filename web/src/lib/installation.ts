@@ -15,6 +15,10 @@ export function sideStoreInstallURL(downloadURL: string): string | null {
   return httpsURL(downloadURL) ? `sidestore://install?url=${encodeURIComponent(downloadURL)}` : null
 }
 
+export function altStoreInstallURL(downloadURL: string): string | null {
+  return httpsURL(downloadURL) ? `altstore-classic://install?url=${encodeURIComponent(downloadURL)}` : null
+}
+
 export function androidVersionLabel(minSDK: number): string {
   const versions: Record<number, string> = {
     26: '8', 27: '8.1', 28: '9', 29: '10', 30: '11', 31: '12',

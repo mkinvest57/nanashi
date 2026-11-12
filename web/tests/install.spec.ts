@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { INSTALLER_RELEASE } from '../src/lib/installerRelease'
 
 const repository = 'https://github.com/mkinvest57/nanashi'
 const artifact = { version: '12.1.1', build: 446, size: 23767873, sha256: 'a'.repeat(64), downloadURL: `${repository}/releases/download/v12.1.1/Nanashi.ipa` }
@@ -16,7 +17,7 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     document.addEventListener('click', event => {
       const target = event.target instanceof Element ? event.target.closest('a') : null
-      if (target?.protocol === 'sidestore:') event.preventDefault()
+      if (target && ['sidestore:', 'altstore-classic:'].includes(target.protocol)) event.preventDefault()
     }, true)
   })
 })
@@ -84,6 +85,22 @@ test('small text-scaled viewport keeps installation and footer reachable', async
 test.describe('on an iPhone', () => {
   test.use({ userAgent: iosUserAgent })
 
+  test('AltStore selection uses Classic for both installation and the source', async ({ page }) => {
+    await page.route('**/releases.json', route => route.fulfill({ json: catalogue }))
+    await page.goto('/#installer')
+    await page.getByRole('button', { name: 'J’ai déjà AltStore', exact: true }).click()
+    const action = page.getByRole('link', { name: 'Installer / mettre à jour Nanashi' })
+    await expect(action).toHaveAttribute('href', `altstore-classic://install?url=${encodeURIComponent(artifact.downloadURL)}`)
+    await action.click()
+    await expect(page.getByRole('status').filter({ hasText: 'Dans AltStore' })).toBeVisible()
+    await page.getByText('Autres options et aide', { exact: true }).click()
+    await expect(page.getByRole('link', { name: 'Ajouter la source à AltStore' })).toHaveAttribute('href', `altstore-classic://source?url=${encodeURIComponent(catalogue.sideStore.sourceURL)}`)
+    await expect(page.locator('a[href^="sidestore:"]')).toHaveCount(0)
+    await page.getByRole('button', { name: 'J’ai déjà SideStore', exact: true }).click()
+    await expect(action).toHaveAttribute('href', `sidestore://install?url=${encodeURIComponent(artifact.downloadURL)}`)
+    await expect(page.locator('a[href^="altstore-classic:"]')).toHaveCount(0)
+  })
+
   test('existing SideStore needs one direct action, without adding a source first', async ({ page }) => {
     await page.route('**/releases.json', route => route.fulfill({ json: { ...catalogue, sideStore: undefined } }))
     await page.goto('/#installer')
@@ -106,12 +123,14 @@ test.describe('on an iPhone', () => {
     await page.route('**/releases.json', route => route.fulfill({ json: catalogue }))
     await page.goto('/#installer')
     await page.getByRole('button', { name: 'Première installation', exact: true }).click()
-    await expect(page.getByRole('link', { name: 'Configurer SideStore pas à pas' })).toHaveAttribute('href', '/installation-sidestore')
+    const setupLabel = INSTALLER_RELEASE ? 'Ouvrir l’installation Nanashi' : 'Configurer SideStore pas à pas'
+    await expect(page.getByRole('link', { name: setupLabel })).toHaveAttribute('href', INSTALLER_RELEASE ? '/installation-nanashi' : '/installation-sidestore')
+    if (INSTALLER_RELEASE) await expect(page.getByRole('link', { name: 'Conserver le parcours SideStore existant' })).toHaveAttribute('href', '/installation-sidestore')
     const action = page.getByRole('link', { name: 'Installer / mettre à jour Nanashi', exact: true })
     await expect(action).not.toBeVisible()
     await page.getByRole('button', { name: 'J’ai déjà SideStore' }).click()
     await expect(action).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Configurer SideStore pas à pas' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: setupLabel })).toHaveCount(0)
     await expect(page.locator('a[href*="docs.sidestore.io"]')).toHaveCount(0)
   })
 })

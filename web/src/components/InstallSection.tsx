@@ -3,29 +3,14 @@ import { ArrowDownToLine, ArrowRight, ArrowUpRight, Check, ChevronDown, Copy, Re
 import { Eyebrow, GlassLink, GlassPanel } from './Glass'
 import { PlatformTabs } from './PlatformTabs'
 import type { Platform } from './PlatformTabs'
-import { fetchCatalogue, readableSize, REPOSITORY } from '../lib/releases'
-import type { Artifact, Catalogue } from '../lib/releases'
-import { androidVersionLabel, detectPhonePlatform, sideStoreInstallURL } from '../lib/installation'
+import { readableSize, REPOSITORY } from '../lib/releases'
+import type { Artifact } from '../lib/releases'
+import { useCatalogue } from '../lib/useCatalogue'
+import { altStoreInstallURL, androidVersionLabel, detectPhonePlatform, sideStoreInstallURL } from '../lib/installation'
+import { SETUP_AUTOMATION_URL } from '../lib/sidestoreSetup'
+import { INSTALLER_RELEASE } from '../lib/installerRelease'
 
-type CatalogueState = { status: 'loading' } | { status: 'ready'; data: Catalogue } | { status: 'error' }
-type IOSPath = 'ready' | 'first'
-
-function useCatalogue() {
-  const [state, setState] = useState<CatalogueState>({ status: 'loading' })
-  const [attempt, setAttempt] = useState(0)
-  useEffect(() => {
-    const controller = new AbortController()
-    let active = true
-    setState({ status: 'loading' })
-    const timer = window.setTimeout(() => controller.abort(), 12_000)
-    fetchCatalogue(controller.signal).then(data => {
-      if (active) setState({ status: 'ready', data })
-    }).catch(() => { if (active) setState({ status: 'error' }) })
-      .finally(() => window.clearTimeout(timer))
-    return () => { active = false; controller.abort(); window.clearTimeout(timer) }
-  }, [attempt])
-  return { state, retry: () => setAttempt(value => value + 1) }
-}
+type IOSPath = 'ready' | 'altstore' | 'first'
 
 function CopyValue({ value, label }: { value: string; label: string }) {
   const [message, setMessage] = useState('')
@@ -61,7 +46,10 @@ export function InstallSection() {
   const release = data?.latest
   const artifact = platform === 'ios' ? release?.ios : release?.android
   const source = data?.sideStore
-  const installURL = release?.ios ? sideStoreInstallURL(release.ios.downloadURL) : null
+  const firstSetup = platform === 'ios' && iosPath === 'first'
+  const usingAltStore = iosPath === 'altstore' || (iosPath === 'first' && INSTALLER_RELEASE !== null)
+  const manager = usingAltStore ? 'AltStore' : 'SideStore'
+  const installURL = release?.ios ? (usingAltStore ? altStoreInstallURL : sideStoreInstallURL)(release.ios.downloadURL) : null
   const onPlatformChange = (next: Platform) => { setPlatform(next); setStarted(null); setHelpOpen(false) }
   const onPathChange = (next: IOSPath) => { setIOSPath(next); setStarted(null) }
 
@@ -71,14 +59,14 @@ export function InstallSection() {
     </GlassLink>
     : phone === null ? <GlassLink className="primary install-primary" href="#ouvrir-sur-telephone">
       Continuer sur mon téléphone <Smartphone size={18} aria-hidden="true" />
-    </GlassLink> : <p className="other-phone-guidance">Ouvrez cette page sur un iPhone pour installer Nanashi avec SideStore.</p>)
+    </GlassLink> : <p className="other-phone-guidance">Ouvrez cette page sur un iPhone pour installer Nanashi avec {manager}.</p>)
 
   return <section className="install-section section" id="installer" aria-labelledby="install-heading">
     <div className="section-heading">
       <div><Eyebrow>À vous de jouer</Eyebrow><h2 id="install-heading">Installez Nanashi.<br /><span>Gardez votre rythme.</span></h2></div>
-      <p>{phone ? 'Votre app, en quelques gestes.' : <>Ouvrez cette page sur votre téléphone.<br />Le code à scanner est juste ici.</>}</p>
+      <p>{firstSetup ? 'Commencez sur votre ordinateur. Un QR code vous guidera ensuite sur l’iPhone.' : phone ? 'Votre app, en quelques gestes.' : <>Ouvrez cette page sur votre téléphone.<br />Le code à scanner est juste ici.</>}</p>
     </div>
-    <GlassPanel className={`install-panel ${phone ? 'install-panel-phone' : ''}`}>
+    <GlassPanel className={`install-panel ${phone || firstSetup ? 'install-panel-phone' : ''}`}>
       <div className="install-choice">
         <PlatformTabs value={platform} onChange={onPlatformChange} />
         <div id={`panel-${platform}`} role="tabpanel" aria-labelledby={`tab-${platform}`} tabIndex={0} className="platform-panel">
@@ -92,18 +80,23 @@ export function InstallSection() {
           </div>
 
           {platform === 'ios' && <>
-            <div className="setup-choice" role="group" aria-label="Votre installation SideStore">
+            <div className="setup-choice" role="group" aria-label="Votre installation iPhone">
               <button type="button" aria-pressed={iosPath === 'ready'} onClick={() => onPathChange('ready')}>J’ai déjà SideStore</button>
+              <button type="button" aria-pressed={iosPath === 'altstore'} onClick={() => onPathChange('altstore')}>J’ai déjà AltStore</button>
               <button type="button" aria-pressed={iosPath === 'first'} onClick={() => onPathChange('first')}>Première installation</button>
             </div>
-            {iosPath === 'ready' ? <div className="quick-install">
+            {iosPath !== 'first' ? <div className="quick-install">
               <p className="installation-instruction"><Wifi size={18} aria-hidden="true" /><span>Connectez l’iPhone à un réseau Wi-Fi et activez LocalDevVPN, puis lancez l’installation.</span></p>
               {installAction}
-              <p className="next-step">Dans SideStore, touchez « Install ». Gardez le widget si demandé. Ne désinstallez pas Nanashi.</p>
+              <p className="next-step">Dans {manager}, touchez « Install ». Gardez le widget si demandé. Ne désinstallez pas Nanashi.</p>
+              <a className="text-link" href={iosPath === 'altstore' ? '/installation-nanashi?step=refresh#installation-etape' : SETUP_AUTOMATION_URL}>{iosPath === 'altstore' ? 'Après l’installation : vérifier le renouvellement' : 'Après l’installation : ajouter le raccourci automatique'}<ArrowRight size={16} aria-hidden="true" /></a>
+              {iosPath === 'ready' && INSTALLER_RELEASE && <a className="text-link" href="/installation-nanashi">SideStore bloque sur −80045 ? Le nouveau parcours Nanashi<ArrowRight size={16} aria-hidden="true" /></a>}
             </div> : <div className="first-install" aria-label="Première installation sur iPhone">
               <p className="setup-intro">On vous accompagne ici, en français, une étape à la fois. Préparez un Mac ou un PC Windows, le câble de l’iPhone et votre compte Apple.</p>
-              <GlassLink className="primary install-primary" href="/installation-sidestore">Configurer SideStore pas à pas <ArrowRight size={18} aria-hidden="true" /></GlassLink>
+              <GlassLink className="primary install-primary" href={INSTALLER_RELEASE ? '/installation-nanashi' : '/installation-sidestore'}>{INSTALLER_RELEASE ? 'Ouvrir l’installation Nanashi' : 'Configurer SideStore pas à pas'} <ArrowRight size={18} aria-hidden="true" /></GlassLink>
+              {INSTALLER_RELEASE && <p className="next-step">Nouveau parcours en prévisualisation · iOS 17.4 minimum.</p>}
               <p className="next-step">Tous les boutons de téléchargement et les réglages à suivre sont réunis sur notre site. Aucune documentation à parcourir.</p>
+              {INSTALLER_RELEASE && <a className="text-link" href="/installation-sidestore">Conserver le parcours SideStore existant<ArrowRight size={16} aria-hidden="true" /></a>}
             </div>}
           </>}
 
@@ -114,23 +107,23 @@ export function InstallSection() {
           </div>}
 
           {started === platform && <div className="installation-followup" role="status">
-            <strong>{platform === 'ios' ? 'Dans SideStore, touchez « Install ».' : 'Ouvrez le fichier téléchargé sur votre téléphone Android.'}</strong>
+            <strong>{platform === 'ios' ? `Dans ${manager}, touchez « Install ».` : 'Ouvrez le fichier téléchargé sur votre téléphone Android.'}</strong>
             <p>{platform === 'ios' ? 'Si le widget est proposé, choisissez « Keep App Extensions (Register App ID for Each Extension) ».' : 'Autorisez votre navigateur à installer Nanashi si Android le demande, puis confirmez.'}</p>
-            <button type="button" className="text-button" onClick={() => setHelpOpen(true)}>{platform === 'ios' ? 'SideStore ne s’ouvre pas ?' : 'Besoin d’aide ?'} <ArrowRight size={16} aria-hidden="true" /></button>
+            <button type="button" className="text-button" onClick={() => setHelpOpen(true)}>{platform === 'ios' ? `${manager} ne s’ouvre pas ?` : 'Besoin d’aide ?'} <ArrowRight size={16} aria-hidden="true" /></button>
           </div>}
 
           <details className="update-help">
             <summary><ShieldCheck size={17} aria-hidden="true" /><span>Avant de mettre à jour</span><ChevronDown size={16} aria-hidden="true" /></summary>
-            <p>{platform === 'ios' ? 'Gardez la copie actuelle de Nanashi et le même compte SideStore. Ne désinstallez pas l’app. Exportez une sauvegarde récente de votre historique avant la mise à jour.' : 'Gardez votre copie Nanashi installée et exportez une sauvegarde récente. Si vous venez de NOOP ou d’un autre téléphone, importez cette sauvegarde dans Nanashi : le transfert n’est pas automatique.'}</p>
+            <p>{platform === 'ios' ? 'Gardez la copie actuelle de Nanashi et le même compte Apple. Ne désinstallez pas l’app. Exportez une sauvegarde récente de votre historique avant la mise à jour. Si vous utilisez AltStore, laissez la randomisation des identifiants désactivée.' : 'Gardez votre copie Nanashi installée et exportez une sauvegarde récente. Si vous venez de NOOP ou d’un autre téléphone, importez cette sauvegarde dans Nanashi : le transfert n’est pas automatique.'}</p>
           </details>
           <details className="install-help" open={helpOpen} onToggle={event => setHelpOpen(event.currentTarget.open)}>
             <summary>Autres options et aide <ChevronDown size={16} aria-hidden="true" /></summary>
             {platform === 'ios' && <>
-              <h4>SideStore ne s’ouvre pas</h4><p>Si SideStore n’est pas encore configurée, choisissez « Première installation ». Si elle est déjà prête, ouvrez cette page dans Safari et réessayez. Le lien doit être ouvert sur l’iPhone.</p>
-              <GlassLink href="/installation-sidestore">Installation SideStore : le guide Nanashi <ArrowRight size={16} aria-hidden="true" /></GlassLink>
-              {source && <><h4>Retrouver les prochaines versions</h4><p>Vous pouvez aussi ajouter la source Nanashi à SideStore. Dans SideStore → Sources → +, collez cette adresse :</p><CopyValue value={source.sourceURL} label="Copier l’adresse de la source SideStore" />
-                {phone === 'ios' && <GlassLink href={source.addSourceURL}>Ajouter la source à SideStore <ArrowUpRight size={16} aria-hidden="true" /></GlassLink>}</>}
-              <h4>Renouvellement automatique</h4><p>Avec un compte Apple gratuit, la signature dure 7 jours. Le renouvellement SideStore dépend du Wi-Fi, du VPN local et des services Apple. Votre raccourci habituel reste inchangé ; renouveler la signature n’installe pas automatiquement une nouvelle version de Nanashi.</p>
+              <h4>{manager} ne s’ouvre pas</h4><p>Si {manager} n’est pas encore configuré, choisissez « Première installation ». Sinon, ouvrez cette page dans Safari et réessayez. Le lien doit être ouvert sur l’iPhone.</p>
+              <GlassLink href={usingAltStore ? '/installation-nanashi' : '/installation-sidestore'}>Installation {manager} : le guide Nanashi <ArrowRight size={16} aria-hidden="true" /></GlassLink>
+              {source && <><h4>Retrouver les prochaines versions</h4><p>Vous pouvez aussi ajouter la source Nanashi à {manager}. Dans {manager} → Sources → +, collez cette adresse :</p><CopyValue value={source.sourceURL} label={`Copier l’adresse de la source ${manager}`} />
+                {phone === 'ios' && <GlassLink href={usingAltStore ? `altstore-classic://source?url=${encodeURIComponent(source.sourceURL)}` : source.addSourceURL}>Ajouter la source à {manager} <ArrowUpRight size={16} aria-hidden="true" /></GlassLink>}</>}
+              <h4>Renouvellement automatique</h4><p>Avec un compte Apple gratuit, la signature dure 7 jours. Le renouvellement {manager} dépend du Wi-Fi, du VPN local et des services Apple. {usingAltStore ? 'Activez Background Refresh dans AltStore et l’actualisation en arrière-plan dans iOS. Un ancien raccourci SideStore ne renouvelle pas AltStore.' : 'Votre raccourci habituel reste inchangé.'} Renouveler la signature n’installe pas automatiquement une nouvelle version de Nanashi.</p>
             </>}
             {platform === 'android' && <><h4>Android bloque l’installation ?</h4><p>Autorisez l’installation depuis votre navigateur dans les réglages du téléphone, puis rouvrez le fichier téléchargé. Un appareil géré par une entreprise peut interdire cette installation.</p></>}
             {artifact && <><h4>Fichier et vérification</h4><a className="text-link" href={artifact.downloadURL}>Télécharger le fichier {platform === 'ios' ? 'IPA' : 'APK'} <ArrowDownToLine size={16} aria-hidden="true" /></a><ArtifactDetails artifact={artifact} /></>}
@@ -138,7 +131,7 @@ export function InstallSection() {
           </details>
         </div>
       </div>
-      {!phone && <aside className="phone-handoff" id="ouvrir-sur-telephone" aria-labelledby="handoff-heading">
+      {!phone && !firstSetup && <aside className="phone-handoff" id="ouvrir-sur-telephone" aria-labelledby="handoff-heading">
         <span className="handoff-icon"><Smartphone size={23} aria-hidden="true" /></span>
         <h3 id="handoff-heading">Continuez sur votre téléphone.</h3>
         <p>Ouvrez l’appareil photo de votre téléphone et scannez ce code.</p>

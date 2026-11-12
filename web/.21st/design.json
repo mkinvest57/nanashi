@@ -21,7 +21,12 @@
     ],
     "assets": [
       "public/icon.png",
-      "public/app-preview.jpg"
+      "public/app-preview.jpg",
+      "public/install-qr.svg",
+      "public/sidestore-setup-qr.svg",
+      "public/sidestore-iphone-qr.svg",
+      "public/sidestore-automation-qr.svg",
+      "public/nanashi-iphone-qr.svg"
     ],
     "instructions": [
       "../AGENTS.md",
@@ -85,13 +90,17 @@
       "reason": "Retain cold-glass character with small runtime and stable keyboard interactions."
     },
     {
-      "decision": "Prioritize a direct SideStore install link for returning iPhone users; separate one-time setup from updates. Detect the phone platform with a manual override, keep technical options collapsed, and hand desktop visitors to a QR plus a copyable link.",
+      "decision": "Prioritize a direct install link for returning iPhone users with an explicit SideStore or AltStore choice; separate initial setup from updates. Detect the phone platform with a manual override, keep technical options collapsed, and hand desktop visitors to a QR plus a copyable link.",
       "reason": "The user found installation too complicated. Reuse the existing 21st-derived glass surfaces and controls without an onboarding library or claims that the browser can detect installation success.",
       "grounding": "Reviewed search results Minimal Welcome Onboarding 29517, Onboarding Checklist 5587 and Onboarding Steps with Progress 29458. No code was retrieved or incorporated from these results; the installed GlassPanel, GlassLink and PlatformTabs primitives remain the component sources."
     },
     {
-      "decision": "Keep first-time SideStore setup on a dedicated French Nanashi page with six revisitable steps, direct official downloads and browser-local progress.",
+      "decision": "Keep SideStore setup on a dedicated French Nanashi page with seven revisitable stages: computer, USB connection, SideStore installation, iPhone preparation, first renewal, Nanashi installation and renewal automation. Provide direct official downloads and browser-local user confirmations.",
       "reason": "The user rejects external documentation handoffs; preserve existing 21st-derived glass primitives and make each action explicit without claiming native installation detection."
+    },
+    {
+      "decision": "Add a separate five-stage Nanashi Installer guide: computer bootstrap, iPhone authorization, local connection, Nanashi installation and renewal verification. Offer published installer packages only after validation; retain the SideStore path. The installer QR opens https://nanashi-mk.vercel.app/installation-nanashi?step=iphone#installation-etape at the second stage.",
+      "reason": "Distinguish AltStore bootstrap from actual Nanashi installation. Keep native account entry, confirmations and renewal checks explicit, preserve existing apps, and avoid claims of unattended or permanent Apple signing. The shared link selects a stage without transferring or confirming browser-local progress."
     }
   ],
   "evidence": [],
