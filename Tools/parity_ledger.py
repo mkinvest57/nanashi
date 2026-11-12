@@ -669,6 +669,7 @@ def _required_arity(masked: str, opening: int) -> int:
 SWIFT_FUNC = re.compile(
     r"\bfunc\s+(`?[A-Za-z_][A-Za-z0-9_]*`?|[=!<>+\-*/%&|^~?.]+)\s*(?:<[^\n{}()]*>\s*)?\("
 )
+SWIFT_FIRST_ARGUMENT_LABEL = re.compile(r"\s*(`?[A-Za-z_][A-Za-z0-9_]*`?)\s*:")
 KOTLIN_FUNC = re.compile(
     r"\bfun\s+(?:<[^\n{}()]*>\s*)?([^\n{}()=]+?)\s*\("
 )
@@ -1915,6 +1916,10 @@ def _call_sites(
             continue
         declarations = snapshot.functions(root, path, language)
         declaration_openings = {item.opening for item in declarations}
+        local_labelled_signatures = {
+            (item.name, item.arity, item.owner, item.parameter_labels[0])
+            for item in declarations if language == "swift" and item.parameter_labels
+        }
         spans = _type_spans(masked, language)
         fallback_owner = path.stem.replace("+Trace", "Trace")
         for match in re.finditer(r"\b(`?[A-Za-z_][A-Za-z0-9_]*`?)\s*\(", masked):
@@ -1934,6 +1939,19 @@ def _call_sites(
                 # `burst.codesWithTimes(...)`: the receiver is an instance variable; its
                 # type is not recoverable lexically, so resolve like an unqualified call.
                 owner = None
+            first_label = (
+                SWIFT_FIRST_ARGUMENT_LABEL.match(masked, opening + 1)
+                if language == "swift" else None
+            )
+            # An unqualified call can resolve to a member of an excluded app type. Bind that
+            # known local signature before the governed inventory's global-name fallback can
+            # falsely lend its usage to an unrelated package method such as OuraUserInfo.clear(_:).
+            # Instance receivers and omitted defaults remain conservative: their type/signature
+            # is not established by the same-file, exact-arity, labelled-member evidence here.
+            if receiver_match is None and first_label and (
+                match.group(1).strip("`"), arity, lexical_owner, first_label.group(1).strip("`")
+            ) in local_labelled_signatures:
+                owner = lexical_owner
             calls[language].append(
                 CallSite(match.group(1).strip("`"), arity, owner, _relative(root, path), lexical_owner)
             )

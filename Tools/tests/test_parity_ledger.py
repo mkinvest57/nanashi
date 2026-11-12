@@ -920,6 +920,82 @@ fun production() = Roller.roll(1)
         )
         self.assertNotIn("Roller.roll/3", texts)
 
+    def test_swift_same_file_app_helper_shadows_governed_package_function(self) -> None:
+        self.write_clean_tree()
+        self.swift.write_text(
+            "public enum Engine {\n"
+            "  public static func clear(_ value: Int) {}\n"
+            "  public static func clearField(field: Int) {}\n"
+            "}\n"
+        )
+        caller = self.root / "Strand/AI/Presence.swift"
+        caller.parent.mkdir(parents=True)
+        caller.write_text(
+            "final class Presence {\n"
+            "  func clear(removeCache: Bool) {}\n"
+            "  func clearField(removeCache: Bool) {}\n"
+            "  func synchronize() { clear(removeCache: true); clearField(removeCache: true) }\n"
+            "}\n"
+        )
+        test_path = self.root / "StrandTests/EngineTests.swift"
+        test_path.parent.mkdir(parents=True)
+        test_path.write_text("func testClear() { Engine.clear(1); Engine.clearField(field: 1) }\n")
+        texts = "\n".join(
+            item.text for item in self.findings() if item.rule == "test-only-callsite"
+        )
+        self.assertIn("Engine.clear/1", texts)
+        self.assertIn("Engine.clearField/1", texts)
+
+    def test_swift_instance_receiver_does_not_bind_to_same_file_app_helper(self) -> None:
+        self.write_clean_tree()
+        self.swift.write_text(
+            "public enum Engine { public static func clear(removeCache: Bool) {} }\n"
+        )
+        caller = self.root / "Strand/AI/Presence.swift"
+        caller.parent.mkdir(parents=True)
+        caller.write_text(
+            "final class Presence {\n"
+            "  func clear(removeCache: Bool) {}\n"
+            "  func synchronize() { engine.clear(removeCache: true) }\n"
+            "}\n"
+        )
+        test_path = self.root / "StrandTests/EngineTests.swift"
+        test_path.parent.mkdir(parents=True)
+        test_path.write_text("func testClear() { Engine.clear(removeCache: true) }\n")
+        texts = "\n".join(
+            item.text for item in self.findings() if item.rule == "test-only-callsite"
+        )
+        self.assertNotIn("Engine.clear/1", texts)
+
+    def test_swift_known_labels_match_and_omitted_defaults_remain_conservative(self) -> None:
+        self.write_clean_tree()
+        self.swift.write_text(
+            "public enum Engine {\n"
+            "  public static func labelled(value: Int) {}\n"
+            "  public static func unlabeled(_ value: Int) {}\n"
+            "  public static func defaults(first: Int = 0, second: Int) {}\n"
+            "  public static func escaped(`repeat` value: Int) {}\n"
+            "}\n"
+        )
+        caller = self.root / "Strand/Callers.swift"
+        caller.parent.mkdir(parents=True)
+        caller.write_text(
+            "func production() {\n"
+            "  Engine.labelled(value: 1)\n"
+            "  Engine.unlabeled(1)\n"
+            "  Engine.defaults(second: 1)\n"
+            "  Engine.escaped(`repeat`: 1)\n"
+            "}\n"
+        )
+        test_path = self.root / "StrandTests/EngineTests.swift"
+        test_path.parent.mkdir(parents=True)
+        test_path.write_text(caller.read_text().replace("production", "testIt"))
+        texts = "\n".join(
+            item.text for item in self.findings() if item.rule == "test-only-callsite"
+        )
+        for declaration in ("Engine.labelled/1", "Engine.unlabeled/1", "Engine.defaults/2", "Engine.escaped/1"):
+            self.assertNotIn(declaration, texts)
+
     def test_call_cannot_omit_required_parameters(self) -> None:
         self.kotlin.write_text(
             """object Roller { fun roll(rr: Int, windowSec: Int, stepSec: Int) = rr + windowSec + stepSec }

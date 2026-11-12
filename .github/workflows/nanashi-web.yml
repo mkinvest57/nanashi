@@ -1,0 +1,38 @@
+name: Nanashi website and catalogue
+on:
+  push:
+    branches: [main]
+    paths: ['web/**', 'firebase/**', 'firebase.json', '.github/workflows/nanashi-web.yml']
+  pull_request:
+    paths: ['web/**', 'firebase/**', 'firebase.json', '.github/workflows/nanashi-web.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            firebase/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Verify website
+        run: |
+          npm ci --prefix web
+          npm test --prefix web
+          npm run build --prefix web
+      - name: Verify catalogue security rules without production access
+        run: |
+          npm ci --prefix firebase
+          npx -y firebase-tools@15.36.0 emulators:exec --only firestore --project demo-nanashi "npm test --prefix firebase"
