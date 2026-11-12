@@ -138,7 +138,8 @@ def inspect_ios(path):
 
 def parse_android_badging(text):
     package = re.search(r"^package: name='([^']+)' versionCode='([0-9]+)' versionName='([^']+)'", text, re.M)
-    sdk = re.search(r"^sdkVersion:'([0-9]+)'", text, re.M)
+    # Recent aapt2 calls this minSdkVersion; older Android build-tools use sdkVersion.
+    sdk = re.search(r"^(?:minSdkVersion|sdkVersion):'([0-9]+)'", text, re.M)
     require(package and sdk, "aapt2 did not report package, version, and minimum SDK")
     app_id, build, version = package.groups()
     require(app_id == ANDROID_ID, "Android package must use Nanashi's permanent release identity")

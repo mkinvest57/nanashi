@@ -153,6 +153,10 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "permanent release identity"):
             release.parse_android_badging(text)
 
+    def test_android_build_tools_35_minimum_sdk_field(self):
+        current = self.native_tool("aapt2").stdout.decode().replace("sdkVersion:", "minSdkVersion:")
+        self.assertEqual(release.parse_android_badging(current)["minSDK"], 26)
+
     def test_android_debuggable_rejected(self):
         with self.assertRaisesRegex(ValueError, "Debuggable"):
             release.parse_android_badging(self.native_tool("aapt2").stdout.decode() + "application-debuggable\n")
