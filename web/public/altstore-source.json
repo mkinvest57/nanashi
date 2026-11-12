@@ -1,0 +1,46 @@
+{
+  "name": "Nanashi",
+  "identifier": "com.rayanmakhlouf.nanashi.source",
+  "sourceURL": "https://nanashi-mk.vercel.app/altstore-source.json",
+  "website": "https://nanashi-mk.vercel.app",
+  "iconURL": "https://nanashi-mk.vercel.app/icon.png",
+  "description": "Nanashi is a personal, noncommercial adaptation of NOOP by @ryanbr / NoopApp. Bluetooth collection and health history remain on the device. Source and license: https://github.com/mkinvest57/nanashi. Not affiliated with WHOOP. Required Notice: Copyright 2026 NoopApp. PolyForm Noncommercial 1.0.0.",
+  "apps": [
+    {
+      "name": "Nanashi",
+      "bundleIdentifier": "com.rayanmakhlouf.noopdev.noop",
+      "developerName": "Nanashi contributors",
+      "localizedDescription": "Nanashi is a personal, noncommercial adaptation of NOOP by @ryanbr / NoopApp. Bluetooth collection and health history remain on the device. Source and license: https://github.com/mkinvest57/nanashi. Not affiliated with WHOOP. Required Notice: Copyright 2026 NoopApp. PolyForm Noncommercial 1.0.0.",
+      "iconURL": "https://nanashi-mk.vercel.app/icon.png",
+      "versions": [
+        {
+          "version": "12.1.1",
+          "buildVersion": "446",
+          "date": "2026-11-12T02:14:08Z",
+          "localizedDescription": "First public Nanashi release. Includes the latest NOOP source integration, preserved Nanashi personalization, and a dedicated update channel. Keep the widget and the same SideStore account when updating an existing installation. See the GitHub release for changes and verification.",
+          "downloadURL": "https://github.com/mkinvest57/nanashi/releases/download/v12.1.1/Nanashi-ios-v12.1.1.ipa",
+          "size": 23767873,
+          "minOSVersion": "16.0"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [
+          "com.apple.developer.healthkit",
+          "com.apple.developer.healthkit.access",
+          "com.apple.developer.healthkit.background-delivery",
+          "com.apple.security.application-groups"
+        ],
+        "privacy": {
+          "NSBluetoothAlwaysUsageDescription": "Nanashi connects directly to your WHOOP strap over Bluetooth to read heart rate, R-R intervals, battery, and sensor data locally on your iPhone. Nothing leaves your device.",
+          "NSHealthShareUsageDescription": "Nanashi reads your own Apple Health data on-device to compute recovery, strain, and sleep. Nothing leaves your device.",
+          "NSHealthUpdateUsageDescription": "Nanashi writes the metrics it computes from your strap back into Apple Health, on-device and only when you allow it.",
+          "NSLocationWhenInUseUsageDescription": "Nanashi records your route during an outdoor workout to show distance, pace, and a map, and keeps recording while the screen is off. The route stays on your device. Nothing leaves it.",
+          "NSMicrophoneUsageDescription": "Nanashi uses the microphone to let you ask the coach a question by voice. The audio is transcribed on-device and never leaves your iPhone.",
+          "NSMotionUsageDescription": "Nanashi reads your iPhone's step count for a walking or running workout to show steps in the activity summary. It stays on your device. Nothing leaves it.",
+          "NSSpeechRecognitionUsageDescription": "Nanashi transcribes your question on-device so you can ask the coach out loud instead of typing. Audio never leaves your iPhone."
+        }
+      }
+    }
+  ],
+  "news": []
+}

@@ -1,6 +1,34 @@
 {
   "schemaVersion": 1,
-  "updatedAt": null,
+  "updatedAt": "2026-11-12T02:14:08Z",
   "repository": "https://github.com/mkinvest57/nanashi",
-  "latest": null
+  "latest": {
+    "version": "12.1.1",
+    "releaseURL": "https://github.com/mkinvest57/nanashi/releases/tag/v12.1.1",
+    "publishedAt": "2026-11-12T02:14:08Z",
+    "sourceCommit": "77017e53802e31fee2fa9f856ac3d33f63a6572d",
+    "ios": {
+      "version": "12.1.1",
+      "build": "446",
+      "bundleIdentifier": "com.rayanmakhlouf.noopdev.noop",
+      "minOSVersion": "16.0",
+      "size": 23767873,
+      "sha256": "4a37d4c25a35326130f1adca4feee81e3a226f3d0260a8d52cb3ea826d39f28c",
+      "downloadURL": "https://github.com/mkinvest57/nanashi/releases/download/v12.1.1/Nanashi-ios-v12.1.1.ipa"
+    },
+    "android": {
+      "version": "12.1.1",
+      "build": "559",
+      "applicationId": "com.rayanmakhlouf.nanashi",
+      "minSDK": 26,
+      "size": 23241226,
+      "sha256": "439fb888f1532af879223fb7887c05c17531385f3900ba18845864eec80fcd56",
+      "signingCertificateSHA256": "87939a628a4968517c0eb9aa0349404dbb16f870de888dfcdc89f3572017bd36",
+      "downloadURL": "https://github.com/mkinvest57/nanashi/releases/download/v12.1.1/Nanashi-android-v12.1.1-b559.apk"
+    }
+  },
+  "sideStore": {
+    "sourceURL": "https://nanashi-mk.vercel.app/altstore-source.json",
+    "addSourceURL": "sidestore://source?url=https%3A%2F%2Fnanashi-mk.vercel.app%2Faltstore-source.json"
+  }
 }
