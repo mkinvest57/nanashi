@@ -11,6 +11,14 @@ import { SETUP_AUTOMATION_URL } from '../lib/sidestoreSetup'
 import { INSTALLER_RELEASE } from '../lib/installerRelease'
 
 type IOSPath = 'ready' | 'altstore' | 'first'
+const pathPreference = 'nanashi.install-path.v1'
+function initialIOSPath(): IOSPath {
+  try {
+    const saved = sessionStorage.getItem(pathPreference)
+    if (saved === 'ready' || saved === 'altstore' || saved === 'first') return saved
+  } catch { /* Installation remains usable when browser storage is blocked. */ }
+  return 'first'
+}
 
 function CopyValue({ value, label }: { value: string; label: string }) {
   const [message, setMessage] = useState('')
@@ -38,7 +46,7 @@ function ArtifactDetails({ artifact }: { artifact: Artifact }) {
 export function InstallSection() {
   const [phone] = useState(() => detectPhonePlatform(navigator))
   const [platform, setPlatform] = useState<Platform>(() => phone ?? 'ios')
-  const [iosPath, setIOSPath] = useState<IOSPath>('ready')
+  const [iosPath, setIOSPath] = useState<IOSPath>(initialIOSPath)
   const [started, setStarted] = useState<Platform | null>(null)
   const [helpOpen, setHelpOpen] = useState(false)
   const { state, retry } = useCatalogue()
@@ -51,7 +59,10 @@ export function InstallSection() {
   const manager = usingAltStore ? 'AltStore' : 'SideStore'
   const installURL = release?.ios ? (usingAltStore ? altStoreInstallURL : sideStoreInstallURL)(release.ios.downloadURL) : null
   const onPlatformChange = (next: Platform) => { setPlatform(next); setStarted(null); setHelpOpen(false) }
-  const onPathChange = (next: IOSPath) => { setIOSPath(next); setStarted(null) }
+  const onPathChange = (next: IOSPath) => {
+    setIOSPath(next); setStarted(null)
+    try { sessionStorage.setItem(pathPreference, next) } catch { /* The current choice still works in memory. */ }
+  }
 
   const installAction = artifact && installURL && (phone === 'ios'
     ? <GlassLink className="primary install-primary" href={installURL} onClick={() => setStarted('ios')}>
@@ -76,14 +87,14 @@ export function InstallSection() {
             {state.status === 'loading' && <p className="muted"><RefreshCw size={16} aria-hidden="true" /> Vérification de la dernière version…</p>}
             {state.status === 'error' && <div><p>Le catalogue est momentanément inaccessible.</p><button type="button" className="text-button" onClick={retry}><RefreshCw size={16} aria-hidden="true" /> Réessayer</button></div>}
             {state.status === 'ready' && !artifact && <><span className="release-label"><span className="status-dot" /> Publication en préparation</span><p>Le téléchargement {platform === 'ios' ? 'iPhone' : 'Android'} apparaîtra dès que sa version sera publiée.</p></>}
-            {artifact && <p className="compatibility">{platform === 'ios' ? `iOS ${release?.ios?.minOSVersion} ou version ultérieure` : androidVersionLabel(release!.android!.minSDK)}</p>}
+            {artifact && <p className="compatibility">{platform === 'ios' ? firstSetup && INSTALLER_RELEASE ? 'Installation guidée : iOS 17.4 ou version ultérieure' : `Application : iOS ${release?.ios?.minOSVersion} ou version ultérieure` : androidVersionLabel(release!.android!.minSDK)}</p>}
           </div>
 
           {platform === 'ios' && <>
             <div className="setup-choice" role="group" aria-label="Votre installation iPhone">
+              <button type="button" aria-pressed={iosPath === 'first'} onClick={() => onPathChange('first')}>Première installation</button>
               <button type="button" aria-pressed={iosPath === 'ready'} onClick={() => onPathChange('ready')}>J’ai déjà SideStore</button>
               <button type="button" aria-pressed={iosPath === 'altstore'} onClick={() => onPathChange('altstore')}>J’ai déjà AltStore</button>
-              <button type="button" aria-pressed={iosPath === 'first'} onClick={() => onPathChange('first')}>Première installation</button>
             </div>
             {iosPath !== 'first' ? <div className="quick-install">
               <p className="installation-instruction"><Wifi size={18} aria-hidden="true" /><span>Connectez l’iPhone à un réseau Wi-Fi et activez LocalDevVPN, puis lancez l’installation.</span></p>
@@ -91,13 +102,13 @@ export function InstallSection() {
               <p className="next-step">Dans {manager}, touchez « Install ». Gardez le widget si demandé. Ne désinstallez pas Nanashi.</p>
               <a className="text-link" href={iosPath === 'altstore' ? '/installation-nanashi?step=refresh#installation-etape' : SETUP_AUTOMATION_URL}>{iosPath === 'altstore' ? 'Après l’installation : vérifier le renouvellement' : 'Après l’installation : ajouter le raccourci automatique'}<ArrowRight size={16} aria-hidden="true" /></a>
               {iosPath === 'ready' && INSTALLER_RELEASE && <a className="text-link" href="/installation-nanashi">SideStore bloque sur −80045 ? Le nouveau parcours Nanashi<ArrowRight size={16} aria-hidden="true" /></a>}
-            </div> : <div className="first-install" aria-label="Première installation sur iPhone">
+            </div> : artifact ? <div className="first-install" aria-label="Première installation sur iPhone">
               <p className="setup-intro">On vous accompagne ici, en français, une étape à la fois. Préparez un Mac ou un PC Windows, le câble de l’iPhone et votre compte Apple.</p>
               <GlassLink className="primary install-primary" href={INSTALLER_RELEASE ? '/installation-nanashi' : '/installation-sidestore'}>{INSTALLER_RELEASE ? 'Ouvrir l’installation Nanashi' : 'Configurer SideStore pas à pas'} <ArrowRight size={18} aria-hidden="true" /></GlassLink>
               {INSTALLER_RELEASE && <p className="next-step">Nouveau parcours en prévisualisation · iOS 17.4 minimum.</p>}
               <p className="next-step">Tous les boutons de téléchargement et les réglages à suivre sont réunis sur notre site. Aucune documentation à parcourir.</p>
               {INSTALLER_RELEASE && <a className="text-link" href="/installation-sidestore">Conserver le parcours SideStore existant<ArrowRight size={16} aria-hidden="true" /></a>}
-            </div>}
+            </div> : null}
           </>}
 
           {platform === 'android' && <div className="quick-install">

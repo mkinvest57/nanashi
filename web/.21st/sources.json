@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-11-13",
+  "scope": "Nanashi marketing website",
+  "sources": [
+    {
+      "type": "component",
+      "id": 4710,
+      "name": "Hero with Product Mockup",
+      "author": "vaib215",
+      "url": "https://21st.dev/@vaib215/components/hero-with-product-mockup",
+      "status": "active",
+      "cache": "cache/component-4710.json",
+      "adaptation": "Centered hero with two layered real app captures. Preserves layered tilted device composition; removes fabricated desktop dashboard, sample branding and stock content. Static CSS replaces Tailwind utility strings.",
+      "evidence": "Component and demo source retrieved through connected 21st MCP. Source preview for Feature 11 inspected locally; product mockup preview reviewed by the benchmark agent. Adapted implementation reviewed in desktop and mobile browsers."
+    },
+    {
+      "type": "component",
+      "id": 9679,
+      "name": "Spatial Product Showcase",
+      "author": "daiwiikharihar",
+      "url": "https://21st.dev/@daiwiikharihar/components/spatial-product-showcase",
+      "status": "active",
+      "cache": "cache/component-9679.json",
+      "adaptation": "Static orbital stage and transparent product annotation around Nanashi app previews. Omits perpetual animation, earbud sample assets, and switching product sides; no motion runtime added.",
+      "evidence": "Component and demo source retrieved through connected 21st MCP. Source preview for Feature 11 inspected locally; product mockup preview reviewed by the benchmark agent. Adapted implementation reviewed in desktop and mobile browsers."
+    },
+    {
+      "type": "component",
+      "id": 27081,
+      "name": "Feature Tab Switcher",
+      "author": "mohammadshehadeh",
+      "url": "https://21st.dev/@mohammadshehadeh/components/feature-11",
+      "status": "active",
+      "cache": "cache/component-27081.json",
+      "adaptation": "Interactive product-feature exploration with left-hand feature selectors and real app screenshots. Native keyboard tabs replace Radix dependency and fake inbox content. MIT notice retained.",
+      "evidence": "Component and demo source retrieved through connected 21st MCP. Source preview for Feature 11 inspected locally; product mockup preview reviewed by the benchmark agent. Adapted implementation reviewed in desktop and mobile browsers."
+    },
+    {
+      "type": "component",
+      "id": 26827,
+      "name": "Comparison Table",
+      "author": "mohammadshehadeh",
+      "url": "https://21st.dev/@mohammadshehadeh/components/comparison-02",
+      "status": "active",
+      "cache": "cache/component-26827.json",
+      "adaptation": "Highlighted product-column hierarchy adapted into responsive WHOOP direct-connection and Xiaomi import source panels; dense table/demo claims removed. MIT notice retained.",
+      "evidence": "Component and demo source retrieved through connected 21st MCP. Source preview for Feature 11 inspected locally; product mockup preview reviewed by the benchmark agent. Adapted implementation reviewed in desktop and mobile browsers."
+    }
+  ],
+  "existingSources": [
+    {
+      "id": 28259,
+      "url": "https://21st.dev/@educalvolpz/components/glass-card",
+      "role": "Shared optical panels",
+      "cache": "../../.21st/cache/component-28259.json"
+    },
+    {
+      "id": 4922,
+      "url": "https://21st.dev/@jahed/components/glass-button",
+      "role": "Shared CTA buttons",
+      "cache": "../../.21st/cache/component-4922.json"
+    },
+    {
+      "id": 7878,
+      "url": "https://21st.dev/@ruixen.ui/components/pill-morph-tabs",
+      "role": "Install platform tabs",
+      "cache": "../../.21st/cache/component-7878.json"
+    }
+  ],
+  "assets": [
+    {
+      "path": "public/app-preview.jpg",
+      "source": "../build/nanashi-coldglass/captures/home-dark.png",
+      "notes": "Existing, inspected synthetic app capture; no personal records."
+    },
+    {
+      "path": "public/app-sleep.jpg",
+      "source": "../build/nanashi-coldglass/captures/sleep-dark.png",
+      "notes": "Inspected synthetic simulator capture, resized to 600 px and compressed JPEG 80; unchanged screen content."
+    },
+    {
+      "path": "public/app-coach.jpg",
+      "source": "../build/nanashi-coldglass/captures/coach-dark.png",
+      "notes": "Inspected synthetic simulator capture, visibly labeled local fictitious conversation, resized to 600 px JPEG 80."
+    },
+    {
+      "path": "public/social-preview.jpg",
+      "source": "Rendered marketing page on http://127.0.0.1:4179",
+      "notes": "1200 x 630 browser capture of the same 21st-derived product hero and synthetic app screenshots. Capture-only spacing and scale adjustments; navigation and CTA controls omitted for a non-interactive social image. No generated device or bracelet imagery."
+    }
+  ],
+  "licenses": {
+    "Hirael": "hirael-LICENSE.txt (also distributed as public/licenses/hirael.txt)",
+    "other21stSources": "Preserve author/source links. Retrieved metadata supplied no individual license assertion; no invented MIT claim."
+  }
+}

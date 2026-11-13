@@ -32,9 +32,10 @@ test('unpublished versions never offer an install or a download', async ({ page 
   await expect(page.getByRole('link', { name: 'Télécharger Nanashi', exact: true })).toHaveCount(0)
 })
 
-test('computer hands off to the phone instead of launching an iOS protocol', async ({ page }) => {
+test('a returning desktop visitor can hand off without launching an iOS protocol', async ({ page }) => {
   await page.route('**/releases.json', route => route.fulfill({ json: catalogue }))
   await page.goto('/#installer')
+  await page.getByRole('button', { name: 'J’ai déjà SideStore', exact: true }).click()
   await expect(page.getByRole('link', { name: 'Continuer sur mon téléphone' })).toHaveAttribute('href', '#ouvrir-sur-telephone')
   await expect(page.getByRole('img', { name: 'Ouvrir cette page sur votre téléphone' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Copier le lien pour mon téléphone' })).toBeVisible()
@@ -105,6 +106,7 @@ test.describe('on an iPhone', () => {
     await page.route('**/releases.json', route => route.fulfill({ json: { ...catalogue, sideStore: undefined } }))
     await page.goto('/#installer')
     await expect(page.getByRole('tab', { name: 'iPhone', exact: true })).toHaveAttribute('aria-selected', 'true')
+    await page.getByRole('button', { name: 'J’ai déjà SideStore', exact: true }).click()
     await expect(page.getByRole('button', { name: 'J’ai déjà SideStore' })).toHaveAttribute('aria-pressed', 'true')
     await expect(page.getByRole('img', { name: 'Ouvrir cette page sur votre téléphone' })).toHaveCount(0)
     const action = page.getByRole('link', { name: 'Installer / mettre à jour Nanashi', exact: true })
@@ -149,4 +151,27 @@ test.describe('on Android', () => {
     await expect(page.locator('a[href^="sidestore:"]')).toHaveCount(0)
     await expect(page.locator('a[href="#ouvrir-sur-telephone"]')).toHaveCount(0)
   })
+})
+
+
+test('new visitors start with first setup and an explicit manager survives navigation', async ({ page }) => {
+  await page.route('**/releases.json', route => route.fulfill({ json: catalogue }))
+  await page.goto('/#installer')
+  await expect(page.getByRole('button', { name: 'Première installation', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('link', { name: INSTALLER_RELEASE ? 'Ouvrir l’installation Nanashi' : 'Configurer SideStore pas à pas', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'J’ai déjà AltStore', exact: true }).click()
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'J’ai déjà AltStore', exact: true })).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('blocked preference storage never prevents choosing an installation path', async ({ page }) => {
+  await page.route('**/releases.json', route => route.fulfill({ json: catalogue }))
+  await page.addInitScript(() => Object.defineProperty(window, 'sessionStorage', {
+    configurable: true,
+    get() { throw new DOMException('Blocked', 'SecurityError') },
+  }))
+  await page.goto('/#installer')
+  await expect(page.getByRole('button', { name: 'Première installation', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('button', { name: 'J’ai déjà SideStore', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'J’ai déjà SideStore', exact: true })).toHaveAttribute('aria-pressed', 'true')
 })

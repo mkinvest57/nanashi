@@ -90,8 +90,8 @@
   .ss-stage { grid-column: 1; grid-row: 2; }
   .ss-save-controls { grid-column: 1; grid-row: 3; }
   .ss-progress { margin-bottom: var(--space-3); }
-  .ss-step-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
-  .ss-step-nav button { flex-direction: column; justify-content: center; min-width: 0; padding: var(--space-2) 0; gap: 0; }
+  .ss-step-nav { flex-direction: row; gap: var(--space-2); overflow-x: auto; padding-bottom: var(--space-1); }
+  .ss-step-nav button { flex: 1 0 44px; flex-direction: column; justify-content: center; min-width: 44px; padding: var(--space-2) 0; gap: 0; }
   .ss-step-label { display: none; }
   .ss-reset { padding-block: var(--space-2); }
   .ss-stage { padding: var(--space-5); }
