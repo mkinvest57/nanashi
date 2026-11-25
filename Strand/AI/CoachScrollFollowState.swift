@@ -60,10 +60,14 @@ struct CoachScrollFollowState: Equatable {
         let viewportChanged = lastViewportHeight.map { abs($0 - viewportHeight) > 0.5 } ?? true
         let movedAway = lastDistance.map { distanceFromBottom > $0 + 1 } ?? false
         isNearBottom = distanceFromBottom <= nearBottomThreshold
-        if viewportTransitionFollow == nil && isNearBottom {
-            followsLatest = true
-        } else if viewportTransitionFollow == nil && !contentChanged && !viewportChanged && movedAway {
-            followsLatest = false
+        if viewportTransitionFollow == nil && !contentChanged && !viewportChanged {
+            // A small drag toward history can stay inside the near-bottom threshold. Keep the
+            // reader's decision until the offset actually moves back toward the latest reply.
+            if isNearBottom, let previous = lastDistance, distanceFromBottom < previous - 1 {
+                followsLatest = true
+            } else if movedAway && !isNearBottom {
+                followsLatest = false
+            }
         }
         lastDistance = distanceFromBottom
         lastContentHeight = contentHeight

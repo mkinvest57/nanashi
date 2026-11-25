@@ -429,10 +429,12 @@ struct CoachView: View {
     private var connectedHeader: some View {
         HStack(spacing: NoopMetrics.space2) {
             VStack(alignment: .leading, spacing: NoopMetrics.spaceHalf) {
-                Text(coach.isLocalDemo ? String(localized: "Local demo") : coach.provider.displayName)
-                    .font(StrandFont.subhead)
+                Text("Coach")
+                    .font(StrandFont.title2)
                     .foregroundStyle(StrandPalette.textPrimary)
-                Text(coach.isLocalDemo ? String(localized: "Synthetic conversation. No API request is sent.")
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilityIdentifier("coach.title")
+                Text(coach.isLocalDemo ? String(localized: "Local demo")
                      : coach.dataConsent ? String(localized: "Personal answers") : String(localized: "General answers"))
                     .font(StrandFont.footnote)
                     .foregroundStyle(StrandPalette.textSecondary)
@@ -517,28 +519,29 @@ struct CoachView: View {
     }
     #endif
 
-    /// Assistant Composer (#38323) supplies a growing field and one Send/Stop action. The native
-    /// compact adaptation floats over the transcript, reserving its measured height in scroll content.
     private var conversation: some View {
+        VStack(spacing: 0) {
+            connectedHeader
+                .padding(.horizontal, NoopMetrics.screenHPadding)
+                .padding(.vertical, NoopMetrics.space2)
+                .frame(maxWidth: NoopMetrics.pageMaxWidth)
+            Divider().overlay(StrandPalette.hairline)
+            transcript
+        }
+        .background(alignment: .top) {
+            ZStack(alignment: .top) {
+                StrandPalette.surfaceBase
+                liquidScaffoldSky()
+            }.ignoresSafeArea()
+        }
+    }
+
+    /// Only the transcript scrolls. The measured viewport excludes the persistent controls above.
+    private var transcript: some View {
         ScrollViewReader { proxy in
             GeometryReader { viewport in
                 ScrollView {
                     VStack(alignment: .leading, spacing: NoopMetrics.space5) {
-                        Text("Coach")
-                            .font(StrandFont.title1)
-                            .foregroundStyle(StrandPalette.textPrimary)
-                            .id("coach.top")
-                            .background(NoopDockScrollOffsetProbe())
-                        connectedHeader
-                        NanashiPresenceSettings(compact: true)
-                        if !coach.isLocalDemo {
-                            Text(coach.dataConsent
-                                 ? "Your latest available data is read again for each question."
-                                 : "Data access is off. Coach can only give general guidance.")
-                                .font(StrandFont.footnote)
-                                .foregroundStyle(StrandPalette.textSecondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
                         if coach.messages.isEmpty && !coach.sending {
                             emptyTranscript
                         }
@@ -549,7 +552,7 @@ struct CoachView: View {
                             typingIndicator
                         }
                         if let error = coach.errorText, !error.isEmpty { errorBanner(error) }
-                        if coach.keyRejected || showKeyEditor { keyRepairPanel }
+                        if coach.keyRejected || showKeyEditor { keyRepairPanel.id("coach.key-editor") }
                         if coach.canRetryLastQuestion {
                             NoopButton("Retry question", systemImage: "arrow.clockwise", kind: .secondary) {
                                 Task { await coach.retryLastQuestion() }
@@ -558,11 +561,13 @@ struct CoachView: View {
                         if !coach.sending {
                             if showFollowUpChips { followUpChips } else { suggestionChips }
                         }
-                        privacyFootnote
+                        if coach.messages.isEmpty && !coach.sending { privacyFootnote }
                         // The anchor includes the overlay reservation, so scrolling to its bottom
                         // leaves the final text above the floating composer rather than behind it.
                         Color.clear.frame(height: composerOverlayHeight).id("coach.end")
                     }
+                    .id("coach.top")
+                    .background(alignment: .top) { NoopDockScrollOffsetProbe() }
                     .padding(.horizontal, NoopMetrics.screenHPadding)
                     .padding(.vertical, NoopMetrics.space5)
                     .frame(maxWidth: NoopMetrics.pageMaxWidth)
@@ -645,11 +650,12 @@ struct CoachView: View {
                       abs(composerOverlayHeight - height) > NoopMetrics.hairlineWidth else { return }
                 composerOverlayHeight = height
             }
-            .background(alignment: .top) {
-                ZStack(alignment: .top) {
-                    StrandPalette.surfaceBase
-                    liquidScaffoldSky()
-                }.ignoresSafeArea()
+            .onChangeCompat(of: showKeyEditor) { opened in
+                guard opened else { return }
+                scrollFollow.pause()
+                pendingFollow?.cancel()
+                pendingFollow = nil
+                proxy.scrollTo("coach.key-editor", anchor: .center)
             }
             #if os(iOS)
             .onChangeCompat(of: composerFocused) { focused in

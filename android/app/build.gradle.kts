@@ -26,8 +26,8 @@ android {
         applicationId = providers.gradleProperty("nanashiApplicationId").getOrElse("com.rayanmakhlouf.nanashi")
         minSdk = 26
         targetSdk = 34
-        versionCode = providers.gradleProperty("nanashiVersionCode").map(String::toInt).getOrElse(559)
-        versionName = providers.gradleProperty("nanashiVersionName").getOrElse("12.1.1")
+        versionCode = providers.gradleProperty("nanashiVersionCode").map(String::toInt).getOrElse(560)
+        versionName = providers.gradleProperty("nanashiVersionName").getOrElse("12.1.2")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -36,6 +36,26 @@ final class CoachScrollFollowStateTests: XCTestCase {
         XCTAssertFalse(state.shouldFollow)
     }
 
+    func testSmallDragTowardHistoryIsNotUndoneByNearBottomThreshold() {
+        var state = CoachScrollFollowState()
+        _ = observe(&state, distance: 0)
+        state.beginInteraction(towardHistory: true)
+        _ = observe(&state, distance: 24)
+        state.endInteraction()
+        XCTAssertFalse(state.shouldFollow)
+        XCTAssertFalse(observe(&state, distance: 48, content: 1_024))
+        _ = observe(&state, distance: 0, content: 1_024)
+        XCTAssertTrue(state.shouldFollow)
+    }
+
+    func testShorteningResponseDoesNotMoveReaderBackToEnd() {
+        var state = CoachScrollFollowState()
+        _ = observe(&state, distance: 0)
+        _ = observe(&state, distance: 160)
+        XCTAssertFalse(observe(&state, distance: 40, content: 880))
+        XCTAssertFalse(state.shouldFollow)
+    }
+
     func testReturningNearBottomResumesForTheNextStreamGrowth() {
         var state = CoachScrollFollowState()
         _ = observe(&state, distance: 0)

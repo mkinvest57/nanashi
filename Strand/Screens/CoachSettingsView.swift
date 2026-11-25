@@ -2,8 +2,7 @@ import SwiftUI
 import StrandDesign
 
 /// Compact Coach settings: the daily remarks control stays visible, while model choice, data access,
-/// optional context, custom instructions and scheduled briefs expand only when requested. The same
-/// remarks control is reachable directly from the conversation.
+/// optional context, custom instructions and scheduled briefs expand only when requested.
 ///
 /// Connection management (the provider pill, Update key, Clear conversation, Disconnect) stays on
 /// `CoachView`, where both the conversation and the key editor are visible. The Kotlin twin
