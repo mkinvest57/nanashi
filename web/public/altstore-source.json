@@ -14,6 +14,15 @@
       "iconURL": "https://nanashi-mk.vercel.app/icon.png",
       "versions": [
         {
+          "version": "12.1.2",
+          "buildVersion": "447",
+          "date": "2026-11-25T18:08:44Z",
+          "localizedDescription": "Le titre du Coach et ses réglages restent visibles pendant la lecture. Remonter dans une conversation conserve votre position pendant une réponse.",
+          "downloadURL": "https://github.com/mkinvest57/nanashi/releases/download/v12.1.2/Nanashi-ios-v12.1.2-b447.ipa",
+          "size": 23793755,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "12.1.1",
           "buildVersion": "446",
           "date": "2026-11-12T02:14:08Z",
