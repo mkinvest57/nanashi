@@ -76,10 +76,11 @@ export default function NanashiSetup() {
               <p>Revenez dans Nanashi Installer et laissez l’étape « Votre iPhone » ouverte. La liste s’actualise automatiquement.</p></div>
             </details>
             <details className="ss-help">
-              <summary>La connexion Apple s’arrête avant le code<ChevronDown size={16} aria-hidden="true" /></summary>
+              <summary>La connexion Apple s’arrête avant le code ou affiche -22410<ChevronDown size={16} aria-hidden="true" /></summary>
               <div>
-                <p>Si le champ du mot de passe se vide, c’est normal après l’envoi. Gardez le même compte et lisez le message sous le bouton de connexion.</p>
-                <p>Si le service est indisponible ou limite les tentatives, attendez avant de réessayer. Si l’erreur persiste, communiquez uniquement le code de diagnostic affiché par Nanashi. Votre mot de passe et votre code de validation à six chiffres restent privés.</p>
+                <p>Si Nanashi affiche <strong>-22410</strong>, ouvrez <a href="https://developer.apple.com/account/" target="_blank" rel="noopener noreferrer">votre compte Apple Developer</a> avec le même compte Apple que dans l’installateur. Si Apple affiche une demande, suivez les instructions à l’écran.</p>
+                <p>Si le compte s’ouvre mais que l’installateur refuse toujours la connexion, arrêtez les tentatives. Gardez les apps et les certificats de votre autre iPhone.</p>
+                <p>Le champ du mot de passe se vide après l’envoi. Si le service est indisponible ou limite les tentatives, attendez avant de réessayer. Pour demander de l’aide, communiquez uniquement le code de diagnostic affiché par Nanashi.</p>
               </div>
             </details>
             <details className="ss-help"><summary>Vous aviez déjà installé une app avec iloader ?<ChevronDown size={16} aria-hidden="true" /></summary><div><p>Avec Nanashi Installer 0.1.2 ou plus récent, reprenez <strong>le même ordinateur et le même compte Apple</strong>. À l’étape Compte Apple, cochez <strong>« Réutiliser ma signature iloader existante » avant de vous connecter</strong>.</p><p>Cette option permet de lire la clé de signature iloader dans le trousseau de cet ordinateur et de vérifier le certificat correspondant. Continuez seulement lorsque l’installateur affiche <strong>« Signature existante vérifiée »</strong>. Dans ce mode, l’installateur bloque la création et la révocation de certificats. Si la clé manque ou ne correspond pas, la préparation s’arrête.</p><p>Une <strong>limite de certificats</strong> concerne le compte Apple : ce n’est ni le nombre d’App IDs restants ni la limite d’apps installées sur un iPhone. Supprimer SideStore d’un autre téléphone ne la résout pas. Conservez vos apps, leurs données et leurs certificats existants.</p></div></details>

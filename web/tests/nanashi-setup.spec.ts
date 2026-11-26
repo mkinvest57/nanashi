@@ -35,6 +35,18 @@ test('the first-time path offers the published package for the selected computer
   await expect(page.getByText(/version de prévisualisation/)).toBeVisible()
 })
 
+test('Apple sign-in help for -22410 links to Apple and protects the other iPhone', async ({ page }) => {
+  await page.goto(route)
+  const help = page.locator('details').filter({ has: page.locator('summary', { hasText: '-22410' }) })
+  await help.locator('summary').click()
+  const account = help.getByRole('link', { name: 'votre compte Apple Developer' })
+  await expect(account).toBeVisible()
+  await expect(account).toHaveAttribute('href', 'https://developer.apple.com/account/')
+  await expect(help).toContainText('avec le même compte Apple')
+  await expect(help).toContainText('arrêtez les tentatives')
+  await expect(help).toContainText('Gardez les apps et les certificats de votre autre iPhone')
+})
+
 test('returning to the computer stage keeps keyboard focus on its heading', async ({ page }) => {
   await page.goto(`${route}?step=iphone`)
   await expect(page.locator('#installation-etape')).toBeFocused()
